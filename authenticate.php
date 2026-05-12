@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once 'dbForLogin/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $admin_id = $_POST['admin_id'];
