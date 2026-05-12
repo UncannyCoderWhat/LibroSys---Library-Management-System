@@ -33,12 +33,10 @@
             </form>
 
             <?php
-            // Simple PHP Logic for processing login
             if (isset($_POST['login_btn'])) {
                 $adminId = $_POST['admin_id'];
                 $password = $_POST['password'];
-
-                // Replace these with your database validation logic
+                
                 if ($adminId === "admin" && $password === "1234") {
                     // header("Location: dashboard.php");
                 } else {
