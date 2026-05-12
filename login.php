@@ -2,49 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LibroSys - Admin Login</title>
+    <title>LibroSys Admin Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="top-header">
-        <div class="logo-container">
-            <img src="LibroSys.png" alt="LibroSys Logo" class="brand-logo">
+
+    <header class="main-header">
+        <div class="header-content">
+            <img src="LibroSys.png" alt="LibroSys Logo" class="logo">
         </div>
     </header>
 
-
-    <div class="login-wrapper">
-        <div class="login-card">
-            <h2>ADMIN LOGIN</h2>
-            
-            <form action="login.php" method="POST">
-                <div class="input-group">
-                    <label for="admin_id">Admin ID</label>
-                    <input type="text" name="admin_id" id="admin_id" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" name="password" id="password" required>
-                </div>
-                
-                <button type="submit" name="login_btn" class="login-button">LOGIN</button>
-            </form>
-
-            <?php
-            if (isset($_POST['login_btn'])) {
-                $adminId = $_POST['admin_id'];
-                $password = $_POST['password'];
-                
-                if ($adminId === "admin" && $password === "1234") {
-                    // header("Location: dashboard.php");
-                } else {
-                    echo "<Invalid ID or Password.";
-                }
-            }
-            ?>
-        </div>
+    <div class="login-card">
+        <h2>ADMIN LOGIN</h2>
+        <form action="authenticate.php" method="POST">
+            <div class="input-row">
+                <label>Admin ID</label>
+                <input type="text" name="admin_id" required>
+            </div>
+            <div class="input-row">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="login-btn">LOGIN</button>
+        </form>
     </div>
+
 </body>
 </html>
