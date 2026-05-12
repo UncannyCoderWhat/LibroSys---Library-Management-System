@@ -1,0 +1,24 @@
+<link rel="stylesheet" href="sidebar.css">
+
+<div class="sidebar">
+
+    <div class="nav-top">
+
+        <h2>LibroSys</h2>
+
+        <a href="dashboard.php">Dashboard</a>
+        <a href="books.php">Books</a>
+        <a href="borrowing.php">Borrowing</a>
+        <a href="borrowed.php">Borrowed Books</a>
+        <a href="users.php">Users</a>
+        <a href="settings.php">Settings</a>
+
+    </div>
+
+    <div class="nav-bottom">
+
+        <a href="logout.php">Logout</a>
+
+    </div>
+
+</div>
