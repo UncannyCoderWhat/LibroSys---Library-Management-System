@@ -14,22 +14,30 @@
         </div>
     </header>
 
-    <main class="login-wrapper">
+    <div class="login-container">
+        <div class="logo-area">
+            <h1>LibroSys</h1>
+            <p>Library Management System</p>
+        </div>
+
         <div class="login-card">
-            <h2>ADMIN LOGIN</h2>
+            <h2>Admin Login</h2>
             <form action="authenticate.php" method="POST">
-                <div class="input-row">
-                    <label>Admin ID</label>
-                    <input type="text" name="admin_id" required>
+                <div class="input-group">
+                    <label for="admin_id">Admin ID</label>
+                    <input type="text" id="admin_id" name="admin_id" placeholder="Enter your ID" required>
                 </div>
-                <div class="input-row">
-                    <label>Password</label>
-                    <input type="password" name="password" required>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 </div>
-                <button type="submit" class="login-btn">LOGIN</button>
+
+                <button type="submit" class="login-btn">Login</button>
             </form>
         </div>
-    </main>
+    </div>
+
 
 </body>
 </html>

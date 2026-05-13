@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="sidebar.css">
+<link rel="stylesheet" href="style.css">
 
 <div class="sidebar">
 
