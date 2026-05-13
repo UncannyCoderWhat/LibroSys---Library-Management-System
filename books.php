@@ -132,7 +132,7 @@
                 </div>
                 <div class="book-card" style="--accent-color: #FF6B6B">
                     <div class="book-cover">
-                        <img src="book-10.jpg" alt="To Kill a Mockingbird" width="200" height="300" />
+                        <img src="book-10.jpg" alt="A Game of Thrones" width="200" height="300" />
                     </div>
                     <div class="book-content">
                         <h3>A Game of Thrones</h3>
