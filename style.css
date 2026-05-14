@@ -123,13 +123,23 @@ body {
 .login-btn:hover {
     background-color: #e59400;
 }
-
+.exclusive h2{
+    margin-left: 150px;
+    margin-top: 150px;
+}
+.regular h2{
+    margin-left: 150px;
+    margin-top: 150px;
+}
 .book-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 180px));
+    gap: 3rem;
+    padding: 20px;
     max-width: 1000px;
-    margin: 0 auto;
+    justify-content: center;
+    margin-top: 50px;
+    margin-left: 220px;
 }
 
 .book-card {
@@ -141,7 +151,6 @@ body {
     transition: transform 0.2s;
     background: white;
     max-width: 180px;
-    margin: 0 auto;
     cursor: pointer;
 }
 
