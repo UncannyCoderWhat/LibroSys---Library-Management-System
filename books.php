@@ -11,7 +11,7 @@
     <header></header>
 
     <section class="exclusive">
-            <h2>Exclusive Books</h2>
+        <h2>Exclusive Books</h2>
             <div class="book-grid">
                 <div class="book-card" style="--accent-color: #FF6B6B">
                     <div class="book-cover">
@@ -140,6 +140,141 @@
                         <div class="book-meta">
                             <span class="genre">Fantasy</span>
                             <span class="ID">1010</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <section class="regular">
+        <h2>Regular Books</h2>
+            <div class="book-grid">
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-11.jpg" alt="The Queen of Nothing" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>The Queen of Nothing</h3>
+                        <p>Holly Black</p>
+                        <div class="book-meta">
+                            <span class="genre">Fantasy Fiction</span>
+                            <span class="ID">2001</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-12.jpg" alt="A Curse for True Love" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>A Curse for True Love</h3>
+                        <p>Stephanie Garber</p>
+                        <div class="book-meta">
+                            <span class="genre">Fantasy Fiction</span>
+                            <span class="ID">2002</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-13.jpg" alt="I Love You Since 1892" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>I Love You Since 1892</h3>
+                        <p>Binibining Mia</p>
+                        <div class="book-meta">
+                            <span class="genre">Historical</span>
+                            <span class="ID">2003</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-14.jpg" alt="Project Loki" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>Project Loki</h3>
+                        <p>Akosiibarra</p>
+                        <div class="book-meta">
+                            <span class="genre">Mystery</span>
+                            <span class="ID">2004</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-15.jpg" alt="Red Queen" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>Red Queen</h3>
+                        <p>Victoria Aveyard</p>
+                        <div class="book-meta">
+                            <span class="genre">Fantasy Romance</span>
+                            <span class="ID">2005</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-16.jpg" alt="Powerless" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>Powerless</h3>
+                        <p>Lauren Roberts</p>
+                        <div class="book-meta">
+                            <span class="genre">Fantasy Fiction</span>
+                            <span class="ID">2006</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-17.jpg" alt="The Midnight Murders" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>The Midnight Murders</h3>
+                        <p>Serialsleeper</p>
+                        <div class="book-meta">
+                            <span class="genre">Thriller</span>
+                            <span class="ID">2007</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-18.jpg" alt="The Fairfield Frightless and the Midnight Murders" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>The Fairfield Frightless and the Midnight Murders</h3>
+                        <p>Kay Solo</p>
+                        <div class="book-meta">
+                            <span class="genre">Mystery</span>
+                            <span class="ID">2008</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-19.jpg" alt="Class Zero" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>Class Zero</h3>
+                        <p>Reynald Hernandez</p>
+                        <div class="book-meta">
+                            <span class="genre">Young Adult</span>
+                            <span class="ID">2009</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-card" style="--accent-color: #FF6B6B">
+                    <div class="book-cover">
+                        <img src="book-20.jpg" alt="The Cruel Prince" width="200" height="300" />
+                    </div>
+                    <div class="book-content">
+                        <h3>The Cruel Prince</h3>
+                        <p>Holly Black</p>
+                        <div class="book-meta">
+                            <span class="genre">Fantasy Fiction</span>
+                            <span class="ID">2010</span>
                         </div>
                     </div>
                 </div>
