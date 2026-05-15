@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <header class="main-header">
+        <div class="header-content">
+            <img src="images/LibroSys.png" alt="LibroSys Logo" class="logo">
+        </div>
+    </header>
+
     <div class="login-container">
         <div class="logo-area">
             <h1>LibroSys</h1>

@@ -35,6 +35,9 @@
 
                 <button type="submit" class="login-btn">Login</button>
             </form>
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="register.php" style="color: #fca311; text-decoration: none; font-size: 0.9rem;">Admin Registration</a>
+            </div>
         </div>
     </div>
 
