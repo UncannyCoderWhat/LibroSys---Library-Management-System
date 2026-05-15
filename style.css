@@ -6,7 +6,7 @@
 }
 
 body {
-    background: url('library-background.png') no-repeat center center fixed;
+    background: url('images/library-background.png') no-repeat center center fixed;
     background-size: cover;
     height: 100vh;
     display: flex;
@@ -253,3 +253,169 @@ body {
   background: #F4B64F;
   color: #000000;
 }
+
+/* DASHBOARD STYLE START */
+.content-workspace {
+    flex: 1;
+    background-color: transparent;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 230px;
+}
+
+.dashboard-bar {
+    background-color: #f7b767;
+    border-radius: 6px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #000000;
+}
+
+.left-title, .right-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.left-title i, .right-profile i {
+    font-size: 20px;
+}
+
+.metrics-grid {
+    display: flex;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.metric-card {
+    background-color: #f7b767;
+    border-radius: 12px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    gap: 15px;
+    border: 1px solid rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+}
+
+.card-icon {
+    font-size: 36px;
+    color: #000000;
+}
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+}
+
+.card-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #000000;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.card-value {
+    font-size: 15px; /* Change nalang ng bigger font-size kapag nagana na yung pang count para di masira design */
+    font-weight: 800;
+    color: #000000;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.card-subtext {
+    font-size: 11px;
+    color: #333333;
+    font-weight: 500;
+}
+
+.activity-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #000000;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.table-wrapper {
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    background-color: #ffffff;
+}
+
+.activity-table th {
+    color: #000000;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #dcdcdc;
+}
+
+.activity-table td {
+    padding: 14px 20px;
+    color: #000000;
+    font-size: 15px;
+    font-weight: 500;
+    border-bottom: 1px solid #eef0f2;
+}
+
+.activity-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.no-data-cell {
+    text-align: center; 
+    color: #7f8c8d;
+}
+
+/* Visual Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    min-width: 100px;
+}
+
+.status-badge.borrowed {
+    background-color: #2ecc71;
+    color: #ffffff;
+}
+
+.status-badge.returned {
+    background-color: #7f8c8d;
+    color: #ffffff;
+}
+/* DASHBOARD STYLE END */

@@ -10,7 +10,7 @@
 
     <header class="main-header">
         <div class="header-content">
-            <img src="LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="images/LibroSys.png" alt="LibroSys Logo" class="logo">
         </div>
     </header>
 
