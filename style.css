@@ -6,13 +6,24 @@
 }
 
 body {
-    background: url('images/library-background.png') no-repeat center center fixed;
-    background-size: cover;
+    position: relative;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    margin: 0;
+    overflow: scroll;
+}
+
+.bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1; /* Pushes the image behind your content */
 }
 
 .main-header {
@@ -123,23 +134,37 @@ body {
 .login-btn:hover {
     background-color: #e59400;
 }
-.exclusive h2{
-    margin-left: 150px;
-    margin-top: 150px;
+
+/* BOOKS CSS - START */
+.exclusive, .regular {
+    width: 1180px;
+    height: 100vh;
 }
-.regular h2{
-    margin-left: 150px;
-    margin-top: 150px;
+
+.regular {
+    margin-top: 700px;
+    border-top: 2px solid #000000;
+    padding-top: 50px;
 }
+
+.books-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    margin-left: 985px;
+}
+
 .book-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 180px));
     gap: 3rem;
     padding: 20px;
-    max-width: 1000px;
+    max-width: 1130px;
     justify-content: center;
     margin-top: 50px;
-    margin-left: 220px;
+    margin-left: 100px;
 }
 
 .book-card {
@@ -254,7 +279,7 @@ body {
   color: #000000;
 }
 
-/* DASHBOARD STYLE START */
+/* DASHBOARD CSS - START */
 .content-workspace {
     flex: 1;
     background-color: transparent;
@@ -264,16 +289,23 @@ body {
     gap: 25px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-left: 230px;
+    margin-top: 60px;
+}
+
+.z-index {
+    position: relative;
+    background-color: #f7b767;
+    border-radius: 6px;
+    padding: 18px 20px;
+    display: flex;  
+    color: #000000;
+    align-items: center;
 }
 
 .dashboard-bar {
-    background-color: #f7b767;
-    border-radius: 6px;
-    padding: 12px 20px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     color: #000000;
+    position: absolute;
 }
 
 .left-title, .right-profile {
@@ -284,8 +316,22 @@ body {
     font-size: 16px;
 }
 
-.left-title i, .right-profile i {
-    font-size: 20px;
+.right-profile {
+    margin-left: 950px;
+}
+
+.left-title img {
+    width: 20px;
+    height: auto;
+    display: block;
+}
+
+.admin-profile img {
+    position: absolute;
+    width: 50px;
+    height: auto;
+    left: 1150px;
+    bottom: -8px;
 }
 
 .metrics-grid {
@@ -352,11 +398,12 @@ body {
 }
 
 .section-title {
+    font-family: 'Trebuchet MS';
     font-size: 18px;
     font-weight: 800;
     color: #000000;
-    border-bottom: 2px solid #000000;
-    padding-bottom: 8px;
+    border-top: 2px solid #000000;
+    padding-top: 8px;
     letter-spacing: 0.5px;
 }
 
@@ -370,7 +417,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    background-color: #ffffff;
+    background-color: #00ffff;
 }
 
 .activity-table th {
@@ -418,4 +465,4 @@ body {
     background-color: #7f8c8d;
     color: #ffffff;
 }
-/* DASHBOARD STYLE END */
+/* DASHBOARD CSS - END */

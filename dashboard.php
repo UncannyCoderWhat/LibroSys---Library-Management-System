@@ -24,7 +24,6 @@
         <div class="nav-bottom">
             <a href="login.php">Logout</a>
         </div>
-
     </div>
 
     <div class="topbar">
@@ -34,16 +33,21 @@
 
     <main class="content-workspace">
         <!-- Orange Sub-Topbar Navigation Title -->
-        <div class="dashboard-bar">
-            <div class="left-title">
-                <i class="fa-solid fa-bars"></i>
-                <span>Dashboard</span>
+        <div class="z-index">
+            <div class="dashboard-bar">
+                <div class="left-title">
+                    <img src="images/lineMenu.png" class="line-menu" alt="Menu Image">
+                    <span>Dashboard</span>
+                </div>
+                <div class="right-profile">
+                    <span>Admin</span>
+                </div>
             </div>
-            <div class="right-profile">
-                <span>Admin</span>
-                <i class="fa-solid fa-circle-user"></i>
+            <div class="admin-profile">
+                <img src="images/profile.png"alt="Admin Image">
             </div>
         </div>
+
 
         <!-- Library Analytics Summary Metrics Grid -->
         <section class="metrics-grid">

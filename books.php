@@ -29,8 +29,27 @@
     </div>
 
 
-    <section class="exclusive">
-        <h2>Exclusive Books</h2>
+    <main class="content-workspace">
+        <!-- Orange Sub-Topbar Navigation Title -->
+        <div class="z-index">
+            <div class="dashboard-bar">
+                <div class="left-title">
+                    <img src="images/lineMenu.png" class="line-menu" alt="Menu Image">
+                    <span>Books</span>
+                </div>
+                <div class="books-right">
+                    <span>Admin</span>
+                </div>
+            </div>
+            <div class="admin-profile">
+                <img src="images/profile.png" alt="Admin Image">
+            </div>
+        </div>
+
+
+        
+        <section class="exclusive">
+            <h2>Exclusive Books</h2>
             <div class="book-grid">
                 <div class="book-card" style="--accent-color: #FF6B6B">
                     <div class="book-cover">
@@ -163,9 +182,10 @@
                     </div>
                 </div>
             </div>
-    </section>
-    <section class="regular">
-        <h2>Regular Books</h2>
+        </section>
+
+        <section class="regular">
+            <h2>Regular Books</h2>
             <div class="book-grid">
                 <div class="book-card" style="--accent-color: #FF6B6B">
                     <div class="book-cover">
@@ -299,6 +319,7 @@
                 </div>
             </div>
         </section>
-    
+    </main>
+
 </body>
 </html>

@@ -8,6 +8,8 @@
 </head>
 <body>
 
+    <img src="images/library-background.png" alt="Library Background" class="bg-image">
+
     <header class="main-header">
         <div class="header-content">
             <img src="images/LibroSys.png" alt="LibroSys Logo" class="logo">
