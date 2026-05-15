@@ -1,5 +1,4 @@
 <?php
-require_once 'dashboardController.php';
 ?>
 
 <!DOCTYPE html>

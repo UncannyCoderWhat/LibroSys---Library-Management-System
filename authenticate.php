@@ -7,13 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     try {
-        global $pdo;
-
         $stmt = $pdo->prepare("SELECT * FROM admins WHERE admin_id = ?");
         $stmt->execute([$admin_id]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($admin && $password === $admin['password']) {
+        if ($admin && password_verify($password, $admin['password'])) {
             // Success! Create a session for the user
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_user'] = $admin['admin_id'];
