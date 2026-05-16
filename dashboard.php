@@ -1,6 +1,7 @@
 <?php
 // Start session to protect the admin page (assuming you use sessions)
 session_start();
+include "sidebar.php" ;
 
 // Include the database connection and the controller
 require_once 'dbForLogin/db.php';
@@ -37,17 +38,6 @@ try {
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="sidebar">
-        <div class="nav-top">
-            <a href="dashboard.php">Dashboard</a>
-            <a href="books.php">Books</a>
-            <a href="borrowing.php">Borrowing</a>
-            <a href="borrowed.php">Borrowed Books</a>
-            <a href="users.php">Users</a>
-            <a href="settings.php">Settings</a>
-        </div>
-
         <div class="nav-bottom">
             <a href="login.php">Logout</a>
         </div>
@@ -56,7 +46,6 @@ try {
     <div class="topbar">
         <img src="images/LibroSys.png" alt="Logo">
     </div>
-
 
     <main class="content-workspace">
         <!-- Orange Sub-Topbar Navigation Title -->

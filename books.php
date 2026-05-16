@@ -1,3 +1,7 @@
+<?php
+include "sidebar.php" ;
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,23 +11,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="sidebar">
-        <div class="nav-top">
-            <a href="dashboard.php">Dashboard</a>
-            <a href="books.php">Books</a>
-            <a href="borrowing.php">Borrowing</a>
-            <a href="borrowed.php">Borrowed Books</a>
-            <a href="users.php">Users</a>
-            <a href="settings.php">Settings</a>
-        </div>
-
-        <div class="nav-bottom">
-            <a href="login.php">Logout</a>
-        </div>
-
-    </div>
-
     <div class="topbar">
         <img src="images/LibroSys.png" alt="Logo">
     </div>

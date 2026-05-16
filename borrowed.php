@@ -1,9 +1,10 @@
-<?php include "sidebar.php"; ?>
+<?php 
+include "sidebar.php"; 
+?>
 
 <link rel="stylesheet" href="style.css">
 
 <div class="main-content-container">
-
 <div class="topbar">
         <img src="images/LibroSys.png" alt="Logo">
 </div>

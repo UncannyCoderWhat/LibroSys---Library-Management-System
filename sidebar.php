@@ -5,7 +5,7 @@
     <div class="nav-top">
         <a href="dashboard.php">Dashboard</a>
         <a href="books.php">Books</a>
-        <a href="borrowing.php">Borrowing</a>
+        <a href="ledger.php">Ledger</a>
         <a href="borrowed.php">Borrowed Books</a>
         <a href="users.php">Users</a>
         <a href="settings.php">Settings</a>
