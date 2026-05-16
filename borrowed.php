@@ -27,7 +27,7 @@ include "sidebar.php";
             <div class="book-info">
                 <p><strong>Title:</strong></p>
                 <p><strong>Author:</strong></p>
-                <p><strong>Type:</strong> (Exclusive/Non)</p>
+                <p><strong>Type:</strong> (Exclusive/Regular)</p>
                 <p><strong>Date Borrowed:</strong></p>
                 <p><strong>Time Borrowed:</strong></p>
                 <p><strong>Borrower ID:</strong></p>
@@ -40,7 +40,7 @@ include "sidebar.php";
             <div class="book-info">
                 <p><strong>Title:</strong></p>
                 <p><strong>Author:</strong></p>
-                <p><strong>Type:</strong> (Exclusive/Non)</p>
+                <p><strong>Type:</strong> (Exclusive/Regular)</p>
                 <p><strong>Date Borrowed:</strong></p>
                 <p><strong>Time Borrowed:</strong></p>
                 <p><strong>Borrower ID:</strong></p>
@@ -53,7 +53,7 @@ include "sidebar.php";
             <div class="book-info">
                 <p><strong>Title:</strong></p>
                 <p><strong>Author:</strong></p>
-                <p><strong>Type:</strong> (Exclusive/Non)</p>
+                <p><strong>Type:</strong> (Exclusive/Regular)</p>
                 <p><strong>Date Borrowed:</strong></p>
                 <p><strong>Time Borrowed:</strong></p>
                 <p><strong>Borrower ID:</strong></p>
