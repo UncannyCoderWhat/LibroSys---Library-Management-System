@@ -485,52 +485,54 @@ body {
     margin-top: 90px;
     margin-left: 230px;
     width: calc(100% - 230px);
-    padding: 30px;             
+    padding: 20px 30px;
     box-sizing: border-box;
 }
 
 .section-header {
-    background-color: #F4B64F;
-    height: 50px;
+    background-color: #f7b767;
+    padding: 4px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
-    border-radius: 12px;
-    font-family: Arial, sans-serif;
+    border-radius: 6px;
+    color: #000000;
+    width: 100%;
 }
 
 .header-left, .header-right {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 16px;
 }
 
 .header-left h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     color: #000000;
 }
 
 .menu-icon {
-    width: 24px;
+    width: 20px;
     height: auto;
     cursor: pointer;
 }
 
 .header-right span {
     font-weight: 700;
-    font-size: 18px;
+    font-size: 16px;
     color: #000000;
 }
 
 .profile-pic {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
-    background-color: #000;
+    display: block;
 }
 
 .borrowed-books-container{
