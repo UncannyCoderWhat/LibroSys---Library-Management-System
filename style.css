@@ -475,3 +475,87 @@ body {
     color: #ffffff;
 }
 /* DASHBOARD CSS - END */
+
+/* BORROWED CSS - START */
+.main-content-container {
+    margin-top: 90px;
+    margin-left: 230px;
+    width: calc(100% - 230px);
+    padding: 30px;             
+    box-sizing: border-box;
+}
+
+.section-header {
+    background-color: #F4B64F;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-left h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+}
+
+.menu-icon {
+    width: 24px;
+    height: auto;
+    cursor: pointer;
+}
+
+.header-right span {
+    font-weight: 700;
+    font-size: 18px;
+    color: #000000;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #000;
+}
+
+.borrowed-books-container{
+    display:flex;
+    flex-wrap:wrap;
+    gap:30px;
+    margin-top:30px;
+}
+
+.book-card{
+    width:320px;
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    display:flex;
+    gap:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    align-items:flex-start;
+}
+
+.book-card img{
+    width:90px;
+    height:130px;
+    object-fit:cover;
+}
+
+.book-info{
+    font-family:Arial,sans-serif;
+    font-size:15px;
+    line-height:1.8;
+}
+/* BORROWED CSS - END */
