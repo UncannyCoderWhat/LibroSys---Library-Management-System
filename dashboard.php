@@ -10,17 +10,17 @@ require_once 'dashboardController.php';
 try {
     // Create controller instance
     $dashboardController = new DashboardController($pdo);
-    
+
     // Get metrics data
     $metrics = $dashboardController->getDashboardMetrics();
     $totalBooks = $metrics['totalBooks'];
     $availableBooks = $metrics['availableBooks'];
     $borrowedBooks = $metrics['borrowedBooks'];
     $exclusiveBooks = $metrics['exclusiveBooks'];
-    
+
     // Get recent activities
     $activities = $dashboardController->getRecentActivities(10);
-    
+
 } catch (Exception $e) {
     error_log("Dashboard controller error: " . $e->getMessage());
     // Set default values on error so the page doesn't break
@@ -38,14 +38,6 @@ try {
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-        <div class="nav-bottom">
-            <a href="login.php">Logout</a>
-        </div>
-    </div>
-
-    <div class="topbar">
-        <img src="images/LibroSys.png" alt="Logo">
-    </div>
 
     <main class="content-workspace">
         <!-- Orange Sub-Topbar Navigation Title -->
@@ -119,11 +111,11 @@ try {
                     <tbody>
                         <?php if (!empty($activities)): ?>
                             <?php foreach ($activities as $row): ?>
-                                <?php 
+                                <?php
                                     $formattedDate = date("F d, Y", strtotime($row['borrow_date']));
                                     $statusClass   = (strtolower($row['status']) === 'borrowed') ? 'borrowed' : 'returned';
                                 ?>
-                                <tr>
+                                <tr class="activity-row">
                                     <td><?php echo htmlspecialchars($row['book_title']); ?></td>
                                     <td><?php echo htmlspecialchars($row['user_name']); ?></td>
                                     <td><?php echo htmlspecialchars($formattedDate); ?></td>

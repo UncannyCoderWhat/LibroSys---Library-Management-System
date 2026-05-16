@@ -23,24 +23,20 @@ class DashboardController {
             $stmt->execute();
             $totalBooks = $stmt->fetchColumn();
 
-            // Available Books (not borrowed or reserved)
+            // Available Books (Books that are not currently out)
             $stmt = $this->pdo->prepare("
                 SELECT COUNT(*) as total 
                 FROM books b
-                LEFT JOIN borrows br ON b.id = br.book_id 
-                    AND br.status IN ('borrowed', 'reserved')
-                WHERE b.is_deleted = 0 
-                AND br.id IS NULL
+                WHERE b.is_deleted = 0 AND b.id NOT IN (
+                    SELECT book_id FROM borrows WHERE status = 'borrowed' AND return_date IS NULL
+                )
             ");
             $stmt->execute();
             $availableBooks = $stmt->fetchColumn();
 
             // Borrowed Books (currently borrowed)
             $stmt = $this->pdo->prepare("
-                SELECT COUNT(DISTINCT book_id) as total 
-                FROM borrows 
-                WHERE status = 'borrowed' 
-                AND return_date IS NULL
+                SELECT COUNT(*) as total FROM borrows WHERE status = 'borrowed' AND return_date IS NULL
             ");
             $stmt->execute();
             $borrowedBooks = $stmt->fetchColumn();

@@ -1,5 +1,9 @@
 <link rel="stylesheet" href="style.css">
 
+<div class="topbar">
+    <img src="images/LibroSys.png" alt="Logo">
+</div>
+
 <div class="sidebar">
 
     <div class="nav-top">
@@ -15,8 +19,4 @@
         <a href="logout.php">Logout</a>
     </div>
 
-</div>
-
-<div class="topbar">
-    <img src="LibroSys.png" alt="Logo">
 </div>

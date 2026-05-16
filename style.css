@@ -1,3 +1,4 @@
+/* GLOBAL STYLES */
 * {
     margin: 0;
     padding: 0;
@@ -12,130 +13,34 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    margin: 0;
-    overflow: scroll;
+    overflow-x: hidden;
+    background-color: #f8f9fa;
 }
 
-.bg-image {
-    position: absolute;
+/* LAYOUT COMPONENTS */
+.topbar {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -1; /* Pushes the image behind your content */
-}
-
-.main-header {
-    background-color: #ffffff;
-    padding: 5px 40px;
+    height: 90px;
+    background: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); 
+    z-index: 100;
     display: flex;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    flex-shrink: 0;
+    padding-left: 20px;
 }
 
-.header-content {
-    display: flex;
-    align-items: center;
-    margin: 0;
-}
-
-.logo {
-    height: 75px;
-    width: auto;
-    display: block;
+.topbar img {
+    width: 180px;
+    height: 70px;
     object-fit: contain;
-}
-
-.login-container {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-}
-
-.logo-area {
-    text-align: center;
-    color: #ffffff;
-    margin-bottom: 30px;
-}
-
-.logo-area h1 {
-    font-size: 2.5rem;
-    color: #fca311; /* A nice modern orange/gold accent */
-    letter-spacing: 1px;
-    -webkit-text-stroke: 2px black; /* width and color */
-    color: orange; /* Text fill color */
-}
-
-.logo-area p {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    -webkit-text-stroke: 1px black; /* width and color */
-    color: white; /* Text fill color */
-}
-
-.login-card {
-    background: #ffffff;
-    padding: 40px 30px;
-    border-radius: 12px;
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
-    align-content: center;
-}
-
-.login-card h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #333333;
-    font-size: 1.5rem;
-}
-
-.input-group {
-    margin-bottom: 20px;
-}
-
-.input-group label {
     display: block;
-    margin-bottom: 8px;
-    color: #555555;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #cccccc;
-    border-radius: 8px;
-    outline: none;
-    transition: border-color 0.3s ease;
-    font-size: 1rem;
-}
-
-.input-group input:focus {
-    border-color: #fca311;
-}
-
-.login-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #fca311;
-    color: #ffffff;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    outline: none;
 }
 
-.login-btn:hover {
-    background-color: #e59400;
-}
-
-/* BOOKS CSS - START */
 .exclusive, .regular {
     width: 1180px;
     height: 100vh;
@@ -167,6 +72,215 @@ body {
     margin-left: 35px;
 }
 
+/* SEARCH & FILTER STYLES */
+.search-filter-container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+.filter-box select {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ADD BOOK FORM STYLES */
+.add-book-form {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+.form-group input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.file-input {
+    font-size: 12px;
+    color: #555;
+}
+
+.submit-btn {
+    background-color: #f7b767;
+    color: black;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #e59400;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.exclusive-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #f7b767;
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+
+/* MODAL FOOTER BUTTONS */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.delete-btn-modal {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.delete-btn-modal:hover {
+    background-color: #cc0000;
+}
+
+.edit-btn-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    color: white;
+    font-size: 24px;
+    z-index: 10;
+}
+
+.book-card:hover .edit-btn-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.edit-btn-overlay i {
+    margin: 0 10px;
+    cursor: pointer;
+    transition: color 0.2s;
+    z-index: 11;
+    padding: 10px;
+}
+
+.edit-btn-overlay i:hover {
+    color: #f7b767;
+}
+
+/* MODAL STYLES */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 12px;
+    width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.form-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.form-group-vertical label {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.form-group-vertical input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
 .book-card {
     display: flex;
     flex-direction: column;
@@ -177,6 +291,7 @@ body {
     background: white;
     max-width: 180px;
     cursor: pointer;
+    position: relative;
 }
 
 .book-card:hover {
@@ -187,6 +302,7 @@ body {
     width: 100%;
     aspect-ratio: 2/3;
     overflow: hidden;
+    position: relative;
 }
 
 
