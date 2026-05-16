@@ -101,28 +101,3 @@ class DashboardController {
         }
     }
 }
-
-// Usage in dashboard.php
-try {
-    require_once 'dbForLogin/db.php';
-
-    // Create controller instance
-    $dashboardController = new DashboardController($pdo);
-    
-    // Get metrics data
-    $metrics = $dashboardController->getDashboardMetrics();
-    $totalBooks = $metrics['totalBooks'];
-    $availableBooks = $metrics['availableBooks'];
-    $borrowedBooks = $metrics['borrowedBooks'];
-    $exclusiveBooks = $metrics['exclusiveBooks'];
-    
-    // Get recent activities
-    $activities = $dashboardController->getRecentActivities(10);
-    
-} catch (Exception $e) {
-    error_log("Dashboard controller error: " . $e->getMessage());
-    // Set default values on error
-    $totalBooks = $availableBooks = $borrowedBooks = $exclusiveBooks = 0;
-    $activities = [];
-}
-?>

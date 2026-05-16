@@ -1,4 +1,31 @@
 <?php
+// Start session to protect the admin page (assuming you use sessions)
+session_start();
+
+// Include the database connection and the controller
+require_once 'dbForLogin/db.php';
+require_once 'dashboardController.php';
+
+try {
+    // Create controller instance
+    $dashboardController = new DashboardController($pdo);
+    
+    // Get metrics data
+    $metrics = $dashboardController->getDashboardMetrics();
+    $totalBooks = $metrics['totalBooks'];
+    $availableBooks = $metrics['availableBooks'];
+    $borrowedBooks = $metrics['borrowedBooks'];
+    $exclusiveBooks = $metrics['exclusiveBooks'];
+    
+    // Get recent activities
+    $activities = $dashboardController->getRecentActivities(10);
+    
+} catch (Exception $e) {
+    error_log("Dashboard controller error: " . $e->getMessage());
+    // Set default values on error so the page doesn't break
+    $totalBooks = $availableBooks = $borrowedBooks = $exclusiveBooks = 0;
+    $activities = [];
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,13 +68,12 @@
                 </div>
                 <div class="right-profile">
                     <span>Admin</span>
+                    <div class="admin-profile">
+                        <img src="images/profile.png" alt="Admin Image">
+                    </div>
                 </div>
             </div>
-            <div class="admin-profile">
-                <img src="images/profile.png"alt="Admin Image">
-            </div>
         </div>
-
 
         <!-- Library Analytics Summary Metrics Grid -->
         <section class="metrics-grid">
@@ -129,12 +155,5 @@
             </div>
         </section>
     </main>
-
-
-
-
-
-
-    
 </body>
 </html>

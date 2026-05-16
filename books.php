@@ -39,15 +39,13 @@
                 </div>
                 <div class="books-right">
                     <span>Admin</span>
+                    <div class="admin-profile">
+                        <img src="images/profile.png" alt="Admin Image">
+                    </div>
                 </div>
-            </div>
-            <div class="admin-profile">
-                <img src="images/profile.png" alt="Admin Image">
             </div>
         </div>
 
-
-        
         <section class="exclusive">
             <h2>Exclusive Books</h2>
             <div class="book-grid">

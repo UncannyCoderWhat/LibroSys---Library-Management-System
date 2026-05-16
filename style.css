@@ -283,41 +283,41 @@ body {
 .content-workspace {
     flex: 1;
     background-color: transparent;
-    padding: 50px;
+    padding: 20px 30px;
     display: flex;
     flex-direction: column;
     gap: 25px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-left: 230px;
-    margin-top: 60px;
+    margin-top: 90px;
+    width: calc(100% - 230px);
 }
 
+/* REWRITTEN SUB-TOPBAR NAVIGATION */
 .z-index {
-    position: relative;
     background-color: #f7b767;
     border-radius: 6px;
-    padding: 18px 20px;
-    display: flex;  
-    color: #000000;
+    padding: 4px 20px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    color: #000000;
+    width: 100%;
 }
 
 .dashboard-bar {
     display: flex;
-    color: #000000;
-    position: absolute;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
-.left-title, .right-profile {
+.left-title {
     display: flex;
     align-items: center;
     gap: 12px;
     font-weight: 700;
     font-size: 16px;
-}
-
-.right-profile {
-    margin-left: 950px;
 }
 
 .left-title img {
@@ -326,16 +326,25 @@ body {
     display: block;
 }
 
+/* Container for text "Admin" and the Avatar icon */
+.books-right, .right-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 16px;
+}
+
 .admin-profile img {
-    position: absolute;
-    width: 50px;
-    height: auto;
-    left: 1150px;
-    bottom: -8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
 }
 
 .metrics-grid {
-    display: flex;
+    display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 }
@@ -377,7 +386,7 @@ body {
 }
 
 .card-value {
-    font-size: 15px; /* Change nalang ng bigger font-size kapag nagana na yung pang count para di masira design */
+    font-size: 36px; /* Change nalang ng bigger font-size kapag nagana na yung pang count para di masira design */
     font-weight: 800;
     color: #000000;
     line-height: 1;
