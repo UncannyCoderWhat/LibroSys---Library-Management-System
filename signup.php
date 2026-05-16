@@ -6,7 +6,9 @@
     <title>LibroSys - Admin Registration</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="auth-page">
+
+    <img src="images/library-background.png" alt="Library Background" class="bg-image">
 
     <header class="main-header">
         <div class="header-content">

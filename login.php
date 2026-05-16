@@ -6,7 +6,7 @@
     <title>LibroSys - Admin Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="auth-page">
 
     <img src="images/library-background.png" alt="Library Background" class="bg-image">
 
