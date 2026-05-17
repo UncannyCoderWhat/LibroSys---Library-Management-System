@@ -8,11 +8,11 @@
 </head>
 <body class="auth-page">
 
-    <img src="images/library-background.png" alt="Library Background" class="bg-image">
+    <img src="../images/library-background.png" alt="Library Background" class="bg-image">
 
     <header class="main-header">
         <div class="header-content">
-            <img src="images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="../images/LibroSys.png" alt="LibroSys Logo" class="logo">
         </div>
     </header>
 
