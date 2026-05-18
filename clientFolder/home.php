@@ -4,25 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Home</title>
-    <link rel="stylesheet" href="style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="clientstyle.css">
 </head>
 <body>
+    <img src="../images/library-background.png" alt="Library Background" class="bg-image">
+
     <header>
-        <nav class="main-nav">
-            <div class="nav-links">
-                <a href="home.php" class="active">Home</a>
-                <a href="browse.php">Browse</a>
-                <a href="profile.php">Profile</a>
-            </div>
+        <div class="client-top-bar">
+            <img src="../images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <nav class="navigation">
+                <div class="nav-links">
+                    <a href="home.php" class="active">Home</a>
+                    <a href="browse.php">Browse</a>
+                    <a href="profile.php">Profile</a>
+                </div>
         </nav>
+        </div>
     </header>
     <main>
         <section class="hero">
             <div class="hero-content">
                 <h1>Discover Your Next Chapter</h1>
                 <p>Your all-in-one digital library for browsing and borrowing books</p>
-                <button class="browse-button" onclick="window.location.href='browse.php'">Start Browsing</button>
+                <button class="b-button" onclick="window.location.href='browse.php'">Start Browsing</button>
             </div>
         </section>
     </main>
