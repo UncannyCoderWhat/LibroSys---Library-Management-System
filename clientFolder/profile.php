@@ -1,6 +1,7 @@
 <?php
 session_start();
 // Sample data lang
+$displayname = "John Batumbakal";
 $username = "John_Batumbakal"; 
 $user_id = "100-001";
 $user_status = "Regular";
@@ -38,7 +39,7 @@ $credit_score = 8;
             <div class="user-avatar-large">
                 <img src="../images/profile.png" alt="User Avatar">
             </div>
-            <h2 class="display-name">John_Batumbakal</h2>
+            <h2 class="display-name"><?php echo $displayname; ?></strong></h2>
             
             <div class="info-group">
                 <label>Username:</label>
