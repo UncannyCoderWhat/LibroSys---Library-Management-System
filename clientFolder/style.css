@@ -5,7 +5,6 @@
     box-sizing: border-box;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
-
 body {
     position: relative;
     min-height: 100vh;
@@ -16,7 +15,6 @@ body {
     overflow-x: hidden;
     background-color: #f8f9fa;
 }
-
 /* LOGIN & REGISTRATION STYLES (RESTORED) */
 .auth-page {
     justify-content: center;
