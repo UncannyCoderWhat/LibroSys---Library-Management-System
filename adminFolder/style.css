@@ -752,6 +752,11 @@ body {
     background-color: #3498db;
     color: #ffffff;
 }
+
+.status-badge.available {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green text */
+}
 /* DASHBOARD CSS - END */
 
 /* BORROWED CSS - START */

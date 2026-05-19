@@ -52,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_id'])) {
         $reservation = $resStmt->fetch();
 
         if ($reservation) {
-            $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+            $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, message, created_at) VALUES (?, ?, ?)");
             $msg = "The book '" . $borrow['title'] . "' you reserved is now available!";
-            $notifStmt->execute([$reservation['user_id'], $msg]);
+            $notifStmt->execute([$reservation['user_id'], $msg, $now]);
         }
 
         $scoreChange = $isLate ? -2 : 1;
@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_id'])) {
             'status' => 'success', 
             'message' => $isLate ? "Book returned late! Fine: ₱" . number_format($fine, 2) . ". Credit score penalized." : "Book returned on time! Credit score improved."
         ]);
+        exit();
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }

@@ -14,7 +14,7 @@ $exclusive_books = $pdo->query("
     SELECT b.*, 0 as is_borrowed 
     FROM books b 
     WHERE is_exclusive = 1 AND is_deleted = 0
-    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status = 'borrowed')
+    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status IN ('borrowed', 'reserved'))
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch Available Regular Books
@@ -22,7 +22,7 @@ $regular_books = $pdo->query("
     SELECT b.*, 0 as is_borrowed 
     FROM books b 
     WHERE is_exclusive = 0 AND is_deleted = 0
-    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status = 'borrowed')
+    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status IN ('borrowed', 'reserved'))
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch Books Borrowed by OTHERS (for Reservation section)
@@ -33,6 +33,8 @@ $borrowed_others_stmt = $pdo->prepare("
     WHERE br.status = 'borrowed' 
     AND br.user_id != ? 
     AND b.is_deleted = 0
+    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status = 'reserved')
+    GROUP BY b.id
 ");
 $borrowed_others_stmt->execute([$user_id]);
 $borrowed_books = $borrowed_others_stmt->fetchAll(PDO::FETCH_ASSOC);

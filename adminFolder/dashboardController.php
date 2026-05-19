@@ -28,7 +28,7 @@ class DashboardController {
                 SELECT COUNT(*) as total 
                 FROM books b
                 WHERE b.is_deleted = 0 AND b.id NOT IN (
-                    SELECT book_id FROM borrows WHERE status = 'borrowed' AND return_date IS NULL
+                    SELECT book_id FROM borrows WHERE status IN ('borrowed', 'reserved')
                 )
             ");
             $stmt->execute();
@@ -83,7 +83,8 @@ class DashboardController {
                 FROM borrows br
                 JOIN books b ON br.book_id = b.id
                 JOIN users u ON br.user_id = u.id 
-                WHERE b.is_deleted = 0
+                WHERE b.is_deleted = 0 
+                AND br.status != 'reserved'
                 ORDER BY br.borrow_date DESC";
             
             if ($limit) {
@@ -117,13 +118,37 @@ class DashboardController {
                         else $fine = $daysLate * 150;
                     }
                 }
+                }
                 $row['days_late'] = $daysLate;
                 $row['total_fine'] = "₱" . number_format($fine, 2);
-            }
             }
             return $results;
         } catch (PDOException $e) {
             error_log("Recent activities error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get all active reservation activities
+     */
+    public function getReservationActivities() {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    b.title as book_title, b.author,
+                    u.name as user_name,
+                    br.borrow_date as reservation_date, br.status,
+                    (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_currently_borrowed
+                FROM borrows br
+                JOIN books b ON br.book_id = b.id
+                JOIN users u ON br.user_id = u.id 
+                WHERE br.status = 'reserved' AND b.is_deleted = 0
+                ORDER BY br.borrow_date DESC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Reservation activities error: " . $e->getMessage());
             return [];
         }
     }

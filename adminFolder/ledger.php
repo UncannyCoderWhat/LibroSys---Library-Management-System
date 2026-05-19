@@ -7,6 +7,7 @@ require_once 'dashboardController.php';
 $controller = new DashboardController($pdo);
 $metrics = $controller->getDashboardMetrics();
 $activities = $controller->getRecentActivities(); // Fetches all
+$reservations = $controller->getReservationActivities(); // New dedicated fetch
 
 $currentlyBorrowedCount = $metrics['borrowedBooks'];
 ?>
@@ -94,6 +95,45 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
                         <tr>
                             <!-- Ginawang 7 ang colspan para sakop ang lahat ng columns -->
                             <td colspan="7" class="no-data-cell">No recent borrow activity found.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Reservations Table Section -->
+    <section class="ledger-table-container" style="margin-top: 50px;">
+        <h2 class="section-title">ACTIVE RESERVATIONS (WAITLIST)</h2>
+        <div class="ledger-table">
+            <table class="ledger-activity-table">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Book Title</th>
+                        <th>Reservation Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($reservations)): ?>
+                        <?php foreach ($reservations as $res): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($res['user_name']); ?></td>
+                                <td><?php echo htmlspecialchars($res['book_title']); ?></td>
+                                <td><?php echo date("F d, Y", strtotime($res['reservation_date'])); ?></td>
+                                <td> 
+                                    <?php if ($res['is_currently_borrowed'] == 0): ?>
+                                        <span class="status-badge available">Available for Pickup</span>
+                                    <?php else: ?>
+                                        <span class="status-badge reserved">Waitlisted</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="4" class="no-data-cell">No active reservations found.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

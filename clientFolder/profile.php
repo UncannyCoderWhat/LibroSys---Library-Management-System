@@ -48,9 +48,10 @@ $recordsStmt = $pdo->prepare("
 $recordsStmt->execute([$db_id]);
 $records = $recordsStmt->fetchAll();
 
-// 3.5 Fetch Reservation Records
+// 3.5 Fetch Reservation Records with Availability
 $resStmt = $pdo->prepare("
-    SELECT br.id as res_id, b.title, b.author, br.borrow_date as reservation_date
+    SELECT br.id as res_id, b.id as book_id, b.title, b.author, br.borrow_date as reservation_date,
+        (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_currently_borrowed
     FROM borrows br 
     JOIN books b ON br.book_id = b.id 
     WHERE br.user_id = ? AND br.status = 'reserved'
@@ -301,11 +302,21 @@ $credit_tooltip = ($credit_score <= 5)
                                         <td><strong><?php echo htmlspecialchars($res['title']); ?></strong></td>
                                         <td><?php echo htmlspecialchars($res['author']); ?></td>
                                         <td><?php echo date("M d, Y", strtotime($res['reservation_date'])); ?></td>
-                                        <td><span class="status-badge" style="background: #3498db; color: #fff;">Waitlisted</span></td>
                                         <td>
-                                            <button onclick="cancelReservation(<?php echo $res['res_id']; ?>)" class="remove-btn" title="Cancel Reservation">
-                                                <i class='bx bx-trash'></i>
-                                            </button>
+                                            <?php if ($res['is_currently_borrowed'] == 0): ?>
+                                                <span class="status-badge available">Available for Pickup</span>
+                                            <?php else: ?>
+                                                <span class="status-badge reserved">Waitlisted</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($res['is_currently_borrowed'] == 0): ?>
+                                                <button onclick="processAction('borrow', <?php echo $res['book_id']; ?>)" class="borrow-btn" style="padding: 8px 12px; font-size: 0.8rem;"><i class='bx bx-book-reader'></i> Borrow Now</button>
+                                            <?php else: ?>
+                                                <button onclick="cancelReservation(<?php echo $res['res_id']; ?>)" class="remove-btn" title="Cancel Reservation">
+                                                    <i class='bx bx-trash'></i>
+                                                </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -378,6 +389,27 @@ $credit_tooltip = ($credit_score <= 5)
             });
         }
 
+        function processAction(actionType, bookId) { // Simplified for profile's "Borrow Now"
+            if(!confirm("Are you sure you want to borrow this book?")) return;
+
+            const formData = new FormData();
+            formData.append('action', 'borrow'); // Always 'borrow' for this context
+            formData.append('book_id', bookId);
+            // The backend will automatically fulfill any existing reservation for this book by this user
+
+            fetch('borrow_handler.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === 'success') {
+                    window.location.reload(); // Reload to update tables
+                }
+            });
+        }
+
         function cancelReservation(resId) {
             if(!confirm("Are you sure you want to cancel this reservation?")) return;
             
@@ -403,7 +435,8 @@ $credit_tooltip = ($credit_score <= 5)
             .then(res => res.json()).then(data => {
                 alert(data.message);
                 location.reload();
-            });
+            })
+            .catch(err => alert("An error occurred while returning the book. Please check your connection."));
         }
 
         function markAsRead(id) {

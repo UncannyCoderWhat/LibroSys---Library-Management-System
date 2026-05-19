@@ -37,10 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if ($action === 'borrow') {
             // Check current availability for single borrow
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
-            $stmt->execute([$book_id]);
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved') AND user_id != ?");
+            $stmt->execute([$book_id, $user_db_id]);
             if ($stmt->fetchColumn() > 0) {
-                echo json_encode(['status' => 'error', 'message' => 'This book is currently out on loan.']);
+                echo json_encode(['status' => 'error', 'message' => 'This book is currently out on loan or held for another user.']);
                 exit();
             }
 
@@ -51,10 +51,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $insert = $pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, due_date, status) VALUES (?, ?, ?, ?, 'borrowed')");
             $insert->execute([$book_id, $user_db_id, $borrow_date, $due_date]);
 
+            // NEW: Fulfill any active reservation for this book by this user
+            $fulfillRes = $pdo->prepare("DELETE FROM borrows WHERE book_id = ? AND user_id = ? AND status = 'reserved'");
+            $fulfillRes->execute([$book_id, $user_db_id]);
+
             echo json_encode(['status' => 'success', 'message' => 'Book borrowed successfully! Due date: ' . date('M d, Y', strtotime($due_date))]);
         }
 
         if ($action === 'reserve') {
+            // Validation: Book must be currently borrowed AND not already reserved
+            $stmt = $pdo->prepare("SELECT status FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved')");
+            $stmt->execute([$book_id]);
+            $activeStatuses = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            if (!in_array('borrowed', $activeStatuses)) {
+                echo json_encode(['status' => 'error', 'message' => 'This book is currently available for rent.']);
+                exit();
+            }
+
+            if (in_array('reserved', $activeStatuses)) {
+                echo json_encode(['status' => 'error', 'message' => 'This book is already on hold for another user.']);
+                exit();
+            }
+
             // 5. Process Reservation
             $insert = $pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, status) VALUES (?, ?, ?, 'reserved')");
             $insert->execute([$book_id, $user_db_id, date('Y-m-d H:i:s')]);
@@ -94,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
             foreach ($_SESSION['borrow_cart'] as $key => $id) {
                 // Re-verify availability and credit score eligibility per book in cart
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
-                $stmt->execute([$id]);
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved') AND user_id != ?");
+                $stmt->execute([$id, $user_db_id]);
                 $isBorrowed = $stmt->fetchColumn() > 0;
 
                 $bookStmt = $pdo->prepare("SELECT is_exclusive FROM books WHERE id = ?");
