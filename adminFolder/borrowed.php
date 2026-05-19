@@ -1,6 +1,7 @@
 <?php 
+$currentPage = 'borrowed';
 include "sidebar.php"; 
-require_once 'dbForLogin/db.php';
+require_once '../dbForLogin/db.php';
 require_once 'dashboardController.php';
 
 $controller = new DashboardController($pdo);
@@ -12,17 +13,17 @@ $activeBorrows = $controller->getActiveBorrows();
 
 <div class="main-content-container">
 <div class="topbar">
-        <img src="images/LibroSys.png" alt="Logo">
+        <img src="../images/LibroSys.png" alt="Logo">
 </div>
 
 <div class="section-header">
     <div class="header-left">
-        <img src="images/lineMenu.png" class="menu-icon" alt="Menu">
+        <img src="../images/lineMenu.png" class="menu-icon" alt="Menu">
         <h2>Borrowed Books</h2>
     </div>
     <div class="header-right">
         <span>Admin</span>
-        <img src="images/profile.png" class="profile-pic" alt="Admin Profile">
+        <img src="../images/profile.png" class="profile-pic" alt="Admin Profile">
     </div>
 </div>
 
@@ -43,7 +44,7 @@ $activeBorrows = $controller->getActiveBorrows();
                      data-borrower="<?php echo strtolower(htmlspecialchars($borrow['borrower_name'])); ?>" 
                      data-id="<?php echo strtolower(htmlspecialchars($borrow['borrower_id'])); ?>">
                     
-                    <img src="<?php echo htmlspecialchars($borrow['cover_path']); ?>" alt="Cover">
+                    <img src="../<?php echo htmlspecialchars($borrow['cover_path']); ?>" alt="Cover">
 
                     <div class="book-info">
                         <p><strong>Title:</strong> <?php echo htmlspecialchars($borrow['title']); ?></p>

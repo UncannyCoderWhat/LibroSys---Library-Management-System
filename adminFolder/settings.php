@@ -1,4 +1,5 @@
 <?php
+$currentPage = 'settings';
 include 'sidebar.php';
 ?>
 
@@ -12,17 +13,17 @@ include 'sidebar.php';
 </head>
 <body>
     <div class="topbar">
-        <img src="images/LibroSys.png" alt="Logo">
+        <img src="../images/LibroSys.png" alt="Logo">
     </div>
     <div class="main-content-container">
         <div class="section-header">
             <div class="header-left">
-                <img src="images/lineMenu.png" class="menu-icon" alt="Menu">
+                <img src="../images/lineMenu.png" class="menu-icon" alt="Menu">
                 <h2>Settings</h2>
             </div>
             <div class="header-right">
                 <span>Admin</span>
-                <img src="images/profile.png" class="profile-pic" alt="Admin Profile">
+                <img src="../images/profile.png" class="profile-pic" alt="Admin Profile">
             </div>
         </div>
 

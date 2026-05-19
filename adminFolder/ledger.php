@@ -1,6 +1,7 @@
 <?php 
+$currentPage = 'ledger';
 include "sidebar.php"; 
-require_once 'dbForLogin/db.php';
+require_once '../dbForLogin/db.php';
 require_once 'dashboardController.php';
 
 $controller = new DashboardController($pdo);
@@ -15,18 +16,18 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
 
 <div class="main-content-container">
 <div class="topbar">
-        <img src="images/LibroSys.png" alt="Logo">
+        <img src="../images/LibroSys.png" alt="Logo">
 </div>
 
     <div class="section-header">
         <div class="header-left">
-            <img src="images/lineMenu.png" class="menu-icon" alt="Menu">
+            <img src="../images/lineMenu.png" class="menu-icon" alt="Menu">
             <h2>Ledger</h2>
         </div>
 
         <div class="header-right">
             <span>Admin</span>
-            <img src="images/profile.png" class="profile-pic" alt="Admin Profile">
+            <img src="../images/profile.png" class="profile-pic" alt="Admin Profile">
         </div>
     </div>
 
@@ -77,7 +78,7 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
                                 $dueDate      = !empty($row['due_date']) ? date("F d, Y", strtotime($row['due_date'])) : 'N/A';
                                 $returnDate   = !empty($row['return_date']) ? date("F d, Y", strtotime($row['return_date'])) : '---';
                                 
-                                $statusClass  = (strtolower($row['status']) === 'borrowed') ? 'borrowed' : 'returned';
+                                $statusClass  = strtolower($row['status']);
                             ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['user_name']); ?></td>

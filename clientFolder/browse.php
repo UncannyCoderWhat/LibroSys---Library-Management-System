@@ -9,21 +9,33 @@ $userStmt->execute([$user_id]);
 $userData = $userStmt->fetch();
 $current_score = $userData['credit_score'] ?? 0;
 
-// Fetch Exclusive Books
+// Fetch Available Exclusive Books
 $exclusive_books = $pdo->query("
-    SELECT b.*, 
-    (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_borrowed 
+    SELECT b.*, 0 as is_borrowed 
     FROM books b 
     WHERE is_exclusive = 1 AND is_deleted = 0
+    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status = 'borrowed')
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch Regular Books
+// Fetch Available Regular Books
 $regular_books = $pdo->query("
-    SELECT b.*, 
-    (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_borrowed 
+    SELECT b.*, 0 as is_borrowed 
     FROM books b 
     WHERE is_exclusive = 0 AND is_deleted = 0
+    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status = 'borrowed')
 ")->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch Books Borrowed by OTHERS (for Reservation section)
+$borrowed_others_stmt = $pdo->prepare("
+    SELECT b.*, 1 as is_borrowed 
+    FROM books b 
+    JOIN borrows br ON b.id = br.book_id 
+    WHERE br.status = 'borrowed' 
+    AND br.user_id != ? 
+    AND b.is_deleted = 0
+");
+$borrowed_others_stmt->execute([$user_id]);
+$borrowed_books = $borrowed_others_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) : 0;
 ?>
@@ -135,6 +147,27 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
                 <?php endforeach; ?>
             </div>
         </section>
+
+        <?php if (!empty($borrowed_books)): ?>
+        <section class="shelf-section">
+            <h2 class="shelf-title">Currently Out on Loan (Reservable)</h2>
+            <div class="book-grid-vertical shelf-grid">
+                <?php foreach ($borrowed_books as $book): ?>
+                    <div class="book-card" 
+                         onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)"
+                         data-title="<?php echo strtolower(htmlspecialchars($book['title'])); ?>" 
+                         data-author="<?php echo strtolower(htmlspecialchars($book['author'])); ?>"
+                         data-genre="<?php echo strtolower(htmlspecialchars($book['genre'])); ?>">
+                        <img src="../<?php echo htmlspecialchars($book['cover_path']); ?>" alt="Cover" class="book-cover" style="filter: grayscale(80%);">
+                        <div class="book-info">
+                            <h4><?php echo htmlspecialchars($book['title']); ?></h4>
+                            <p><?php echo htmlspecialchars($book['author']); ?></p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+        <?php endif; ?>
     </main>
 
     <div id="noBooksFoundMessage" class="no-books-found-message" style="display: none;">
@@ -156,7 +189,7 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
                     <div class="modal-actions">
                         <button class="cart-btn" onclick="processAction('add_to_cart')"><i class='bx bx-cart-add'></i> Add to Cart</button>
                         <button id="modalBorrowBtn" class="borrow-btn" onclick="processAction('borrow')"><i class='bx bx-book-reader'></i> Rent Now</button>
-                        <button id="modalReserveBtn" class="borrow-btn" style="display:none; background-color: #3498db;" onclick="processAction('reserve')">Reserve Book</button>
+                        <button id="modalReserveBtn" class="reserve-btn" style="display:none;" onclick="processAction('reserve')"><i class='bx bx-calendar-check'></i> Reserve Book</button>
                     </div>
                 </div>
             </div>
@@ -174,9 +207,11 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
 
             if (book.is_borrowed > 0) {
                 document.getElementById('modalBorrowBtn').style.display = 'none';
+                document.querySelector('.cart-btn').style.display = 'none';
                 document.getElementById('modalReserveBtn').style.display = 'block';
             } else {
                 document.getElementById('modalBorrowBtn').style.display = 'block';
+                document.querySelector('.cart-btn').style.display = 'block';
                 document.getElementById('modalReserveBtn').style.display = 'none';
             }
 

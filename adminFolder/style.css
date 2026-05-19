@@ -747,6 +747,11 @@ body {
     background-color: #7f8c8d;
     color: #ffffff;
 }
+
+.status-badge.reserved {
+    background-color: #3498db;
+    color: #ffffff;
+}
 /* DASHBOARD CSS - END */
 
 /* BORROWED CSS - START */

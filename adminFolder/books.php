@@ -1,7 +1,8 @@
 <?php
 session_start();
+$currentPage = 'books';
 include "sidebar.php" ;
-require_once 'dbForLogin/db.php';
+require_once '../dbForLogin/db.php';
 
 // 1. Handle the "Upload Book" Logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_book'])) {
@@ -10,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_book'])) {
     $isbn = $_POST['isbn'];
     $genre = $_POST['genre'];
     $is_exclusive = isset($_POST['is_exclusive']) ? 1 : 0;
-    $cover_path = 'images/book-placeholder.jpg'; // Default path
+    $cover_path = 'images/book-placeholder.jpg';
 
     // Handle file upload
     if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = 'uploads/';
+        $upload_dir = '../uploads/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
@@ -26,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_book'])) {
 
         if (in_array($image_file_type, $allowed_extensions)) {
             if (move_uploaded_file($_FILES['cover_image']['tmp_name'], $target_file)) {
-                $cover_path = $target_file;
+                $cover_path = 'uploads/' . $file_name; // Save relative to root
             }
         }
     }
@@ -53,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_book'])) {
     $cover_path = $_POST['current_cover'];
 
     if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = 'uploads/';
+        $upload_dir = '../uploads/';
         $file_name = time() . '_' . basename($_FILES['cover_image']['name']);
         $target_file = $upload_dir . $file_name;
         $image_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_book'])) {
 
         if (in_array($image_file_type, $allowed_extensions)) {
             if (move_uploaded_file($_FILES['cover_image']['tmp_name'], $target_file)) {
-                $cover_path = $target_file;
+                $cover_path = 'uploads/' . $file_name;
             }
         }
     }
@@ -109,13 +110,13 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="z-index">
             <div class="dashboard-bar">
                 <div class="left-title">
-                    <img src="images/lineMenu.png" class="line-menu" alt="Menu Image">
+                    <img src="../images/lineMenu.png" class="line-menu" alt="Menu Image">
                     <span>Books</span>
                 </div>
                 <div class="books-right">
                     <span>Admin</span>
                     <div class="admin-profile">
-                        <img src="images/profile.png" alt="Admin Image">
+                        <img src="../images/profile.png" alt="Admin Image">
                     </div>
                 </div>
             </div>
@@ -184,7 +185,7 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
                              data-genre="<?php echo strtolower(htmlspecialchars($book['genre'])); ?>"
                              data-category="<?php echo $book['is_exclusive'] ? 'exclusive' : 'regular'; ?>">
                             <div class="book-cover">
-                                <img src="<?php echo htmlspecialchars($book['cover_path']); ?>" alt="Cover" width="200" height="300" />
+                                <img src="../<?php echo htmlspecialchars($book['cover_path']); ?>" alt="Cover" width="200" height="300" />
                                 <?php if($book['is_exclusive']): ?>
                                     <div class="exclusive-badge"><i class="fa-solid fa-star"></i></div>
                                 <?php endif; ?>

@@ -1,6 +1,6 @@
 <?php
 // dashboardController.php
-require_once 'dbForLogin/db.php';
+require_once '../dbForLogin/db.php';
 
 class DashboardController {
     private $pdo;
@@ -101,10 +101,12 @@ class DashboardController {
                 $daysLate = 0;
                 $fine = $row['fine_amount'] ?? 0;
 
-                $endDate = $row['return_date'] ? strtotime($row['return_date']) : time();
-                $dueDate = strtotime($row['due_date']);
-
-                if ($endDate > $dueDate && $row['status'] !== 'reserved') {
+                // Only calculate fines/late days if it's not a reservation and has a due date
+                if ($row['status'] !== 'reserved' && !empty($row['due_date'])) {
+                    $endDate = $row['return_date'] ? strtotime($row['return_date']) : time();
+                    $dueDate = strtotime($row['due_date']);
+                    
+                    if ($endDate > $dueDate) {
                     $diff = $endDate - $dueDate;
                     $daysLate = ceil($diff / (60 * 60 * 24));
                     
@@ -117,6 +119,7 @@ class DashboardController {
                 }
                 $row['days_late'] = $daysLate;
                 $row['total_fine'] = "₱" . number_format($fine, 2);
+            }
             }
             return $results;
         } catch (PDOException $e) {
@@ -147,6 +150,46 @@ class DashboardController {
         } catch (PDOException $e) {
             error_log("Active borrows error: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Get total fines owed by a specific user, including live calculation for overdue borrowed books.
+     * @param int $userId The ID of the user.
+     * @return float The total fines owed.
+     */
+    public function getUserTotalFines($userId) {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    br.due_date, br.return_date, br.status, br.fine_amount
+                FROM borrows br
+                WHERE br.user_id = ?
+            ");
+            $stmt->execute([$userId]);
+            $userBorrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $totalFines = 0;
+            foreach ($userBorrows as $borrow) {
+                $fine = $borrow['fine_amount'] ?? 0; // Stored fine for returned books
+
+                // Calculate live fine for currently borrowed and overdue books
+                if ($borrow['status'] === 'borrowed' && !empty($borrow['due_date'])) {
+                    $now = time();
+                    $dueDate = strtotime($borrow['due_date']);
+                    if ($now > $dueDate) {
+                        $daysLate = ceil(($now - $dueDate) / (60 * 60 * 24));
+                        if ($daysLate <= 3) $fine = $daysLate * 50;
+                        elseif ($daysLate <= 10) $fine = $daysLate * 100;
+                        else $fine = $daysLate * 150;
+                    } else { $fine = 0; } // Not overdue yet
+                }
+                $totalFines += $fine;
+            }
+            return $totalFines;
+        } catch (PDOException $e) {
+            error_log("Error calculating total fines for user " . $userId . ": " . $e->getMessage());
+            return 0;
         }
     }
 }

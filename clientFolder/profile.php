@@ -39,14 +39,25 @@ $totalPending = $stmtPending->fetchColumn();
 
 // 3. Fetch Borrowing Records for the table
 $recordsStmt = $pdo->prepare("
-    SELECT br.id as borrow_id, b.title, b.author, br.borrow_date, br.due_date, br.return_date, br.status 
+    SELECT br.id as borrow_id, b.title, b.author, br.borrow_date, br.due_date, br.return_date, br.status, br.fine_amount 
     FROM borrows br 
     JOIN books b ON br.book_id = b.id 
-    WHERE br.user_id = ? 
+    WHERE br.user_id = ? AND br.status != 'reserved'
     ORDER BY br.borrow_date DESC
 ");
 $recordsStmt->execute([$db_id]);
 $records = $recordsStmt->fetchAll();
+
+// 3.5 Fetch Reservation Records
+$resStmt = $pdo->prepare("
+    SELECT br.id as res_id, b.title, b.author, br.borrow_date as reservation_date
+    FROM borrows br 
+    JOIN books b ON br.book_id = b.id 
+    WHERE br.user_id = ? AND br.status = 'reserved'
+    ORDER BY br.borrow_date DESC
+");
+$resStmt->execute([$db_id]);
+$resRecords = $resStmt->fetchAll();
 
 // 4. Fetch Unread Notifications
 $notifStmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC");
@@ -54,6 +65,31 @@ $notifStmt->execute([$db_id]);
 $notifications = $notifStmt->fetchAll();
 
 $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) : 0;
+$totalFinesOwed = 0; // Initialize total fines owed
+$fineItems = []; // To store items for the receipt
+
+// Pre-calculate total fines so the metric card displays the correct value
+foreach ($records as $row) {
+    $fine = $row['fine_amount'] ?? 0;
+    if ($row['status'] === 'borrowed' && !empty($row['due_date'])) {
+        $now = time();
+        $dueDate = strtotime($row['due_date']);
+        if ($now > $dueDate) {
+            $daysLate = ceil(($now - $dueDate) / (60 * 60 * 24));
+            if ($daysLate <= 3) $fine = $daysLate * 50;
+            elseif ($daysLate <= 10) $fine = $daysLate * 100;
+            else $fine = $daysLate * 150;
+        }
+    }
+
+    if ($fine > 0) {
+        $fineItems[] = [
+            'title' => $row['title'],
+            'amount' => $fine
+        ];
+    }
+    $totalFinesOwed += $fine;
+}
 
 $credit_tooltip = ($credit_score <= 5) 
     ? "Bad Standing: Your score is 5 or below, likely due to late returns. Exclusive perks are currently locked until your score improves." 
@@ -174,6 +210,20 @@ $credit_tooltip = ($credit_score <= 5)
                 </div>
             </div>
 
+            <div class="metric-card" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p class="metric-label">TOTAL FINES OWED</p>
+                    <div class="metric-body">
+                        <i class='bx bx-dollar-circle' style="font-size: 3rem; color: var(--main-color);"></i>
+                        <span class="metric-value">₱<?php echo number_format($totalFinesOwed, 2); ?></span>
+                    </div>
+                    <p class="metric-sub">Outstanding penalties</p>
+                </div>
+                <?php if ($totalFinesOwed > 0): ?>
+                    <button class="pay-btn" onclick="openReceiptModal()">PAY ALL</button>
+                <?php endif; ?>
+            </div>
+
 
             <div class="records-section">
                 <h3>RECORDS</h3>
@@ -186,12 +236,27 @@ $credit_tooltip = ($credit_score <= 5)
                                 <th>Date Borrowed</th>
                                 <th>Due Date</th>
                                 <th>Date Returned</th>
-                                <th>Fare</th>
+                                <th>Total Fine</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (!empty($records)): ?>
                                 <?php foreach ($records as $row): ?>
+                                    <?php
+                                        // Get stored fine or calculate live fine if still borrowed and overdue
+                                        $displayFine = $row['fine_amount'] ?? 0;
+                                        
+                                        if ($row['status'] === 'borrowed' && !empty($row['due_date'])) {
+                                            $now = time();
+                                            $dueDate = strtotime($row['due_date']);
+                                            if ($now > $dueDate) {
+                                                $daysLate = ceil(($now - $dueDate) / (60 * 60 * 24));
+                                                if ($daysLate <= 3) $displayFine = $daysLate * 50;
+                                                elseif ($daysLate <= 10) $displayFine = $daysLate * 100;
+                                                else $displayFine = $daysLate * 150;
+                                            }
+                                        }
+                                    ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($row['title']); ?></td>
                                         <td><?php echo htmlspecialchars($row['author']); ?></td>
@@ -204,7 +269,7 @@ $credit_tooltip = ($credit_score <= 5)
                                                 <?php echo date("M d, Y", strtotime($row['return_date'])); ?>
                                             <?php endif; ?>
                                         </td>
-                                        <td>₱0.00</td>
+                                        <td>₱<?php echo number_format($displayFine, 2); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -214,9 +279,139 @@ $credit_tooltip = ($credit_score <= 5)
                     </table>
                 </div>
             </div>
+
+            <!-- Reservations Section -->
+            <div class="records-section" style="margin-top: 30px;">
+                <h3>MY RESERVATIONS</h3>
+                <div class="table-container">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Author</th>
+                                <th>Reservation Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($resRecords)): ?>
+                                <?php foreach ($resRecords as $res): ?>
+                                    <tr>
+                                        <td><strong><?php echo htmlspecialchars($res['title']); ?></strong></td>
+                                        <td><?php echo htmlspecialchars($res['author']); ?></td>
+                                        <td><?php echo date("M d, Y", strtotime($res['reservation_date'])); ?></td>
+                                        <td><span class="status-badge" style="background: #3498db; color: #fff;">Waitlisted</span></td>
+                                        <td>
+                                            <button onclick="cancelReservation(<?php echo $res['res_id']; ?>)" class="remove-btn" title="Cancel Reservation">
+                                                <i class='bx bx-trash'></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr><td colspan="5" style="text-align:center;">No active reservations found.</td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </main>
     </div>
 
-    <script src="profile.js"></script>
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal" style="display: none;">
+        <div class="modal-content receipt-card">
+            <div class="receipt-header">
+                <img src="../images/LibroSys.png" alt="Logo" style="width: 120px; margin-bottom: 10px;">
+                <h2>PAYMENT RECEIPT</h2>
+                <p>Transaction ID: #<?php echo strtoupper(uniqid()); ?></p>
+                <p>Date: <?php echo date("M d, Y h:i A"); ?></p>
+            </div>
+            <hr class="receipt-divider">
+            <div class="receipt-body">
+                <p><strong>Billed To:</strong> <?php echo htmlspecialchars($displayname); ?></p>
+                <div class="receipt-items">
+                    <?php foreach ($fineItems as $item): ?>
+                        <div class="receipt-item">
+                            <span><?php echo htmlspecialchars($item['title']); ?> (Fine)</span>
+                            <span>₱<?php echo number_format($item['amount'], 2); ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <hr class="receipt-divider">
+            <div class="receipt-total">
+                <span>TOTAL AMOUNT</span>
+                <span>₱<?php echo number_format($totalFinesOwed, 2); ?></span>
+            </div>
+            <div class="modal-actions" style="margin-top: 30px;">
+                <button class="cart-btn" onclick="closeReceiptModal()">Cancel</button>
+                <button class="borrow-btn" onclick="confirmPayment()">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+
+        function confirmPayment() {
+            const formData = new FormData();
+            formData.append('action', 'pay_fines');
+
+            fetch('borrow_handler.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === 'success') {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function cancelReservation(resId) {
+            if(!confirm("Are you sure you want to cancel this reservation?")) return;
+            
+            const formData = new FormData();
+            formData.append('borrow_id', resId);
+            formData.append('action', 'cancel_reservation');
+
+            fetch('borrow_handler.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json()).then(data => {
+                alert(data.message);
+                if(data.status === 'success') location.reload();
+            });
+        }
+
+        function returnBook(borrowId) {
+            if(!confirm("Are you sure you want to return this book?")) return;
+            const formData = new FormData();
+            formData.append('borrow_id', borrowId);
+            fetch('return_handler.php', { method: 'POST', body: formData })
+            .then(res => res.json()).then(data => {
+                alert(data.message);
+                location.reload();
+            });
+        }
+
+        function markAsRead(id) {
+            const formData = new FormData();
+            formData.append('notification_id', id);
+            fetch('mark_read.php', { method: 'POST', body: formData })
+            .then(() => document.getElementById('notif-' + id).remove());
+        }
+    </script>
 </body>
 </html>

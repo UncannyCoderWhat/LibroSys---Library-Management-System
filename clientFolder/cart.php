@@ -59,7 +59,7 @@ $cartCount = count($cart_items);
                         <span style="color: #888; font-weight: 400; font-size: 1rem;">(<?php echo $cartCount; ?>)</span>
                     </h3>
                     <?php if(!empty($cart_items)): ?>
-                        <button class="borrow-btn" onclick="processAction('checkout')" style="width: auto; padding: 10px 30px;">RENT ALL ITEMS</button>
+                        <button class="borrow-btn" onclick="processAction('checkout')">RENT ALL ITEMS</button>
                     <?php endif; ?>
                 </div>
                 

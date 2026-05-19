@@ -4,7 +4,7 @@ session_start();
 include "sidebar.php" ;
 
 // Include the database connection and the controller
-require_once 'dbForLogin/db.php';
+require_once '../dbForLogin/db.php';
 require_once 'dashboardController.php';
 
 try {
@@ -44,13 +44,13 @@ try {
         <div class="z-index">
             <div class="dashboard-bar">
                 <div class="left-title">
-                    <img src="images/lineMenu.png" class="line-menu" alt="Menu Image">
+                    <img src="../images/lineMenu.png" class="line-menu" alt="Menu Image">
                     <span>Dashboard</span>
                 </div>
                 <div class="right-profile">
                     <span>Admin</span>
                     <div class="admin-profile">
-                        <img src="images/profile.png" alt="Admin Image">
+                        <img src="../images/profile.png" alt="Admin Image">
                     </div>
                 </div>
             </div>
@@ -113,7 +113,7 @@ try {
                             <?php foreach ($activities as $row): ?>
                                 <?php
                                     $formattedDate = date("F d, Y", strtotime($row['borrow_date']));
-                                    $statusClass   = (strtolower($row['status']) === 'borrowed') ? 'borrowed' : 'returned';
+                                    $statusClass   = strtolower($row['status']);
                                 ?>
                                 <tr class="activity-row">
                                     <td><?php echo htmlspecialchars($row['book_title']); ?></td>

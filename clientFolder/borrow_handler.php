@@ -117,6 +117,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             echo json_encode(['status' => 'success', 'message' => "Successfully rented $success_count books!"]);
         }
 
+        if ($action === 'pay_fines') {
+            // 1. Fetch all currently borrowed books to process their automatic return
+            $stmt = $pdo->prepare("SELECT br.*, b.title FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.user_id = ? AND br.status = 'borrowed'");
+            $stmt->execute([$user_db_id]);
+            $activeBorrows = $stmt->fetchAll();
+
+            $totalScoreChange = 0;
+            $now = date('Y-m-d H:i:s');
+
+            foreach ($activeBorrows as $borrow) {
+                // Determine credit score impact (Matching return_handler.php logic)
+                $isLate = strtotime($now) > strtotime($borrow['due_date']);
+                $totalScoreChange += ($isLate ? -2 : 1);
+
+                // Notify users who reserved these specific books
+                $resStmt = $pdo->prepare("SELECT user_id FROM borrows WHERE book_id = ? AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1");
+                $resStmt->execute([$borrow['book_id']]);
+                $reservation = $resStmt->fetch();
+
+                if ($reservation) {
+                    $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+                    $msg = "The book '" . $borrow['title'] . "' you reserved is now available!";
+                    $notifStmt->execute([$reservation['user_id'], $msg]);
+                }
+
+                // Mark as returned and clear fine immediately
+                $upd = $pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = 0 WHERE id = ?");
+                $upd->execute([$now, $borrow['id']]);
+            }
+
+            // 2. Clear fines for any books already returned that still have a balance
+            $clearStmt = $pdo->prepare("UPDATE borrows SET fine_amount = 0 WHERE user_id = ? AND status = 'returned'");
+            $clearStmt->execute([$user_db_id]);
+
+            // 3. Apply the aggregated Credit Score changes
+            if ($totalScoreChange !== 0) {
+                $updateUser = $pdo->prepare("UPDATE users SET credit_score = GREATEST(0, LEAST(10, credit_score + ?)) WHERE id = ?");
+                $updateUser->execute([$totalScoreChange, $user_db_id]);
+            }
+
+            echo json_encode(['status' => 'success', 'message' => 'Payment successful! All books have been returned and fines are cleared.']);
+        }
+
+        if ($action === 'cancel_reservation') {
+            $res_id = $_POST['borrow_id'] ?? null;
+            // Verify ownership and status before deleting
+            $stmt = $pdo->prepare("DELETE FROM borrows WHERE id = ? AND user_id = ? AND status = 'reserved'");
+            $stmt->execute([$res_id, $user_db_id]);
+            echo json_encode(['status' => 'success', 'message' => 'Reservation cancelled successfully!']);
+        }
+
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }

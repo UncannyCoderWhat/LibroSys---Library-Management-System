@@ -496,6 +496,59 @@ body.browse-page-body {
     margin-top: 10px;
 }
 
+/* MODAL BUTTON STYLES */
+.cart-btn, .borrow-btn, .reserve-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Add to Cart Button (Neutral/Secondary style) */
+.cart-btn {
+    background-color: #f1f3f5;
+    color: #333333;
+    border: 1px solid #ced4da;
+}
+
+.cart-btn:hover {
+    background-color: #e2e6ea;
+}
+
+/* Rent Now Button (Primary Orange style to match your theme) */
+.borrow-btn {
+    background-color: var(--main-color);
+    color: #ffffff;
+}
+
+.borrow-btn:hover {
+    background-color: #e59400;
+}
+
+/* Reserve Button (Blue style to differentiate from borrowing) */
+.reserve-btn {
+    background-color: #3498db;
+    color: #ffffff;
+}
+
+.reserve-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Only stretch buttons when they are inside a modal action group */
+.modal-actions .cart-btn, 
+.modal-actions .borrow-btn, 
+.modal-actions .reserve-btn {
+    flex: 1;
+}
+
 /* CART PAGE SPECIFIC */
 .cart-page-body {
     background-color: #f8f9fa; /* Light background for the cart page */
@@ -780,6 +833,11 @@ body.browse-page-body {
     color: #721c24;
 }
 
+.status-badge.reserved {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
 /* CUSTOM TOOLTIP STYLES */
 .tooltip-trigger {
     position: relative;
@@ -813,4 +871,57 @@ body.browse-page-body {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(-8px);
+}
+
+/* PAYMENT & RECEIPT STYLES */
+.pay-btn {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.pay-btn:hover {
+    background-color: #219150;
+}
+
+.receipt-card {
+    max-width: 450px !important;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.receipt-header h2 {
+    letter-spacing: 2px;
+    margin: 10px 0;
+}
+
+.receipt-divider {
+    border: none;
+    border-top: 2px dashed #ddd;
+    margin: 20px 0;
+}
+
+.receipt-items {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.receipt-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.receipt-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #000;
 }
