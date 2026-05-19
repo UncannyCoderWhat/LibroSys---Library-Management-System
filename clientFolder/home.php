@@ -1,3 +1,7 @@
+<?php
+session_start();
+$cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) : 0;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,9 +19,15 @@
             <img src="../images/LibroSys.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
-                    <a href="home.php" class="active">Home</a>
-                    <a href="browse.php">Browse</a>
-                    <a href="profile.php">Profile</a>
+                    <a href="home.php" class="active"><i class='bx bx-home-alt'></i>Home</a>
+                    <a href="browse.php"><i class='bx bx-compass'></i>Browse</a>
+                    <a href="cart.php" class="nav-cart-link">
+                        <i class='bx bx-cart'></i>Cart
+                        <?php if($cartCount > 0): ?>
+                            <span class="cart-badge"><?php echo $cartCount; ?></span>
+                        <?php endif; ?>
+                    </a>
+                    <a href="profile.php"><i class='bx bx-user-circle'></i>Profile</a>
                 </div>
         </nav>
         </div>

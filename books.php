@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_book'])) {
     $title = $_POST['title'];
     $author = $_POST['author'];
     $isbn = $_POST['isbn'];
+    $genre = $_POST['genre'];
     $is_exclusive = isset($_POST['is_exclusive']) ? 1 : 0;
     $cover_path = 'images/book-placeholder.jpg'; // Default path
 
@@ -31,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_book'])) {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO books (title, author, isbn, is_exclusive, cover_path) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$title, $author, $isbn, $is_exclusive, $cover_path]);
+        $stmt = $pdo->prepare("INSERT INTO books (title, author, isbn, genre, is_exclusive, cover_path) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$title, $author, $isbn, $genre, $is_exclusive, $cover_path]);
         // Refresh to see changes
         header("Location: books.php");
         exit();
@@ -47,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_book'])) {
     $title = $_POST['title'];
     $author = $_POST['author'];
     $isbn = $_POST['isbn'];
+    $genre = $_POST['genre'];
     $is_exclusive = isset($_POST['is_exclusive']) ? 1 : 0;
     $cover_path = $_POST['current_cover'];
 
@@ -65,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_book'])) {
     }
 
     try {
-        $stmt = $pdo->prepare("UPDATE books SET title = ?, author = ?, isbn = ?, is_exclusive = ?, cover_path = ? WHERE id = ?");
-        $stmt->execute([$title, $author, $isbn, $is_exclusive, $cover_path, $id]);
+        $stmt = $pdo->prepare("UPDATE books SET title = ?, author = ?, isbn = ?, genre = ?, is_exclusive = ?, cover_path = ? WHERE id = ?");
+        $stmt->execute([$title, $author, $isbn, $genre, $is_exclusive, $cover_path, $id]);
         header("Location: books.php");
         exit();
     } catch (PDOException $e) {
@@ -127,6 +129,18 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <input type="text" name="title" placeholder="Book Title" required>
                     <input type="text" name="author" placeholder="Author" required>
                     <input type="text" name="isbn" placeholder="ISBN/ID" required>
+                    <select name="genre" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                        <option value="" disabled selected>Select Genre</option>
+                        <option value="Fiction">Fiction</option>
+                        <option value="Non-Fiction">Non-Fiction</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Sci-Fi">Sci-Fi</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Horror">Horror</option>
+                        <option value="History">History</option>
+                        <option value="Biography">Biography</option>
+                    </select>
                     <input type="file" name="cover_image" accept="image/*" class="file-input">
                     <label class="checkbox-container">
                         <input type="checkbox" name="is_exclusive">
@@ -166,6 +180,7 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="book-card" 
                              data-title="<?php echo strtolower(htmlspecialchars($book['title'])); ?>" 
                              data-author="<?php echo strtolower(htmlspecialchars($book['author'])); ?>"
+                             data-genre="<?php echo strtolower(htmlspecialchars($book['genre'])); ?>"
                              data-category="<?php echo $book['is_exclusive'] ? 'exclusive' : 'regular'; ?>">
                             <div class="book-cover">
                                 <img src="<?php echo htmlspecialchars($book['cover_path']); ?>" alt="Cover" width="200" height="300" />
@@ -182,7 +197,7 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?php echo htmlspecialchars($book['title']); ?></h3>
                                 <p style="font-size: 12px; color: #666;"><?php echo htmlspecialchars($book['author']); ?></p>
                                 <div class="book-meta">
-                                    <span class="genre"><?php echo $book['is_exclusive'] ? 'Exclusive Perk' : 'Regular'; ?></span>
+                                    <span class="genre"><?php echo htmlspecialchars($book['genre']); ?></span>
                                     <span class="ID"><?php echo htmlspecialchars($book['isbn']); ?></span>
                                 </div>
                             </div>
@@ -212,6 +227,19 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <label>ISBN/ID</label>
                         <input type="text" name="isbn" id="edit_isbn" required>
+
+                        <label>Genre</label>
+                        <select name="genre" id="edit_genre" required style="padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
+                            <option value="Fiction">Fiction</option>
+                            <option value="Non-Fiction">Non-Fiction</option>
+                            <option value="Mystery">Mystery</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Horror">Horror</option>
+                            <option value="History">History</option>
+                            <option value="Biography">Biography</option>
+                        </select>
 
                         <label>Change Cover Image (Optional)</label>
                         <input type="file" name="cover_image" accept="image/*">

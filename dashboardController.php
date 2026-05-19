@@ -72,27 +72,80 @@ class DashboardController {
     /**
      * Get recent borrow activities
      */
-    public function getRecentActivities($limit = 10) {
+    public function getRecentActivities($limit = null) {
+        try {
+            $sql = "
+                SELECT 
+                    b.title as book_title, b.author, b.cover_path, b.is_exclusive, br.fine_amount,
+                    u.name as user_name,
+                    u.id as user_id, br.fine_amount,
+                    br.borrow_date, br.due_date, br.return_date, br.status
+                FROM borrows br
+                JOIN books b ON br.book_id = b.id
+                JOIN users u ON br.user_id = u.id 
+                WHERE b.is_deleted = 0
+                ORDER BY br.borrow_date DESC";
+            
+            if ($limit) {
+                $sql .= " LIMIT :limit";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            } else {
+                $stmt = $this->pdo->prepare($sql);
+            }
+
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($results as &$row) {
+                $daysLate = 0;
+                $fine = $row['fine_amount'] ?? 0;
+
+                $endDate = $row['return_date'] ? strtotime($row['return_date']) : time();
+                $dueDate = strtotime($row['due_date']);
+
+                if ($endDate > $dueDate && $row['status'] !== 'reserved') {
+                    $diff = $endDate - $dueDate;
+                    $daysLate = ceil($diff / (60 * 60 * 24));
+                    
+                    // Calculate live fine if not returned yet
+                    if ($row['status'] === 'borrowed') {
+                        if ($daysLate <= 3) $fine = $daysLate * 50;
+                        elseif ($daysLate <= 10) $fine = $daysLate * 100;
+                        else $fine = $daysLate * 150;
+                    }
+                }
+                $row['days_late'] = $daysLate;
+                $row['total_fine'] = "₱" . number_format($fine, 2);
+            }
+            return $results;
+        } catch (PDOException $e) {
+            error_log("Recent activities error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get currently active borrows (status = 'borrowed')
+     */
+    public function getActiveBorrows() {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT 
-                    b.title as book_title,
-                    u.name as user_name,
-                    br.borrow_date,
-                    br.status
+                    b.title, b.author, b.cover_path, b.is_exclusive,
+                    u.user_id as borrower_id, u.name as borrower_name,
+                    br.borrow_date, br.status
                 FROM borrows br
                 JOIN books b ON br.book_id = b.id
                 JOIN users u ON br.user_id = u.id
-                WHERE b.is_deleted = 0
+                WHERE br.status = 'borrowed' 
+                AND b.is_deleted = 0
                 ORDER BY br.borrow_date DESC
-                LIMIT :limit
             ");
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
-            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Recent activities error: " . $e->getMessage());
+            error_log("Active borrows error: " . $e->getMessage());
             return [];
         }
     }

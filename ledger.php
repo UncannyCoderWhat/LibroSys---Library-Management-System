@@ -1,5 +1,13 @@
 <?php 
 include "sidebar.php"; 
+require_once 'dbForLogin/db.php';
+require_once 'dashboardController.php';
+
+$controller = new DashboardController($pdo);
+$metrics = $controller->getDashboardMetrics();
+$activities = $controller->getRecentActivities(); // Fetches all
+
+$currentlyBorrowedCount = $metrics['borrowedBooks'];
 ?>
 
 <link rel="stylesheet" href="style.css">
@@ -28,7 +36,7 @@ include "sidebar.php";
 
                 <div class="left-text">
                    <h3>Currently Borrowed Books</h3>
-                    <div class="borrow-count">208</div>
+                    <div class="borrow-count"><?php echo $currentlyBorrowedCount; ?></div>
                 </div>
             </div>
         </div>

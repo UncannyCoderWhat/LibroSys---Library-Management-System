@@ -1,31 +1,18 @@
 <?php 
 include 'sidebar.php';
+require_once 'dbForLogin/db.php';
 
-// Static sample data array to mimic database rows for the UI preview
-$sample_users = [
-    [
-        'user_id' => 'USR-001',
-        'username' => 'John Doe',
-        'account_status' => 'Active',
-        'book_type' => 'Exclusive',
-        'books_borrowed' => '2'
-    ],
-    [
-        'user_id' => 'USR-002',
-        'username' => 'Jane Smith',
-        'account_status' => 'Inactive',
-        'book_type' => 'Regular',
-        'books_borrowed' => '0'
-    ]
-];
+// Fetch real users and their borrow counts
+$stmt = $pdo->query("SELECT u.*, (SELECT COUNT(*) FROM borrows WHERE user_id = u.id AND status = 'borrowed') as active_borrows FROM users u");
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -50,24 +37,60 @@ $sample_users = [
             </div>
         </div>
 
+        <!-- Search Bar Section -->
+        <section class="activity-section" style="margin-top: 25px;">
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="userSearch" placeholder="Search by name, email, or User ID...">
+                </div>
+            </div>
+        </section>
+
         <!-- Populated User Cards Container -->
-        <div class="user-card-container">
-            <?php foreach ($sample_users as $user): ?>
-                <div class="user-card">
+        <div class="user-card-container" id="userContainer">
+            <?php foreach ($users as $user): ?>
+                <div class="user-card" 
+                     data-name="<?php echo strtolower(htmlspecialchars($user['name'])); ?>" 
+                     data-id="<?php echo strtolower(htmlspecialchars($user['user_id'])); ?>"
+                     data-email="<?php echo strtolower(htmlspecialchars($user['email'])); ?>">
+                    
                     <div class="user-avatar">
                         <img src="images/profile.png" alt="User Avatar">
                     </div>
                     <div class="user-info">
                         <p><strong>User ID:</strong> <?php echo htmlspecialchars($user['user_id']); ?></p>
-                        <p><strong>Username:</strong> <?php echo htmlspecialchars($user['username']); ?></p>
-                        <p><strong>Account Status:</strong> <?php echo htmlspecialchars($user['account_status']); ?></p>
-                        <p><strong>Book Type:</strong> <?php echo htmlspecialchars($user['book_type']); ?></p>
-                        <p><strong>Books Borrowed:</strong> <?php echo htmlspecialchars($user['books_borrowed']); ?></p>
+                        <p><strong>Username:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
+                        <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                        <p><strong>Credit Score:</strong> <span style="color: <?php echo ($user['credit_score'] <= 5) ? 'red' : 'green'; ?>; font-weight: bold;"><?php echo htmlspecialchars($user['credit_score']); ?> / 10</span></p>
+                        <p><strong>Books Borrowed:</strong> <?php echo htmlspecialchars($user['active_borrows']); ?></p>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
     </main>
     
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userSearch = document.getElementById('userSearch');
+        const userContainer = document.getElementById('userContainer');
+
+        userSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const cards = userContainer.querySelectorAll('.user-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const id = card.getAttribute('data-id');
+                const email = card.getAttribute('data-email');
+
+                const matches = name.includes(searchTerm) || 
+                                id.includes(searchTerm) || 
+                                email.includes(searchTerm);
+                card.style.display = matches ? 'flex' : 'none';
+            });
+        });
+    });
+    </script>
 </body>
 </html>

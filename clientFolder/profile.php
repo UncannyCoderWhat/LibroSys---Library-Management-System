@@ -1,11 +1,59 @@
 <?php
 session_start();
-// Sample data lang
-$displayname = "John Batumbakal";
-$username = "John_Batumbakal"; 
-$user_id = "100-001";
-$user_status = "Regular";
-$credit_score = 8;
+require_once '../dbForLogin/db.php';
+
+// Redirect to login if session is not set
+if (!isset($_SESSION['user_logged_in'])) {
+    header("Location: client_login.php");
+    exit();
+}
+
+$db_id = $_SESSION['user_id']; // The integer primary key
+
+// 1. Fetch User details and Credit Score
+$userStmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$userStmt->execute([$db_id]);
+$user = $userStmt->fetch();
+
+$displayname = $user['name'];
+$username = $user['user_id']; // The generated USR- string
+$member_id = $user['user_id'];
+$credit_score = $user['credit_score'];
+$user_status = ($credit_score > 5) ? "Exclusive" : "Regular";
+
+// 2. Calculate Dashboard Metrics
+// Total Borrowed (History)
+$stmtTotal = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ?");
+$stmtTotal->execute([$db_id]);
+$totalBorrowed = $stmtTotal->fetchColumn();
+
+// Total Returned
+$stmtReturned = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status = 'returned'");
+$stmtReturned->execute([$db_id]);
+$totalReturned = $stmtReturned->fetchColumn();
+
+// Total Pending (Currently out)
+$stmtPending = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status = 'borrowed'");
+$stmtPending->execute([$db_id]);
+$totalPending = $stmtPending->fetchColumn();
+
+// 3. Fetch Borrowing Records for the table
+$recordsStmt = $pdo->prepare("
+    SELECT br.id as borrow_id, b.title, b.author, br.borrow_date, br.due_date, br.return_date, br.status 
+    FROM borrows br 
+    JOIN books b ON br.book_id = b.id 
+    WHERE br.user_id = ? 
+    ORDER BY br.borrow_date DESC
+");
+$recordsStmt->execute([$db_id]);
+$records = $recordsStmt->fetchAll();
+
+// 4. Fetch Unread Notifications
+$notifStmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC");
+$notifStmt->execute([$db_id]);
+$notifications = $notifStmt->fetchAll();
+
+$cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) : 0;
 ?>
 
 <!DOCTYPE html>
@@ -24,11 +72,15 @@ $credit_score = 8;
             <img src="../images/LibroSys.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
-                    <a href="home.php">Home</a>
-                    <a href="browse.php">Browse</a>
-                    <a href="profile.php" class="nav-profile-link active">
-                         <img src="../images/profile.png" alt="User">
+                    <a href="home.php"><i class='bx bx-home-alt'></i>Home</a>
+                    <a href="browse.php"><i class='bx bx-compass'></i>Browse</a>
+                    <a href="cart.php" class="nav-cart-link">
+                        <i class='bx bx-cart'></i>Cart
+                        <?php if($cartCount > 0): ?>
+                            <span class="cart-badge"><?php echo $cartCount; ?></span>
+                        <?php endif; ?>
                     </a>
+                    <a href="profile.php" class="active"><i class='bx bx-user-circle'></i>Profile</a>
                 </div>
             </nav>
         </div>
@@ -39,19 +91,19 @@ $credit_score = 8;
             <div class="user-avatar-large">
                 <img src="../images/profile.png" alt="User Avatar">
             </div>
-            <h2 class="display-name"><?php echo $displayname; ?></strong></h2>
+            <h2 class="display-name"><?php echo htmlspecialchars($displayname); ?></h2>
             
             <div class="info-group">
                 <label>Username:</label>
-                <span><strong><?php echo $username; ?></strong></span>
+                <span><strong><?php echo htmlspecialchars($username); ?></strong></span>
             </div>
             <div class="info-group">
                 <label>Member ID:</label>
-                <span><strong><?php echo $user_id; ?></strong></span>
+                <span><strong><?php echo htmlspecialchars($member_id); ?></strong></span>
             </div>
             <div class="info-group">
                 <label>Membership Status:</label>
-                <span><strong><?php echo $user_status; ?></strong></span>
+                <span><strong><?php echo htmlspecialchars($user_status); ?></strong></span>
             </div>
             
             <div class="info-group">
@@ -68,12 +120,22 @@ $credit_score = 8;
         </aside>
 
         <main class="profile-main">
+            <?php foreach ($notifications as $notif): ?>
+                <div class="notification-banner" id="notif-<?php echo $notif['id']; ?>" style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #ffc107; display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class='bx bxs-bell-ring'></i> <?php echo htmlspecialchars($notif['message']); ?></span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <small style="color: #666;"><?php echo date("M d", strtotime($notif['created_at'])); ?></small>
+                        <button onclick="markAsRead(<?php echo $notif['id']; ?>)" style="background: none; border: none; cursor: pointer; color: #856404; font-size: 1.2rem;"><i class='bx bx-x-circle'></i></button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
             <div class="metrics-row">
                 <div class="metric-card">
                     <p class="metric-label">TOTAL RETURNED BOOKS</p>
                     <div class="metric-body">
                         <img src="../images/book-icon.png" alt="Book">
-                        <span class="metric-value">8</span>
+                        <span class="metric-value"><?php echo $totalReturned; ?></span>
                     </div>
                     <p class="metric-sub">All returned books</p>
                 </div>
@@ -82,7 +144,7 @@ $credit_score = 8;
                     <p class="metric-label">TOTAL BORROWED BOOKS</p>
                     <div class="metric-body">
                         <img src="../images/book-icon.png" alt="Book">
-                        <span class="metric-value">10</span>
+                        <span class="metric-value"><?php echo $totalBorrowed; ?></span>
                     </div>
                     <p class="metric-sub">All borrowed books</p>
                 </div>
@@ -91,7 +153,7 @@ $credit_score = 8;
                     <p class="metric-label">TOTAL PENDING RETURN</p>
                     <div class="metric-body">
                         <img src="../images/book-icon.png" alt="Book">
-                        <span class="metric-value">2</span>
+                        <span class="metric-value"><?php echo $totalPending; ?></span>
                     </div>
                     <p class="metric-sub">All unreturned books</p>
                 </div>
@@ -124,14 +186,33 @@ $credit_score = 8;
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                            <?php if (!empty($records)): ?>
+                                <?php foreach ($records as $row): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['title']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['author']); ?></td>
+                                        <td><?php echo date("M d, Y", strtotime($row['borrow_date'])); ?></td>
+                                        <td><?php echo $row['due_date'] ? date("M d, Y", strtotime($row['due_date'])) : 'N/A'; ?></td>
+                                        <td>
+                                            <?php if ($row['status'] === 'borrowed'): ?>
+                                                <button onclick="returnBook(<?php echo $row['borrow_id']; ?>)" class="return-action-btn">Return Now</button>
+                                            <?php else: ?>
+                                                <?php echo date("M d, Y", strtotime($row['return_date'])); ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>₱0.00</td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr><td colspan="6" style="text-align:center;">No borrowing history found.</td></tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
+
+    <script src="profile.js"></script>
 </body>
 </html>

@@ -35,6 +35,7 @@ function openEditModal(book) {
     document.getElementById('edit_title').value = book.title;
     document.getElementById('edit_author').value = book.author;
     document.getElementById('edit_isbn').value = book.isbn;
+    document.getElementById('edit_genre').value = book.genre;
     document.getElementById('edit_current_cover').value = book.cover_path;
     document.getElementById('edit_is_exclusive').checked = book.is_exclusive == 1;
     document.getElementById('editModal').style.display = 'block';
