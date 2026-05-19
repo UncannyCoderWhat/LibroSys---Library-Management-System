@@ -36,11 +36,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         if ($action === 'borrow') {
-            // Check current availability for single borrow
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved') AND user_id != ?");
-            $stmt->execute([$book_id, $user_db_id]);
+            // 1. Check if someone else has it borrowed
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
+            $stmt->execute([$book_id]);
             if ($stmt->fetchColumn() > 0) {
-                echo json_encode(['status' => 'error', 'message' => 'This book is currently out on loan or held for another user.']);
+                echo json_encode(['status' => 'error', 'message' => 'This book is currently out on loan.']);
+                exit();
+            }
+
+            // 2. Queue Check: If there are reservations, the current user must be the earliest one
+            $stmt = $pdo->prepare("SELECT user_id FROM borrows WHERE book_id = ? AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1");
+            $stmt->execute([$book_id]);
+            $firstInLine = $stmt->fetchColumn();
+
+            if ($firstInLine && $firstInLine != $user_db_id) {
+                echo json_encode(['status' => 'error', 'message' => 'This book is currently held for another user who reserved it first.']);
                 exit();
             }
 
@@ -59,18 +69,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         if ($action === 'reserve') {
-            // Validation: Book must be currently borrowed AND not already reserved
-            $stmt = $pdo->prepare("SELECT status FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved')");
-            $stmt->execute([$book_id]);
-            $activeStatuses = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-            if (!in_array('borrowed', $activeStatuses)) {
-                echo json_encode(['status' => 'error', 'message' => 'This book is currently available for rent.']);
+            // Check if user already has an active record for this book
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND user_id = ? AND status IN ('borrowed', 'reserved')");
+            $stmt->execute([$book_id, $user_db_id]);
+            if ($stmt->fetchColumn() > 0) {
+                echo json_encode(['status' => 'error', 'message' => 'You already have an active request for this book.']);
                 exit();
             }
 
-            if (in_array('reserved', $activeStatuses)) {
-                echo json_encode(['status' => 'error', 'message' => 'This book is already on hold for another user.']);
+            // Check if the book is actually "unavailable" (borrowed or reserved by anyone)
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved')");
+            $stmt->execute([$book_id]);
+            if ($stmt->fetchColumn() == 0) {
+                echo json_encode(['status' => 'error', 'message' => 'This book is available on the shelves. You should rent it instead!']);
                 exit();
             }
 
@@ -112,16 +123,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $success_count = 0;
 
             foreach ($_SESSION['borrow_cart'] as $key => $id) {
-                // Re-verify availability and credit score eligibility per book in cart
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved') AND user_id != ?");
-                $stmt->execute([$id, $user_db_id]);
+                // Availability Check
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
+                $stmt->execute([$id]);
                 $isBorrowed = $stmt->fetchColumn() > 0;
+
+                // Queue Check
+                $qStmt = $pdo->prepare("SELECT user_id FROM borrows WHERE book_id = ? AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1");
+                $qStmt->execute([$id]);
+                $firstInLine = $qStmt->fetchColumn();
+                $isHeldForOthers = ($firstInLine && $firstInLine != $user_db_id);
 
                 $bookStmt = $pdo->prepare("SELECT is_exclusive FROM books WHERE id = ?");
                 $bookStmt->execute([$id]);
                 $b = $bookStmt->fetch();
 
-                if (!$isBorrowed) {
+                if (!$isBorrowed && !$isHeldForOthers) {
                     // Skip if user no longer has enough credit score for an exclusive book
                     if ($b['is_exclusive'] && $user['credit_score'] <= 5) continue;
 

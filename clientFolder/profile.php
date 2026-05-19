@@ -51,7 +51,8 @@ $records = $recordsStmt->fetchAll();
 // 3.5 Fetch Reservation Records with Availability
 $resStmt = $pdo->prepare("
     SELECT br.id as res_id, b.id as book_id, b.title, b.author, br.borrow_date as reservation_date,
-        (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_currently_borrowed
+        (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_currently_borrowed,
+        (SELECT id FROM borrows WHERE book_id = b.id AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1) as next_in_line_res_id
     FROM borrows br 
     JOIN books b ON br.book_id = b.id 
     WHERE br.user_id = ? AND br.status = 'reserved'
@@ -303,14 +304,20 @@ $credit_tooltip = ($credit_score <= 5)
                                         <td><?php echo htmlspecialchars($res['author']); ?></td>
                                         <td><?php echo date("M d, Y", strtotime($res['reservation_date'])); ?></td>
                                         <td>
-                                            <?php if ($res['is_currently_borrowed'] == 0): ?>
+                                            <?php 
+                                                $isFirst = ($res['res_id'] == $res['next_in_line_res_id']);
+                                                $isAvailable = ($res['is_currently_borrowed'] == 0);
+                                            ?>
+                                            <?php if ($isAvailable && $isFirst): ?>
                                                 <span class="status-badge available">Available for Pickup</span>
+                                            <?php elseif ($isAvailable && !$isFirst): ?>
+                                                <span class="status-badge on-queue">On Queue</span>
                                             <?php else: ?>
                                                 <span class="status-badge reserved">Waitlisted</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <?php if ($res['is_currently_borrowed'] == 0): ?>
+                                            <?php if ($isAvailable && $isFirst): ?>
                                                 <button onclick="processAction('borrow', <?php echo $res['book_id']; ?>)" class="borrow-btn" style="padding: 8px 12px; font-size: 0.8rem;"><i class='bx bx-book-reader'></i> Borrow Now</button>
                                             <?php else: ?>
                                                 <button onclick="cancelReservation(<?php echo $res['res_id']; ?>)" class="remove-btn" title="Cancel Reservation">

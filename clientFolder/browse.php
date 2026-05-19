@@ -30,10 +30,9 @@ $borrowed_others_stmt = $pdo->prepare("
     SELECT b.*, 1 as is_borrowed 
     FROM books b 
     JOIN borrows br ON b.id = br.book_id 
-    WHERE br.status = 'borrowed' 
-    AND br.user_id != ? 
+    WHERE br.status IN ('borrowed', 'reserved') 
     AND b.is_deleted = 0
-    AND b.id NOT IN (SELECT book_id FROM borrows WHERE status = 'reserved')
+    AND b.id NOT IN (SELECT book_id FROM borrows WHERE user_id = ? AND status IN ('borrowed', 'reserved'))
     GROUP BY b.id
 ");
 $borrowed_others_stmt->execute([$user_id]);

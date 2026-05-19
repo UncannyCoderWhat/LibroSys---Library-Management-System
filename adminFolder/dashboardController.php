@@ -136,10 +136,11 @@ class DashboardController {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT 
-                    b.title as book_title, b.author,
+                    b.title as book_title, b.author, br.id as res_id,
                     u.name as user_name,
                     br.borrow_date as reservation_date, br.status,
-                    (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_currently_borrowed
+                    (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_currently_borrowed,
+                    (SELECT id FROM borrows WHERE book_id = b.id AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1) as next_in_line_res_id
                 FROM borrows br
                 JOIN books b ON br.book_id = b.id
                 JOIN users u ON br.user_id = u.id 

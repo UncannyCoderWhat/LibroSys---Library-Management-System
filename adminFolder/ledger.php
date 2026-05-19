@@ -123,8 +123,14 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
                                 <td><?php echo htmlspecialchars($res['book_title']); ?></td>
                                 <td><?php echo date("F d, Y", strtotime($res['reservation_date'])); ?></td>
                                 <td> 
-                                    <?php if ($res['is_currently_borrowed'] == 0): ?>
+                                    <?php 
+                                        $isFirst = ($res['res_id'] == $res['next_in_line_res_id']);
+                                        $isAvailable = ($res['is_currently_borrowed'] == 0);
+                                    ?>
+                                    <?php if ($isAvailable && $isFirst): ?>
                                         <span class="status-badge available">Available for Pickup</span>
+                                    <?php elseif ($isAvailable && !$isFirst): ?>
+                                        <span class="status-badge on-queue">On Queue</span>
                                     <?php else: ?>
                                         <span class="status-badge reserved">Waitlisted</span>
                                     <?php endif; ?>

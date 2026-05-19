@@ -838,6 +838,11 @@ body.browse-page-body {
     color: #0c5460;
 }
 
+.status-badge.on-queue {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
 /* CUSTOM TOOLTIP STYLES */
 .tooltip-trigger {
     position: relative;

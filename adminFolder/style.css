@@ -757,6 +757,11 @@ body {
     background-color: #d4edda; /* Light green */
     color: #155724; /* Dark green text */
 }
+
+.status-badge.on-queue {
+    background-color: #fff3cd;
+    color: #856404;
+}
 /* DASHBOARD CSS - END */
 
 /* BORROWED CSS - START */
