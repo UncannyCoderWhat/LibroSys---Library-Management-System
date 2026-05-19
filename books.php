@@ -140,6 +140,7 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <option value="Horror">Horror</option>
                         <option value="History">History</option>
                         <option value="Biography">Biography</option>
+                        <option value="Action">Action</option>
                     </select>
                     <input type="file" name="cover_image" accept="image/*" class="file-input">
                     <label class="checkbox-container">

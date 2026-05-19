@@ -210,8 +210,8 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
         const genreFilter = document.getElementById('genreFilter');
         
         function filterBrowse() {
-                const searchTerm = this.value.toLowerCase();
-                const selectedGenre = genreFilter.value.toLowerCase();
+                const searchTerm = browseSearch.value.toLowerCase(); // Always get from search input
+                const selectedGenre = genreFilter.value.toLowerCase(); // Always get from genre select
                 const shelves = document.querySelectorAll('.shelf-section');
                 const noBooksFoundMessage = document.getElementById('noBooksFoundMessage');
                 let totalVisibleCards = 0;

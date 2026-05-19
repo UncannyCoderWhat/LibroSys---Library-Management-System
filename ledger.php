@@ -11,6 +11,7 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
 ?>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <div class="main-content-container">
 <div class="topbar">
@@ -31,8 +32,8 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
 
     <div class="ledger-top-cards">
         <div class="ledger-info-card">
-            <div class="card-left">
-                <img src="borrow.png" class="ledger-card-icon">
+            <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
+                <i class="fa-solid fa-book-reader" style="font-size: 45px; color: black;"></i>
 
                 <div class="left-text">
                    <h3>Currently Borrowed Books</h3>
@@ -50,7 +51,7 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
                 11+ days late :  ₱150/day
                </h4>
             </div>
-            <img src="ledger.png" class="ledger-card-icon">
+            <i class="fa-solid fa-receipt" style="font-size: 45px; color: black;"></i>
         </div>
     </div>
 

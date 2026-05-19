@@ -496,6 +496,115 @@ body.browse-page-body {
     margin-top: 10px;
 }
 
+/* CART PAGE SPECIFIC */
+.cart-page-body {
+    background-color: #f8f9fa; /* Light background for the cart page */
+}
+
+.cart-container {
+    margin-top: 110px; /* Space for fixed header */
+    padding: 2rem 40px;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cart-section {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    width: 100%;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.cart-header h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: separate; /* Allows border-radius on cells */
+    border-spacing: 0;
+    margin-top: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden; /* Ensures rounded corners apply to content */
+}
+
+.cart-table th, .cart-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-table th {
+    background-color: #f5f5f5;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.cart-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.cart-table td {
+    font-size: 1rem;
+    color: #333;
+    vertical-align: middle;
+}
+
+.cart-table img {
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.remove-btn {
+    color: #e74c3c;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.remove-btn:hover {
+    color: #c0392b;
+}
+
+.empty-cart-message {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.1rem;
+    color: #777;
+}
+
+.empty-cart-message a {
+    color: var(--main-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.empty-cart-message a:hover {
+    text-decoration: underline;
+}
+
 /* PROFILE PAGE LAYOUT */
 .profile-container {
     display: flex;
@@ -650,4 +759,58 @@ body.browse-page-body {
 
 .return-action-btn:hover {
     background-color: #e59400;
+}
+
+/* AVAILABILITY BADGES */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-badge.available {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.unavailable {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* CUSTOM TOOLTIP STYLES */
+.tooltip-trigger {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip-trigger::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #2d3436;
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    width: 220px;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 2500;
+    pointer-events: none;
+    line-height: 1.4;
+    font-weight: 500;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip-trigger:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-8px);
 }

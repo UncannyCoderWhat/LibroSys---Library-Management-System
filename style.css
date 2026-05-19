@@ -850,10 +850,13 @@ body {
     border-radius:20px;
     padding:10px;
     padding-left: 20px;
+    border-radius:15px;
+    padding:20px; /* Unified padding */
     display:flex;
     justify-content:space-between;
     align-items:center;
     box-shadow:15px 4px 15px rgba(0,0,0,0.15);
+    box-shadow:0 6px 15px rgba(0,0,0,0.1); /* Softer, more centered shadow */
 }
 
 .card-left{
@@ -873,12 +876,23 @@ body {
     font-weight:700;
     line-height:1.5;
     text-align: center;
+    font-weight:700; /* Already bold */
+    line-height:1.3; /* Slightly tighter line height */
+    text-align: left; /* Align text to the left */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center content */
 }
 
 .right-text{
     color:black;
     font-weight:700;
     line-height:1.4;
+    line-height:1.4; /* Consistent line height */
+    text-align: left; /* Align text to the right */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center content */
 }
 
 .borrow-count{

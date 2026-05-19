@@ -10,7 +10,11 @@ if (!isset($_SESSION['user_logged_in'])) {
 $cart_items = [];
 if (!empty($_SESSION['borrow_cart'])) {
     $placeholders = implode(',', array_fill(0, count($_SESSION['borrow_cart']), '?'));
-    $stmt = $pdo->prepare("SELECT * FROM books WHERE id IN ($placeholders)");
+    $stmt = $pdo->prepare("
+        SELECT b.*, 
+        (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_borrowed 
+        FROM books b 
+        WHERE b.id IN ($placeholders)");
     $stmt->execute($_SESSION['borrow_cart']);
     $cart_items = $stmt->fetchAll();
 }
@@ -46,11 +50,14 @@ $cartCount = count($cart_items);
         </div>
     </header>
 
-    <div class="profile-container">
-        <main class="profile-main" style="flex: 1;">
+    <div class="profile-container" style="justify-content: center;">
+        <main class="profile-main" style="max-width: 1000px; width: 100%;">
             <div class="records-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3>YOUR BORROW CART</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3 style="font-size: 1.5rem; letter-spacing: 1px;">
+                        <i class='bx bx-shopping-bag' style="color: var(--main-color);"></i> BORROW CART 
+                        <span style="color: #888; font-weight: 400; font-size: 1rem;">(<?php echo $cartCount; ?>)</span>
+                    </h3>
                     <?php if(!empty($cart_items)): ?>
                         <button class="borrow-btn" onclick="processAction('checkout')" style="width: auto; padding: 10px 30px;">RENT ALL ITEMS</button>
                     <?php endif; ?>
@@ -63,6 +70,7 @@ $cartCount = count($cart_items);
                             <th>Title</th>
                             <th>Author</th>
                             <th>Type</th>
+                            <th>Availability</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -75,6 +83,13 @@ $cartCount = count($cart_items);
                                     <td><?php echo htmlspecialchars($book['author']); ?></td>
                                     <td><?php echo $book['is_exclusive'] ? 'Exclusive' : 'Regular'; ?></td>
                                     <td>
+                                        <?php if ($book['is_borrowed'] > 0): ?>
+                                            <span class="status-badge unavailable">Unavailable</span>
+                                        <?php else: ?>
+                                            <span class="status-badge available">Available</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
                                         <button class="remove-btn" onclick="removeFromCart(<?php echo $book['id']; ?>)">
                                             <i class='bx bx-trash'></i>
                                         </button>
@@ -82,7 +97,7 @@ $cartCount = count($cart_items);
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="5" style="text-align:center; padding: 50px;">Your cart is empty. <a href="browse.php" style="color: var(--main-color);">Browse books now.</a></td></tr>
+                            <tr><td colspan="5" class="empty-cart-message">Your cart is empty. <a href="browse.php">Browse books now.</a></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

@@ -54,6 +54,10 @@ $notifStmt->execute([$db_id]);
 $notifications = $notifStmt->fetchAll();
 
 $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) : 0;
+
+$credit_tooltip = ($credit_score <= 5) 
+    ? "Bad Standing: Your score is 5 or below, likely due to late returns. Exclusive perks are currently locked until your score improves." 
+    : "Good Standing: Your account is in great shape! You have full access to all library perks.";
 ?>
 
 <!DOCTYPE html>
@@ -108,7 +112,7 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
             
             <div class="info-group">
                 <label>Credit Score:</label>
-                <span class="score-display" style="color: <?php echo ($credit_score < 5) ? '#e74c3c' : '#27ae60'; ?>;">
+                <span class="score-display tooltip-trigger" data-tooltip="<?php echo $credit_tooltip; ?>" style="color: <?php echo ($credit_score <= 5) ? '#e74c3c' : '#27ae60'; ?>;">
                     <strong><?php echo $credit_score; ?> / 10</strong>
                 </span>
             </div>
@@ -158,14 +162,14 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
                     <p class="metric-sub">All unreturned books</p>
                 </div>
             
-                <div class="metric-card credit-card" style="background-color: <?php echo ($credit_score < 5) ? '#e74c3c' : 'var(--main-color)'; ?>;">
+                <div class="metric-card credit-card" style="background-color: <?php echo ($credit_score <= 5) ? '#e74c3c' : 'var(--main-color)'; ?>;">
                     <p class="metric-label">YOUR CREDIT SCORE</p>
                     <div class="metric-body">
                         <i class='bx bxs-star' style="font-size: 3rem; color: #fff;"></i>
                         <span class="metric-value"><?php echo $credit_score; ?></span>
                     </div>
-                    <p class="metric-sub" style="color: #fff; font-weight: bold;">
-                        <?php echo ($credit_score >= 5) ? 'GOOD STANDING' : 'PERKS LOCKED'; ?>
+                    <p class="metric-sub tooltip-trigger" data-tooltip="<?php echo $credit_tooltip; ?>" style="color: #fff; font-weight: bold;">
+                        <?php echo ($credit_score > 5) ? 'GOOD STANDING' : 'BAD STANDING'; ?>
                     </p>
                 </div>
             </div>
