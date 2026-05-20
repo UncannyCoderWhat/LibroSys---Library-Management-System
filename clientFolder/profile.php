@@ -103,7 +103,7 @@ $credit_tooltip = ($credit_score <= 5)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LibroSys | Profile</title>
+    <title>LibroSys - Profile</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="clientstyle.css">
 </head>
@@ -317,13 +317,15 @@ $credit_tooltip = ($credit_score <= 5)
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <?php if ($isAvailable && $isFirst): ?>
-                                                <button onclick="processAction('borrow', <?php echo $res['book_id']; ?>)" class="borrow-btn" style="padding: 8px 12px; font-size: 0.8rem;"><i class='bx bx-book-reader'></i> Borrow Now</button>
-                                            <?php else: ?>
+                                            <div style="display: flex; gap: 5px; align-items: center;">
+                                                <?php if ($isAvailable && $isFirst): ?>
+                                                    <button onclick="processAction('borrow', <?php echo $res['book_id']; ?>)" class="borrow-btn" style="padding: 8px 12px; font-size: 0.8rem;"><i class='bx bx-book-reader'></i> Borrow Now</button>
+                                                <?php endif; ?>
+                                                <!-- Always show cancel button for reservations -->
                                                 <button onclick="cancelReservation(<?php echo $res['res_id']; ?>)" class="remove-btn" title="Cancel Reservation">
                                                     <i class='bx bx-trash'></i>
                                                 </button>
-                                            <?php endif; ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

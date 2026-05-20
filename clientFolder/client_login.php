@@ -3,6 +3,9 @@ session_start();
 require_once '../dbForLogin/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $message = '';
+    $message_type = '';
+
     $login_input = $_POST['user_id']; // This could be Email or User ID
     $password = $_POST['user_password'];
 
@@ -21,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: home.php");
             exit();
         } else {
-            echo "<script>alert('Invalid ID/Email or Password.'); window.location.href = 'client_login.php';</script>";
+            $message = 'Invalid ID/Email or Password.';
+            $message_type = 'error';
         }
     } catch (PDOException $e) {
         die("Error: " . $e->getMessage());
@@ -53,6 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
 
         <div class="login-card">
+            <?php if (!empty($message)): ?>
+                <div class="notification-banner" style="margin-bottom: 20px; background-color: <?php echo $message_type === 'success' ? '#d4edda' : '#f8d7da'; ?>; color: <?php echo $message_type === 'success' ? '#155724' : '#721c24'; ?>; border-left-color: <?php echo $message_type === 'success' ? '#28a745' : '#dc3545'; ?>;">
+                    <span><?php echo htmlspecialchars($message); ?></span>
+                </div>
+            <?php endif; ?>
+
             <h2>User Login</h2>
             <form action="" method="POST">
                 <div class="input-group">

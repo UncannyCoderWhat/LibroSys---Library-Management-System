@@ -1,5 +1,6 @@
 <?php
 session_start();
+$generated_user_id = isset($_SESSION['temp_user_id_for_display']) ? $_SESSION['temp_user_id_for_display'] : null;
 $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) : 0;
 ?>
 <!DOCTYPE html>
@@ -34,6 +35,15 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
     </header>
     <main>
         <section class="hero">
+            <?php if ($generated_user_id): ?>
+                <div class="notification-banner" style="margin-bottom: 20px; background-color: #d4edda; color: #155724; border-left-color: #28a745; max-width: 600px; margin: 0 auto 30px auto; padding: 15px; border-radius: 10px;">
+                    <span><i class='bx bx-check-circle'></i> Registration successful! Your unique Login ID is: <strong><?php echo htmlspecialchars($generated_user_id); ?></strong>. Please save this ID for future logins.</span>
+                </div>
+                <?php 
+                    unset($_SESSION['temp_user_id_for_display']); // Clear it after displaying
+                ?>
+            <?php endif; ?>
+
             <div class="hero-content">
                 <h1>Discover Your Next Chapter</h1>
                 <p>Your all-in-one digital library for browsing and borrowing books</p>

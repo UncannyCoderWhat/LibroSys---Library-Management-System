@@ -10,11 +10,18 @@ $activities = $controller->getRecentActivities(); // Fetches all
 $reservations = $controller->getReservationActivities(); // New dedicated fetch
 
 $currentlyBorrowedCount = $metrics['borrowedBooks'];
+
+// Calculate Total Fines Accumulated from activities
+$totalFinesAccumulated = 0;
+foreach ($activities as $activity) {
+    $fineValue = (float)str_replace(['₱', ','], '', $activity['total_fine']);
+    $totalFinesAccumulated += $fineValue;
+}
 ?>
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+<title>LibroSys - Ledger</title>
 <div class="main-content-container">
 <div class="topbar">
         <img src="../images/LibroSys.png" alt="Logo">
@@ -40,6 +47,17 @@ $currentlyBorrowedCount = $metrics['borrowedBooks'];
                 <div class="left-text">
                    <h3>Currently Borrowed Books</h3>
                     <div class="borrow-count"><?php echo $currentlyBorrowedCount; ?></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ledger-info-card">
+            <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
+                <i class="fa-solid fa-file-invoice-dollar" style="font-size: 45px; color: black;"></i>
+
+                <div class="left-text">
+                   <h3>Total Fines Accumulated</h3>
+                    <div class="borrow-count">₱<?php echo number_format($totalFinesAccumulated, 2); ?></div>
                 </div>
             </div>
         </div>

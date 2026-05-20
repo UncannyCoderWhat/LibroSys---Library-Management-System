@@ -10,6 +10,7 @@ $activeBorrows = $controller->getActiveBorrows();
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+<title>LibroSys - Borrowed Books</title>
 
 <div class="main-content-container">
 <div class="topbar">

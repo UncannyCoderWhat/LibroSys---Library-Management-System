@@ -8,11 +8,11 @@
 </head>
 <body class="auth-page">
 
-    <img src="images/library-background.png" alt="Library Background" class="bg-image">
+    <img src="../images/library-background.png" alt="Library Background" class="bg-image">
 
     <header class="main-header">
         <div class="header-content">
-            <img src="images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="../images/LibroSys.png" alt="LibroSys Logo" class="logo">
         </div>
     </header>
 
@@ -38,7 +38,7 @@
                 <button type="submit" class="login-btn">Login</button>
             </form>
             <div style="margin-top: 20px; text-align: center;">
-                <a href="register.php" style="color: #fca311; text-decoration: none; font-size: 0.9rem;">Admin Registration</a>
+                <a href="signup.php" style="color: #fca311; text-decoration: none; font-size: 0.9rem;">Admin Registration</a>
             </div>
         </div>
     </div>
