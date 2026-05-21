@@ -91,6 +91,7 @@ $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) :
                         <option value="horror">Horror</option>
                         <option value="history">History</option>
                         <option value="biography">Biography</option>
+                        <option value="action">Action</option>
                     </select>
                 </div>
             </div>
