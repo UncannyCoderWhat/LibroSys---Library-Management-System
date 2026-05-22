@@ -179,12 +179,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
 
                 // Mark as returned and clear fine immediately
-                $upd = $pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = 0 WHERE id = ?");
+                $upd = $pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, is_fine_paid = TRUE WHERE id = ?");
                 $upd->execute([$now, $borrow['id']]);
             }
 
             // 2. Clear fines for any books already returned that still have a balance
-            $clearStmt = $pdo->prepare("UPDATE borrows SET fine_amount = 0 WHERE user_id = ? AND status = 'returned'");
+            $clearStmt = $pdo->prepare("UPDATE borrows SET is_fine_paid = TRUE WHERE user_id = ? AND status = 'returned' AND fine_amount > 0");
             $clearStmt->execute([$user_db_id]);
 
             // 3. Apply the aggregated Credit Score changes

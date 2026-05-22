@@ -9,6 +9,35 @@ $userStmt->execute([$user_id]);
 $userData = $userStmt->fetch();
 $current_score = $userData['credit_score'] ?? 0;
 
+// --- FINE CHECK LOGIC ---
+$totalFines = 0;
+$stmtFines = $pdo->prepare("SELECT fine_amount, due_date, status FROM borrows WHERE user_id = ? AND (status = 'borrowed' OR (status = 'returned' AND fine_amount > 0))");
+$stmtFines->execute([$user_id]);
+$borrowsForFines = $stmtFines->fetchAll();
+
+foreach ($borrowsForFines as $b) {
+    $f = $b['fine_amount'] ?? 0;
+    // Calculate live fine for currently borrowed books that are overdue
+    if ($b['status'] === 'borrowed' && !empty($b['due_date'])) {
+        $now = time();
+        $dueDate = strtotime($b['due_date']);
+        if ($now > $dueDate) {
+            $daysLate = ceil(($now - $dueDate) / (60 * 60 * 24));
+            if ($daysLate <= 3) $f = $daysLate * 50;
+            elseif ($daysLate <= 10) $f = $daysLate * 100;
+            else $f = $daysLate * 150;
+        }
+    }
+    $totalFines += $f;
+}
+
+if ($totalFines > 0) {
+    $_SESSION['browse_error'] = "Access Denied: You have outstanding fines of ₱" . number_format($totalFines, 2) . ". Please settle your dues in your profile before browsing the collection.";
+    header("Location: profile.php");
+    exit();
+}
+// ------------------------
+
 // Fetch Available Exclusive Books
 $exclusive_books = $pdo->query("
     SELECT b.*, 0 as is_borrowed 

@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_id'])) {
         }
 
         // 2. Update status, return date, and fine
-        $update = $pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ? WHERE id = ?");
+        $update = $pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE id = ?");
         $update->execute([$now, $fine, $borrow_id]);
 
         // 4. Notification Logic: Check if anyone reserved this book

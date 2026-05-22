@@ -190,7 +190,7 @@ class DashboardController {
                 SELECT 
                     br.due_date, br.return_date, br.status, br.fine_amount
                 FROM borrows br
-                WHERE br.user_id = ?
+                WHERE br.user_id = ? AND br.is_fine_paid = FALSE
             ");
             $stmt->execute([$userId]);
             $userBorrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -216,6 +216,48 @@ class DashboardController {
         } catch (PDOException $e) {
             error_log("Error calculating total fines for user " . $userId . ": " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Get detailed fine history for a specific user
+     */
+    public function getUserFineDetails($userId) {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT b.title, br.due_date, br.return_date, br.status, br.fine_amount
+                FROM borrows br
+                JOIN books b ON br.book_id = b.id
+                WHERE br.user_id = ? AND br.fine_amount > 0 -- Show all records where a fine was incurred
+                ORDER BY br.borrow_date DESC
+            ");
+            $stmt->execute([$userId]);
+            $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($records as &$row) {
+                $fine = $row['fine_amount'] ?? 0;
+                $isOverdue = false;
+
+                if ($row['status'] === 'borrowed' && !empty($row['due_date'])) {
+                    $now = time();
+                    $dueDate = strtotime($row['due_date']);
+                    if ($now > $dueDate) {
+                        $isOverdue = true;
+                        $daysLate = ceil(($now - $dueDate) / (60 * 60 * 24));
+                        if ($daysLate <= 3) $fine = $daysLate * 50;
+                        elseif ($daysLate <= 10) $fine = $daysLate * 100;
+                        else $fine = $daysLate * 150;
+                    }
+                }
+                // Note: fine_amount in DB will now store the incurred fine, not necessarily the outstanding one.
+                $row['calculated_fine'] = $fine;
+                $row['is_live_overdue'] = $isOverdue;
+            }
+
+            return $records;
+        } catch (PDOException $e) {
+            error_log("Error fetching fine details: " . $e->getMessage());
+            return [];
         }
     }
 }

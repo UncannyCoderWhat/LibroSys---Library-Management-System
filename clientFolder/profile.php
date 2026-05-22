@@ -69,10 +69,13 @@ $notifications = $notifStmt->fetchAll();
 $cartCount = isset($_SESSION['borrow_cart']) ? count($_SESSION['borrow_cart']) : 0;
 $totalFinesOwed = 0; // Initialize total fines owed
 $fineItems = []; // To store items for the receipt
+// Pre-calculate total fines owed (only unpaid ones)
+$stmtOutstandingFines = $pdo->prepare("SELECT br.id, b.title, br.due_date, br.status, br.fine_amount FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.user_id = ? AND br.is_fine_paid = FALSE");
+$stmtOutstandingFines->execute([$db_id]);
+$outstandingFinesRecords = $stmtOutstandingFines->fetchAll();
 
-// Pre-calculate total fines so the metric card displays the correct value
-foreach ($records as $row) {
-    $fine = $row['fine_amount'] ?? 0;
+foreach ($outstandingFinesRecords as $row) {
+    $fine = $row['fine_amount']; // This is the incurred fine
     if ($row['status'] === 'borrowed' && !empty($row['due_date'])) {
         $now = time();
         $dueDate = strtotime($row['due_date']);
@@ -84,7 +87,7 @@ foreach ($records as $row) {
         }
     }
 
-    if ($fine > 0) {
+    if ($fine > 0) { // Only add to fineItems if there's an actual fine amount
         $fineItems[] = [
             'title' => $row['title'],
             'amount' => $fine
@@ -162,6 +165,14 @@ $credit_tooltip = ($credit_score <= 5)
         </aside>
 
         <main class="profile-main">
+            <?php if (isset($_SESSION['browse_error'])): ?>
+                <div class="notification-banner" style="background: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <span><i class='bx bx-error-circle' style="font-size: 1.2rem; vertical-align: middle;"></i> <?php echo $_SESSION['browse_error']; ?></span>
+                    <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; color: #721c24; font-size: 1.2rem;"><i class='bx bx-x-circle'></i></button>
+                </div>
+                <?php unset($_SESSION['browse_error']); ?>
+            <?php endif; ?>
+
             <?php foreach ($notifications as $notif): ?>
                 <div class="notification-banner" id="notif-<?php echo $notif['id']; ?>" style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #ffc107; display: flex; justify-content: space-between; align-items: center;">
                     <span><i class='bx bxs-bell-ring'></i> <?php echo htmlspecialchars($notif['message']); ?></span>
@@ -228,8 +239,14 @@ $credit_tooltip = ($credit_score <= 5)
 
 
             <div class="records-section">
-                <h3>RECORDS</h3>
-                <div class="table-container">
+                <div class="tabs-header" style="display: flex; gap: 20px; border-bottom: 2px solid #eee; margin-bottom: 20px; flex-wrap: wrap;">
+                    <h3 id="tab-borrow" class="tab-item active" onclick="switchTab('borrow')" style="cursor: pointer; padding-bottom: 10px; border-bottom: 3px solid var(--main-color); margin-bottom: -2px; white-space: nowrap;">BORROW HISTORY</h3>
+                    <h3 id="tab-current-fines" class="tab-item" onclick="switchTab('current-fines')" style="cursor: pointer; padding-bottom: 10px; color: #888; white-space: nowrap;">CURRENT FINES</h3>
+                    <h3 id="tab-fines" class="tab-item" onclick="switchTab('fines')" style="cursor: pointer; padding-bottom: 10px; color: #888; white-space: nowrap;">FINES HISTORY</h3>
+                </div>
+
+                <!-- Borrow History Tab -->
+                <div id="content-borrow" class="table-container">
                     <table class="records-table">
                         <thead>
                             <tr>
@@ -266,7 +283,11 @@ $credit_tooltip = ($credit_score <= 5)
                                         <td><?php echo $row['due_date'] ? date("M d, Y", strtotime($row['due_date'])) : 'N/A'; ?></td>
                                         <td>
                                             <?php if ($row['status'] === 'borrowed'): ?>
-                                                <button onclick="returnBook(<?php echo $row['borrow_id']; ?>)" class="return-action-btn">Return Now</button>
+                                                <?php if ($totalFinesOwed > 0): ?>
+                                                    <span class="status-badge on-queue">Payment Pending</span>
+                                                <?php else: ?>
+                                                    <button onclick="returnBook(<?php echo $row['borrow_id']; ?>)" class="return-action-btn">Return Now</button>
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 <?php echo date("M d, Y", strtotime($row['return_date'])); ?>
                                             <?php endif; ?>
@@ -276,6 +297,93 @@ $credit_tooltip = ($credit_score <= 5)
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr><td colspan="6" style="text-align:center;">No borrowing history found.</td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Current Fines Tab -->
+                <div id="content-current-fines" class="table-container" style="display: none;">
+                    <?php if (!empty($fineItems)): ?>
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>Fine Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($fineItems as $item): ?>
+                                    <tr>
+                                        <td><strong><?php echo htmlspecialchars($item['title']); ?></strong></td>
+                                        <td style="color: #e74c3c; font-weight: 800;">₱<?php echo number_format($item['amount'], 2); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <p style="text-align:center; padding: 40px; color: #888;">No current outstanding fines. Keep up the good work!</p>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Fines History Tab -->
+                <div id="content-fines" class="table-container" style="display: none;">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Due Date</th>
+                                <th>Date Returned</th>
+                                <th>Penalty Details</th>
+                                <th>Fine Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $hasFines = false;
+                            foreach ($records as $row): 
+                                $fine = $row['fine_amount'] ?? 0;
+                                $isOverdue = false;
+                                
+                                // Calculate live fine if still borrowed
+                                if ($row['status'] === 'borrowed' && !empty($row['due_date'])) {
+                                    $now = time();
+                                    $dueDate = strtotime($row['due_date']);
+                                    if ($now > $dueDate) {
+                                        $isOverdue = true;
+                                        $daysLate = ceil(($now - $dueDate) / (60 * 60 * 24));
+                                        if ($daysLate <= 3) $fine = $daysLate * 50;
+                                        elseif ($daysLate <= 10) $fine = $daysLate * 100;
+                                        else $fine = $daysLate * 150;
+                                    }
+                                }
+
+                                if ($fine > 0): 
+                                    $hasFines = true;
+                                    $dueDateStr = $row['due_date'] ? date("M d, Y", strtotime($row['due_date'])) : 'N/A';
+                                    $returnDateStr = ($row['status'] === 'returned') ? date("M d, Y", strtotime($row['return_date'])) : '<span style="color: #e74c3c; font-weight: bold;">STILL OUT</span>';
+                            ?>
+                                <tr>
+                                    <td><strong><?php echo htmlspecialchars($row['title']); ?></strong></td>
+                                    <td><?php echo $dueDateStr; ?></td>
+                                    <td><?php echo $returnDateStr; ?></td>
+                                    <td>
+                                        <?php if ($row['status'] === 'borrowed' && $isOverdue): ?>
+                                            <span class="status-badge on-queue">Overdue Penalty</span>
+                                        <?php else: ?>
+                                            <span class="status-badge unavailable">Late Return</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="color: #e74c3c; font-weight: 800;">₱<?php echo number_format($fine, 2); ?></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" style="text-align: right; font-size: 0.85rem; color: #666; padding-top: 0; padding-bottom: 10px;">Status: <?php echo $row['is_fine_paid'] ? '<span style="color: #28a745; font-weight: bold;">PAID</span>' : '<span style="color: #dc3545; font-weight: bold;">UNPAID</span>'; ?></td>
+                                </tr>
+                            <?php 
+                                endif;
+                            endforeach; 
+                            if (!$hasFines): ?>
+                                <tr><td colspan="5" style="text-align:center; padding: 40px; color: #888;">No penalty history found. Keep up the good work!</td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -373,6 +481,43 @@ $credit_tooltip = ($credit_score <= 5)
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure the default tab is active on page load
+            switchTab('borrow');
+        });
+
+        function switchTab(tab) {
+            // Content toggles
+            document.getElementById('content-borrow').style.display = (tab === 'borrow') ? 'block' : 'none';
+            document.getElementById('content-current-fines').style.display = (tab === 'current-fines') ? 'block' : 'none';
+            document.getElementById('content-fines').style.display = (tab === 'fines') ? 'block' : 'none';
+
+            // Header styling
+            const borrowHeader = document.getElementById('tab-borrow');
+            const currentFinesHeader = document.getElementById('tab-current-fines');
+            const finesHeader = document.getElementById('tab-fines');
+
+            // Reset all headers
+            borrowHeader.style.borderBottom = "none";
+            borrowHeader.style.color = "#888";
+            currentFinesHeader.style.borderBottom = "none";
+            currentFinesHeader.style.color = "#888";
+            finesHeader.style.borderBottom = "none";
+            finesHeader.style.color = "#888";
+
+            // Activate selected tab
+            const activeHeader = document.getElementById('tab-' + tab);
+            if (activeHeader) {
+                activeHeader.style.borderBottom = "3px solid var(--main-color)";
+                activeHeader.style.color = "#000";
+            }
+        }
+
+        // Initial call to set the default tab on page load
+        window.onload = function() {
+            switchTab('borrow');
+        }
+
         function openReceiptModal() {
             document.getElementById('receiptModal').style.display = 'flex';
         }
