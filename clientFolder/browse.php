@@ -11,7 +11,7 @@ $current_score = $userData['credit_score'] ?? 0;
 
 // --- FINE CHECK LOGIC ---
 $totalFines = 0;
-$stmtFines = $pdo->prepare("SELECT fine_amount, due_date, status FROM borrows WHERE user_id = ? AND (status = 'borrowed' OR (status = 'returned' AND fine_amount > 0))");
+$stmtFines = $pdo->prepare("SELECT fine_amount, due_date, status FROM borrows WHERE user_id = ? AND is_fine_paid = FALSE");
 $stmtFines->execute([$user_id]);
 $borrowsForFines = $stmtFines->fetchAll();
 
@@ -26,6 +26,8 @@ foreach ($borrowsForFines as $b) {
             if ($daysLate <= 3) $f = $daysLate * 50;
             elseif ($daysLate <= 10) $f = $daysLate * 100;
             else $f = $daysLate * 150;
+        } else {
+            $f = 0;
         }
     }
     $totalFines += $f;

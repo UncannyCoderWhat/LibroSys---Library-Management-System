@@ -39,7 +39,7 @@ $totalPending = $stmtPending->fetchColumn();
 
 // 3. Fetch Borrowing Records for the table
 $recordsStmt = $pdo->prepare("
-    SELECT br.id as borrow_id, b.title, b.author, br.borrow_date, br.due_date, br.return_date, br.status, br.fine_amount 
+    SELECT br.id as borrow_id, b.title, b.author, br.borrow_date, br.due_date, br.return_date, br.status, br.fine_amount, br.is_fine_paid
     FROM borrows br 
     JOIN books b ON br.book_id = b.id 
     WHERE br.user_id = ? AND br.status != 'reserved'
@@ -84,6 +84,8 @@ foreach ($outstandingFinesRecords as $row) {
             if ($daysLate <= 3) $fine = $daysLate * 50;
             elseif ($daysLate <= 10) $fine = $daysLate * 100;
             else $fine = $daysLate * 150;
+        } else {
+            $fine = 0;
         }
     }
 
@@ -273,6 +275,8 @@ $credit_tooltip = ($credit_score <= 5)
                                                 if ($daysLate <= 3) $displayFine = $daysLate * 50;
                                                 elseif ($daysLate <= 10) $displayFine = $daysLate * 100;
                                                 else $displayFine = $daysLate * 150;
+                                            } else {
+                                                $displayFine = 0;
                                             }
                                         }
                                     ?>

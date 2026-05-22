@@ -165,6 +165,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             foreach ($activeBorrows as $borrow) {
                 // Determine credit score impact (Matching return_handler.php logic)
                 $isLate = strtotime($now) > strtotime($borrow['due_date']);
+                $fine = 0;
+                if ($isLate) {
+                    $diff = strtotime($now) - strtotime($borrow['due_date']);
+                    $daysLate = ceil($diff / (60 * 60 * 24));
+                    if ($daysLate <= 3) $fine = $daysLate * 50;
+                    elseif ($daysLate <= 10) $fine = $daysLate * 100;
+                    else $fine = $daysLate * 150;
+                }
+
                 $totalScoreChange += ($isLate ? -2 : 1);
 
                 // Notify users who reserved these specific books
@@ -179,8 +188,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
 
                 // Mark as returned and clear fine immediately
-                $upd = $pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, is_fine_paid = TRUE WHERE id = ?");
-                $upd->execute([$now, $borrow['id']]);
+                $upd = $pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = TRUE WHERE id = ?");
+                $upd->execute([$now, $fine, $borrow['id']]);
             }
 
             // 2. Clear fines for any books already returned that still have a balance

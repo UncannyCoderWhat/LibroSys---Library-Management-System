@@ -225,10 +225,10 @@ class DashboardController {
     public function getUserFineDetails($userId) {
         try {
             $stmt = $this->pdo->prepare("
-                SELECT b.title, br.due_date, br.return_date, br.status, br.fine_amount
+                SELECT b.title, br.due_date, br.return_date, br.status, br.fine_amount, br.is_fine_paid
                 FROM borrows br
                 JOIN books b ON br.book_id = b.id
-                WHERE br.user_id = ? AND br.fine_amount > 0 -- Show all records where a fine was incurred
+                WHERE br.user_id = ? AND (br.fine_amount > 0 OR (br.status = 'borrowed' AND br.due_date < NOW()))
                 ORDER BY br.borrow_date DESC
             ");
             $stmt->execute([$userId]);

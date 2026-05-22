@@ -203,12 +203,15 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const statusLabel = item.is_live_overdue ? 'Live Penalty' : 'Late Return';
             const statusClass = item.is_live_overdue ? 'on-queue' : 'unavailable';
 
+            const paymentStatus = item.is_fine_paid ? '<span style="color:green;">PAID</span>' : '<span style="color:red;">UNPAID</span>';
+
             const row = `
                 <tr>
                     <td><strong>${item.title}</strong></td>
                     <td>${dueDate}</td>
                     <td>${returnDate}</td>
-                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                    <td><span class="status-badge ${statusClass}">${statusLabel}</span><br>
+                        <small>Status: ${paymentStatus}</small></td>
                     <td style="color: red; font-weight: bold;">₱${parseFloat(item.calculated_fine).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
                 </tr>
             `;

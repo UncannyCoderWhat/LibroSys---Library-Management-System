@@ -3,6 +3,23 @@ session_start();
 $currentPage = 'books';
 include "sidebar.php" ;
 require_once '../dbForLogin/db.php';
+require_once 'BookManager.php';
+
+$bookManager = new BookManager($pdo);
+
+// Handle XML Export
+if (isset($_GET['export_xml'])) {
+    $bookManager->exportBooksToXML();
+}
+
+// Handle XML Import
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_xml'])) {
+    if (isset($_FILES['xml_file']) && $_FILES['xml_file']['error'] === UPLOAD_ERR_OK) {
+        $count = $bookManager->importBooksFromXML($_FILES['xml_file']['tmp_name']);
+        echo "<script>alert('Successfully imported $count books from XML.'); window.location.href='books.php';</script>";
+        exit();
+    }
+}
 
 // 1. Handle the "Upload Book" Logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_book'])) {
@@ -121,6 +138,20 @@ $all_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
+
+        <!-- XML Integration Controls -->
+        <section class="activity-section" style="background: #f0f0f0; padding: 15px; border-radius: 10px; display: flex; gap: 20px; align-items: center;">
+            <div style="flex: 1;">
+                <h4 style="margin-bottom: 10px;"><i class="fa-solid fa-file-code"></i> Data Management (XML)</h4>
+                <a href="books.php?export_xml=1" class="submit-btn" style="text-decoration: none; padding: 8px 15px; font-size: 12px; display: inline-block;">EXPORT BOOKS TO XML</a>
+            </div>
+            <div style="flex: 1; border-left: 1px solid #ccc; padding-left: 20px;">
+                <form action="books.php" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="file" name="xml_file" accept=".xml" required style="font-size: 12px;">
+                    <button type="submit" name="import_xml" class="submit-btn" style="padding: 8px 15px; font-size: 12px;">IMPORT XML</button>
+                </form>
+            </div>
+        </section>
 
         <!-- New Upload Book Form Section -->
         <section class="activity-section">
