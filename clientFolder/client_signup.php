@@ -14,6 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($password !== $confirm_password) {
         $message = 'Passwords do not match!';
         $message_type = 'error';
+    } elseif (strlen($password) < 6) {
+        $message = 'Password must be at least 6 characters long!';
+        $message_type = 'error';
     } else {
         // Securely hash the password
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);

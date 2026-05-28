@@ -9,6 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($password !== $confirm_password) {
         echo "<script>alert('Passwords do not match!'); window.location.href = 'signup.php';</script>";
         exit();
+    } elseif (strlen($password) < 6) {
+        echo "<script>alert('Password must be at least 6 characters long!'); window.location.href = 'signup.php';</script>";
+        exit();
     }
 
     // Securely hash the password
