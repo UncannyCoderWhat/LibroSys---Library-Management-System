@@ -2,6 +2,7 @@
 session_start();
 $currentPage = 'settings';
 require_once '../dbForLogin/db.php';
+require_once 'UserManager.php';
 
 // Authentication Check
 if (!isset($_SESSION['admin_logged_in'])) {
@@ -9,9 +10,27 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit();
 }
 
+$userManager = new UserManager($pdo);
 $admin_session_user = $_SESSION['admin_user'];
 $message = '';
 $message_type = '';
+
+// Handle XML Data Actions
+if (isset($_GET['export_users_xml'])) {
+    $userManager->exportUsersToXML();
+}
+
+if (isset($_GET['export_full_xml'])) {
+    $userManager->exportFullSystemToXML();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_users_xml'])) {
+    if (isset($_FILES['user_xml_file']) && $_FILES['user_xml_file']['error'] === UPLOAD_ERR_OK) {
+        $count = $userManager->importUsersFromXML($_FILES['user_xml_file']['tmp_name']);
+        $message = "Successfully imported $count new users and their history.";
+        $message_type = "success";
+    }
+}
 
 // Fetch current admin data
 $stmt = $pdo->prepare("SELECT * FROM admins WHERE admin_id = ?");
@@ -106,6 +125,20 @@ include 'sidebar.php';
                     <button type="submit" name="update_account" class="save-changes-btn">Save Changes</button>
                 </div>
             </form>
+
+            <div class="settings-section-title" style="margin-top: 40px;">USER DATA MANAGEMENT (XML)</div>
+            <div style="padding-left: 20px; margin-bottom: 20px;">
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Backup your library members and their entire borrow history.</p>
+                <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <a href="settings.php?export_users_xml=1" class="save-changes-btn" style="text-decoration: none; display: inline-block;">Export All Users & Borrows</a>
+                    <a href="settings.php?export_full_xml=1" class="save-changes-btn" style="text-decoration: none; display: inline-block; background-color: #2a9d8f;">Export Full System (Books + Users)</a>
+                    
+                    <form action="settings.php" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center; border-left: 1px solid #ddd; padding-left: 20px;">
+                        <input type="file" name="user_xml_file" accept=".xml" required style="font-size: 12px;">
+                        <button type="submit" name="import_users_xml" class="save-changes-btn">Import XML</button>
+                    </form>
+                </div>
+            </div>
 
             <div class="settings-section-title" style="margin-top: 40px;">SECURITY</div>
             <form action="settings.php" method="POST">
