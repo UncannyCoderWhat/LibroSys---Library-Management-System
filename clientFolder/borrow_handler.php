@@ -154,13 +154,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         if ($action === 'pay_fines') {
-            // 1. Fetch all currently borrowed books to process their automatic return
-            $stmt = $pdo->prepare("SELECT br.*, b.title FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.user_id = ? AND br.status = 'borrowed'");
-            $stmt->execute([$user_db_id]);
+            $now = date('Y-m-d H:i:s');
+            // 1. Fetch only OVERDUE borrowed books to process their automatic return
+            $stmt = $pdo->prepare("SELECT br.*, b.title FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.user_id = ? AND br.status = 'borrowed' AND br.due_date < ?");
+            $stmt->execute([$user_db_id, $now]);
             $activeBorrows = $stmt->fetchAll();
 
             $totalScoreChange = 0;
-            $now = date('Y-m-d H:i:s');
 
             foreach ($activeBorrows as $borrow) {
                 // Determine credit score impact (Matching return_handler.php logic)

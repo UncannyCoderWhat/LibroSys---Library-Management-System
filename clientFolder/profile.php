@@ -287,8 +287,11 @@ $credit_tooltip = ($credit_score <= 5)
                                         <td><?php echo $row['due_date'] ? date("M d, Y", strtotime($row['due_date'])) : 'N/A'; ?></td>
                                         <td>
                                             <?php if ($row['status'] === 'borrowed'): ?>
-                                                <?php if ($totalFinesOwed > 0): ?>
-                                                    <span class="status-badge on-queue">Payment Pending</span>
+                                                <?php 
+                                                    $isOverdue = (!empty($row['due_date']) && time() > strtotime($row['due_date']));
+                                                ?>
+                                                <?php if ($isOverdue): ?>
+                                                    <span class="status-badge on-queue">Payment Required</span>
                                                 <?php else: ?>
                                                     <button onclick="returnBook(<?php echo $row['borrow_id']; ?>)" class="return-action-btn">Return Now</button>
                                                 <?php endif; ?>

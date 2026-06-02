@@ -111,30 +111,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
         $checkBorrowStmt->execute([$db_id]);
         $activeLoans = $checkBorrowStmt->fetchColumn();
 
-        // 2. Check for unpaid fines (including live fine calculation for overdue books)
-        // We can reuse the logic to see if they have any rows where fine_amount > 0
-        $checkFineStmt = $pdo->prepare("SELECT SUM(fine_amount) FROM borrows WHERE user_id = ?");
+        // 2. Check for unpaid fines (Only those where is_fine_paid is FALSE)
+        $checkFineStmt = $pdo->prepare("SELECT status, due_date, fine_amount FROM borrows WHERE user_id = ? AND is_fine_paid = FALSE");
         $checkFineStmt->execute([$db_id]);
-        $unpaidFines = $checkFineStmt->fetchColumn() ?? 0;
+        $fines = $checkFineStmt->fetchAll();
+
+        $unpaidFines = 0;
+        foreach ($fines as $f) {
+            $amt = $f['fine_amount'] ?? 0;
+            // Account for live fines on overdue books that are still out
+            if ($f['status'] === 'borrowed' && !empty($f['due_date'])) {
+                $now = time();
+                $dueDate = strtotime($f['due_date']);
+                if ($now > $dueDate) {
+                    $daysLate = ceil(($now - $dueDate) / (60 * 60 * 24));
+                    if ($daysLate <= 3) $amt = $daysLate * 50;
+                    elseif ($daysLate <= 10) $amt = $daysLate * 100;
+                    else $amt = $daysLate * 150;
+                } else {
+                    $amt = 0;
+                }
+            }
+            $unpaidFines += $amt;
+        }
 
         // If the user has books or owes money, block the deletion
         if ($activeLoans > 0 || $unpaidFines > 0) {
-            $message = "Account deletion blocked: You currently have $activeLoans active book loan(s) ";
+            $message = "Account deletion blocked: You currently have " . ($activeLoans > 0 ? "$activeLoans active book loan(s) " : "");
             if ($unpaidFines > 0) {
-                $message .= "and ₱" . number_format($unpaidFines, 2) . " in outstanding fines. ";
+                $message .= ($activeLoans > 0 ? "and " : "") . "₱" . number_format($unpaidFines, 2) . " in outstanding fines. ";
             }
             $message .= "Please return all books and settle fines before closing your account.";
             $message_type = 'error';
         } else {
             // 3. If clear, proceed with deletion
-        $deleteStmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-        $deleteStmt->execute([$db_id]);
+            $pdo->beginTransaction();
+            // Clear related records to satisfy foreign key constraints
+            $pdo->prepare("DELETE FROM notifications WHERE user_id = ?")->execute([$db_id]);
+            $pdo->prepare("DELETE FROM borrows WHERE user_id = ?")->execute([$db_id]);
+            $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$db_id]);
+            $pdo->commit();
 
-        // Clear session and redirect to login
-        $_SESSION = array();
-        session_destroy();
-        header("Location: client_login.php");
-        exit();
+            // Clear session and redirect to login
+            $_SESSION = array();
+            session_destroy();
+            header("Location: client_login.php");
+            exit();
         }
     } catch (PDOException $e) {
         error_log("Error deleting account: " . $e->getMessage());
