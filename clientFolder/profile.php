@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../dbForLogin/db.php';
+date_default_timezone_set('Asia/Manila');
 
 // Redirect to login if session is not set
 if (!isset($_SESSION['user_logged_in'])) {

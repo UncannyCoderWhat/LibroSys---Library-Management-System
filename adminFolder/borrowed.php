@@ -3,6 +3,7 @@ $currentPage = 'borrowed';
 include "sidebar.php"; 
 require_once '../dbForLogin/db.php';
 require_once 'dashboardController.php';
+date_default_timezone_set('Asia/Manila');
 
 $controller = new DashboardController($pdo);
 $activeBorrows = $controller->getActiveBorrows();

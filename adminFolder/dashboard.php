@@ -6,6 +6,7 @@ include "sidebar.php" ;
 // Include the database connection and the controller
 require_once '../dbForLogin/db.php';
 require_once 'dashboardController.php';
+date_default_timezone_set('Asia/Manila');
 
 try {
     // Create controller instance

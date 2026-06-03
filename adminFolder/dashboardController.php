@@ -1,6 +1,7 @@
 <?php
 // dashboardController.php
 require_once '../dbForLogin/db.php';
+date_default_timezone_set('Asia/Manila');
 
 class DashboardController {
     private $pdo;

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../dbForLogin/db.php';
+date_default_timezone_set('Asia/Manila');
 
 if (!isset($_SESSION['user_logged_in'])) {
     echo json_encode(['status' => 'error', 'message' => 'Not logged in']);

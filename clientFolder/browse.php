@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../dbForLogin/db.php';
+date_default_timezone_set('Asia/Manila');
 
 // Check user credit score
 $user_id = $_SESSION['user_id']; // This is the integer ID
