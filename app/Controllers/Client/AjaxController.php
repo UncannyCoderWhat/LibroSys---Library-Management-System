@@ -1,0 +1,93 @@
+<?php
+// app/Controllers/Client/AjaxController.php
+require_once __DIR__ . '/ClientController.php';
+require_once __DIR__ . '/../../Models/Client/ClientModel.php';
+
+class AjaxController extends ClientController
+{
+    private ClientModel $model;
+
+    public function __construct(PDO $pdo)
+    {
+        parent::__construct($pdo);
+        $this->model = new ClientModel($pdo);
+    }
+
+    /**
+     * Handle /ajax.php?action=borrow_handler requests.
+     * Delegates to ClientModel::handleBorrowAction().
+     */
+    public function handleBorrowHandler(array &$session, array $post): void
+    {
+        $authResult = $this->requireAuthentication($session);
+        if ($authResult !== null) {
+            echo json_encode(['status' => 'error', 'message' => 'Not authenticated.']);
+            exit();
+        }
+
+        $userId = (int)$session['user_id'];
+        $bookId = isset($post['book_id']) ? (int)$post['book_id'] : null;
+        $action = $post['action'] ?? '';
+
+        try {
+            $result = $this->model->handleBorrowAction($userId, $bookId, $action, $session);
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+        exit();
+    }
+
+    /**
+     * Handle /ajax.php?action=return_handler requests.
+     * Delegates to ClientModel::handleReturnAction().
+     */
+    public function handleReturnHandler(array &$session, array $post): void
+    {
+        $authResult = $this->requireAuthentication($session);
+        if ($authResult !== null) {
+            echo json_encode(['status' => 'error', 'message' => 'Not logged in']);
+            exit();
+        }
+
+        $userId = (int)$session['user_id'];
+        $borrowId = isset($post['borrow_id']) ? (int)$post['borrow_id'] : 0;
+
+        if ($borrowId <= 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid borrow ID.']);
+            exit();
+        }
+
+        try {
+            $result = $this->model->handleReturnAction($userId, $borrowId);
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+        exit();
+    }
+
+    /**
+     * Handle /ajax.php?action=mark_read requests.
+     * Delegates to ClientModel::markNotificationRead().
+     */
+    public function handleMarkRead(array &$session, array $post): void
+    {
+        $authResult = $this->requireAuthentication($session);
+        if ($authResult !== null) {
+            echo json_encode(['status' => 'error']);
+            exit();
+        }
+
+        $userId = (int)$session['user_id'];
+        $notifId = isset($post['notification_id']) ? (int)$post['notification_id'] : 0;
+
+        try {
+            $result = $this->model->markNotificationRead($userId, $notifId);
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error']);
+        }
+        exit();
+    }
+}

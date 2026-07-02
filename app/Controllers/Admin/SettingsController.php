@@ -1,0 +1,93 @@
+<?php
+// app/Controllers/Admin/SettingsController.php
+
+require_once __DIR__ . '/../../Models/Admin/AdminModel.php';
+require_once __DIR__ . '/../../Models/Admin/XmlModel.php';
+
+class AdminSettingsController
+{
+    private PDO $pdo;
+    private AdminModel $adminModel;
+    private XmlModel $xmlModel;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+        $this->adminModel = new AdminModel($pdo);
+        $this->xmlModel = new XmlModel($pdo);
+    }
+
+    public function getSettingsPageData(array $session, array $post, array $files, array $get): array
+    {
+        $message = '';
+        $message_type = '';
+
+        // Authentication Check
+        if (!isset($session['admin_logged_in'])) {
+            header('Location: index.php?page=admin_login');
+            exit();
+        }
+
+        $admin_session_user = $session['admin_user'];
+
+        // Handle XML Data Actions
+        if (isset($get['export_users_xml'])) {
+            $this->xmlModel->exportUsersToXML();
+        }
+
+        if (isset($get['export_full_xml'])) {
+            $this->xmlModel->exportFullSystemToXML();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['import_users_xml'])) {
+            if (isset($files['user_xml_file']) && $files['user_xml_file']['error'] === UPLOAD_ERR_OK) {
+                $count = $this->xmlModel->importUsersFromXML($files['user_xml_file']['tmp_name']);
+                $message = "Successfully imported $count new users and their history.";
+                $message_type = "success";
+            }
+        }
+
+        // Fetch current admin data
+        $admin = $this->adminModel->getAdminBySession($admin_session_user);
+
+        // Handle Admin ID Modification
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['update_account'])) {
+            $result = $this->adminModel->updateAdminId($admin_session_user, trim($post['admin_id'] ?? ''));
+            $message = $result['message'];
+            $message_type = $result['success'] ? 'success' : 'error';
+            if ($result['success'] && isset($result['new_id'])) {
+                $_SESSION['admin_user'] = $result['new_id'];
+                $admin_session_user = $result['new_id'];
+            }
+        }
+
+        // Handle Password Change
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['update_password'])) {
+            $result = $this->adminModel->updatePassword(
+                $admin_session_user,
+                $post['old_pass'] ?? '',
+                $post['new_pass'] ?? '',
+                $post['repeat_pass'] ?? '',
+                $admin ?? []
+            );
+            $message = $result['message'];
+            $message_type = $result['success'] ? 'success' : 'error';
+        }
+
+        // Handle Account Deletion
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['delete_account'])) {
+            $this->adminModel->deleteAdminAccount($admin_session_user);
+            $_SESSION = array();
+            session_destroy();
+            header("Location: index.php?page=admin_login");
+            exit();
+        }
+
+        return [
+            'message' => $message,
+            'message_type' => $message_type,
+            'admin_session_user' => $admin_session_user,
+            'admin' => $admin,
+        ];
+    }
+}
