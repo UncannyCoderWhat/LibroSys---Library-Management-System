@@ -1,5 +1,5 @@
 <?php
-// View template: expects $currentPage, $totalBooks, $availableBooks, $borrowedBooks, $exclusiveBooks, $currentlyBorrowedCount, $totalFinesAccumulated, $activities.
+// View template: expects $currentPage, $totalBooks, $availableBooks, $borrowedBooks, $exclusiveBooks, $currentlyBorrowedCount, $totalFinesAccumulated, $activties, $reservations.
 $currentPage = 'dashboard';
 if (!isset($base_url)) {
     $base_url = '';
@@ -145,6 +145,51 @@ if (!isset($base_url)) {
                         <?php else: ?>
                             <tr>
                                 <td colspan="4" class="no-data-cell">No recent borrow activity found.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Active Reservation Section -->
+        <section class="ledger-table-container">
+            <h2 class="section-title">ACTIVE RESERVATIONS (WAITLIST)</h2>
+            <div class="ledger-table">
+                <table class="ledger-activity-table">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Book Title</th>
+                            <th>Reservation Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($reservations)): ?>
+                            <?php foreach ($reservations as $res): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($res['user_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($res['book_title']); ?></td>
+                                    <td><?php echo date("F d, Y", strtotime($res['reservation_date'])); ?></td>
+                                    <td>
+                                        <?php
+                                            $isFirst = ($res['res_id'] == $res['next_in_line_res_id']);
+                                            $isAvailable = ($res['is_currently_borrowed'] == 0);
+                                        ?>
+                                        <?php if ($isAvailable && $isFirst): ?>
+                                            <span class="status-badge available">Available for Pickup</span>
+                                        <?php elseif ($isAvailable && !$isFirst): ?>
+                                            <span class="status-badge on-queue">On Queue</span>
+                                        <?php else: ?>
+                                            <span class="status-badge reserved">Waitlisted</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" class="no-data-cell">No active reservations found.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>

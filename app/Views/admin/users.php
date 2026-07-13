@@ -52,57 +52,111 @@ if (!isset($base_url)) {
             </div>
         </section>
 
-        <!-- Populated User Cards Container -->
-        <div class="user-card-container" id="userContainer">
-            <?php foreach ($users as $user): ?>
-                <div class="user-card"
-                     data-name="<?php echo strtolower(htmlspecialchars($user['name'] ?? '')); ?>"
-                     data-id="<?php echo strtolower(htmlspecialchars($user['user_id'] ?? '')); ?>"
-                     data-email="<?php echo strtolower(htmlspecialchars($user['email'] ?? '')); ?>">
+        <!-- User Accounts Section -->
+        <section class="user-table-container">
+            <div class="user-table">
+                <table class="user-activity-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Credits</th>
+                            <th>Borrowing Status</th>
+                            <th>   </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($users)): ?>
+                            <?php foreach ($users as $user): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($user['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['credit_score']); ?></td>
+                                    <td>wag pansinin</td>
+                                    <td>
+                                        <button type="button" 
+                                            class="btn-view-details" 
+                                            onclick="openUserModal(this)"
+                                            data-id="<?php echo htmlspecialchars($user['user_id'] ?? ''); ?>"
+                                            data-username="<?php echo htmlspecialchars($user['name'] ?? ''); ?>"
+                                            data-email="<?php echo htmlspecialchars($user['email'] ?? ''); ?>"
+                                            data-credits="<?php echo htmlspecialchars(($user['credit_score'] ?? '0') . '/10'); ?>"
+                                            data-fines="<?php echo htmlspecialchars(number_format($user['total_fines'] ?? 0, 2)); ?>"
+                                            data-borrowed="<?php echo htmlspecialchars($user['active_borrows'] ?? ''); ?>"
+                                            data-logs="<?php echo htmlspecialchars(json_encode($user['logs'] ?? []), ENT_QUOTES, 'UTF-8'); ?>">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="no-data-cell">No user found.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
-                    <div class="user-avatar">
-                        <img src="<?php echo $base_url; ?>/images/profile.png" alt="User Avatar">
-                    </div>
-
-                    <div class="user-info">
-                        <p><strong>User ID:</strong> <?php echo htmlspecialchars($user['user_id'] ?? ''); ?></p>
-                        <p><strong>Username:</strong> <?php echo htmlspecialchars($user['name'] ?? ''); ?></p>
-                        <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email'] ?? ''); ?></p>
-
-                        <p>
-                            <strong>Credit Score:</strong>
-                            <span style="color: <?php echo ((int)($user['credit_score'] ?? 0) <= 5) ? 'red' : 'green'; ?>; font-weight: bold;">
-                                <?php echo htmlspecialchars($user['credit_score'] ?? 0); ?> / 10
-                            </span>
-                        </p>
-
-                        <p>
-                            <strong>Total Fines Owed:</strong>
-                            <span style="color: <?php echo ((float)($user['total_fines'] ?? 0) > 0) ? 'red' : 'green'; ?>; font-weight: bold;">
-                                ₱<?php echo number_format((float)($user['total_fines'] ?? 0), 2); ?>
-                            </span>
-                        </p>
-
-                        <p><strong>Books Borrowed:</strong> <?php echo htmlspecialchars($user['active_borrows'] ?? 0); ?></p>
-                    </div>
-
-                    <?php $fineDetails = $user['fine_details'] ?? []; ?>
-                    <button class="submit-btn"
-                            style="width: 100%; margin-top: 15px; font-size: 11px; padding: 8px;"
-                            onclick='openFineModal(<?php echo htmlspecialchars(json_encode($fineDetails), ENT_QUOTES); ?>, "<?php echo addslashes($user['name'] ?? ''); ?>")'>
-                        <i class="fa-solid fa-clock-rotate-left"></i> View Fine History
-                    </button>
-
-                    <form action="index.php?page=admin_users" method="POST" onsubmit="return confirm('Delete this user? This cannot be undone.');" style="width: 100%;">
-                        <input type="hidden" name="target_user_id" value="<?php echo htmlspecialchars($user['id'] ?? ''); ?>">
-                        <button type="submit" name="delete_user" class="delete-btn-modal" style="width: 100%; margin-top: 8px; font-size: 11px; padding: 8px;">
-                            <i class="fa-solid fa-user-minus"></i> Delete User
-                        </button>
+    <!-- User Modal Pop-up - START -->
+    <div id="userModal" class="modal-overlay">
+        <div class="modal-card">
+            <!-- Left Column: User Profile -->
+            <div class="modal-sidebar">
+                <div class="avatar-circle">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                </div>
+                <div class="user-info">
+                    <p><strong>User ID:</strong> <span id="modalUserId"></span></p>
+                    <p><strong>Username:</strong> <span id="modalUsername"></span></p>
+                    <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+                    <p><strong>Credits:</strong> <span id="modalCredits"></span></p>
+                    <p><strong>Total Fines Owed:</strong> <span id="modalFines"></span></p>
+                    <p><strong>Books Borrowed:</strong> <span id="modalBorrowed"></span></p>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-warning">View Fine History</button>
+                    <form id="deleteUserForm" action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                        <input type="hidden" name="target_user_id" id="modalDeleteTargetId">
+                        <button type="submit" name="delete_user" class="btn-danger">Delete User</button>
                     </form>
                 </div>
-            <?php endforeach; ?>
+            </div>
+
+            <!-- Right Column: Circulation Logs -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Circulation Logs</h3>
+                    <span class="close-btn" onclick="closeUserModal()">&times;</span>
+                </div>
+                <div class="logs-table-container">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Type</th>
+                                <th>Time Borrowed</th>
+                                <th>Date Borrowed</th>
+                                <th>Due Date</th>
+                                <th>Date Returned</th>
+                                <th>Days Late</th>
+                                <th>Total Fine</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalLogsBody">
+                            <!-- Populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </main>
+    </div>
+    <!-- User Modal Pop-up - END -->
 
     <!-- Fine History Modal -->
     <div id="fineModal" class="modal">
@@ -128,80 +182,9 @@ if (!isset($base_url)) {
         </div>
     </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const userSearch = document.getElementById('userSearch');
-        const userContainer = document.getElementById('userContainer');
 
-        userSearch.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const cards = userContainer.querySelectorAll('.user-card');
-
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                const id = card.getAttribute('data-id');
-                const email = card.getAttribute('data-email');
-
-                const matches = name.includes(searchTerm) ||
-                                id.includes(searchTerm) ||
-                                email.includes(searchTerm);
-                card.style.display = matches ? 'flex' : 'none';
-            });
-        });
-    });
-
-    function openFineModal(details, userName) {
-        document.getElementById('modalUserName').innerText = userName.toUpperCase();
-        const tbody = document.getElementById('fineTableBody');
-        tbody.innerHTML = '';
-
-        if (details.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">No history records found for this user.</td></tr>';
-        }
-
-        details.forEach(item => {
-            const dueDate = item.due_date
-                ? new Date(item.due_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})
-                : 'N/A';
-
-            const returnDate = item.return_date
-                ? new Date(item.return_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})
-                : (item.is_live_overdue ? '<span style="color:red; font-weight:bold;">OVERDUE</span>' : '---');
-
-            const statusLabel = item.is_live_overdue ? 'Live Penalty' : 'Late Return';
-            const statusClass = item.is_live_overdue ? 'on-queue' : 'unavailable';
-
-            const paymentStatus = item.is_fine_paid ? '<span style="color:green;">PAID</span>' : '<span style="color:red;">UNPAID</span>';
-
-            const row = `
-                <tr>
-                    <td><strong>${item.title}</strong></td>
-                    <td>${dueDate}</td>
-                    <td>${returnDate}</td>
-                    <td>
-                        <span class="status-badge ${statusClass}">${statusLabel}</span><br>
-                        <small>Status: ${paymentStatus}</small>
-                    </td>
-                    <td style="color: red; font-weight: bold;">₱${parseFloat(item.calculated_fine).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        });
-
-        document.getElementById('fineModal').style.display = 'flex';
-    }
-
-    function closeFineModal() {
-        document.getElementById('fineModal').style.display = 'none';
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('fineModal');
-        if (event.target == modal) {
-            closeFineModal();
-        }
-    }
-    </script>
+    
+    <script src="<?php echo $base_url; ?>/public/js/fines.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/userModal.js"></script>
 </body>
 </html>

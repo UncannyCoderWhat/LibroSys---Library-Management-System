@@ -47,17 +47,17 @@ class UsersController
         // Fetch real users
         $users = $this->adminModel->getAllUsers();
 
-        // Precompute fines for rendering + modal JS payload
+        // Precompute fines & circulation logs for rendering + modal JS payload
         foreach ($users as &$user) {
             $userId = (int)($user['id'] ?? 0);
             if ($userId > 0) {
-                $totalFines = $this->adminModel->getUserTotalFines($userId);
-                $user['total_fines'] = $totalFines;
-                $fineDetails = $this->adminModel->getUserFineDetails($userId);
-                $user['fine_details'] = $fineDetails;
+                $user['total_fines'] = $this->adminModel->getUserTotalFines($userId);
+                $user['fine_details'] = $this->adminModel->getUserFineDetails($userId);
+                $user['logs'] = $this->adminModel->getUserCirculationLogs($userId);
             } else {
                 $user['total_fines'] = 0;
                 $user['fine_details'] = [];
+                $user['logs'] = [];
             }
         }
         unset($user);

@@ -206,6 +206,7 @@ body {
     padding: 15px 25px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-top: -30px;
 }
 
 .search-box {
@@ -690,24 +691,47 @@ body {
 }
 
 .table-wrapper {
+    width: 100%;
+    max-height: 400px;
+    overflow: auto;
     border: 1px solid #dcdcdc;
     border-radius: 4px;
-    overflow: hidden;
 }
 
 .activity-table {
     width: 100%;
-    border-collapse: collapse;
+    min-width: 600px;
+    border-collapse: separate; /* Required for sticky borders to render cleanly */
+    border-spacing: 0;
     text-align: left;
     background-color: #00ffff;
+    white-space: nowrap;
 }
 
+/* Sticky top header (for vertical scroll) */
 .activity-table th {
+    position: sticky;
+    top: 0;
+    background-color: #00ffff;
+    z-index: 1;
     color: #000000;
     font-weight: 700;
     font-size: 16px;
     padding: 14px 20px;
     border-bottom: 1px solid #dcdcdc;
+}
+
+/* Sticky first column (for horizontal scroll) */
+.activity-table th:first-child,
+.activity-table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #00ffff;
+    z-index: 2;
+}
+
+.activity-table th:first-child {
+    z-index: 3; /* Top-left corner stays above both row and column headers */
 }
 
 .activity-table td {
@@ -850,7 +874,7 @@ body {
 }
 /* BORROWED CSS - END */
 
-/* LEDGER CSS - START */
+/* DASHBOARD CSS - START */
 .ledger-top-cards{
     display:flex;
     gap:35px;
@@ -927,22 +951,45 @@ body {
 .ledger-table {
     border: 1px solid #dcdcdc;
     border-radius: 4px;
-    overflow: hidden;
+    overflow: auto; /* Enables scrolling horizontally and vertically */
+    max-height: 400px; /* Optional: height limit for vertical scroll */
 }
 
 .ledger-activity-table {
     width: 100%;
-    border-collapse: collapse;
+    min-width: 600px; /* Forces horizontal overflow */
+    border-collapse: separate; /* Required for sticky borders */
+    border-spacing: 0;
     text-align: left;
     background-color: #00ffff;
+    white-space: nowrap;
 }
 
+/* Sticky top headers (vertical scroll) */
 .ledger-activity-table th {
+    position: sticky;
+    top: 0;
+    background-color: #00ffff;
+    z-index: 1;
     color: #000000;
     font-weight: 700;
     font-size: 16px;
     padding: 14px 20px;
     border-bottom: 1px solid #dcdcdc;
+}
+
+/* Sticky first column (horizontal scroll) */
+.ledger-activity-table th:first-child,
+.ledger-activity-table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #00ffff;
+    z-index: 2;
+}
+
+/* Top-left header corner overlay */
+.ledger-activity-table th:first-child {
+    z-index: 3;
 }
 
 .ledger-activity-table td {
@@ -961,7 +1008,7 @@ body {
     text-align: center; 
     color: #7f8c8d;
 }
-/* LEDGER CSS - END */
+/* DASHBOARD CSS - END */
 
 /* USER CSS - START */
 .user-card-container {
@@ -1019,6 +1066,181 @@ body {
     font-weight: 600;
 }
 /* USER CSS - END */
+
+/* NEW USER CSS - START */
+.user-table-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 0px;
+}
+
+.user-table {
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.user-activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    background-color: #00ffff;
+}
+
+.user-activity-table th {
+    color: #000000;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #dcdcdc;
+}
+
+.user-activity-table td {
+    padding: 14px 20px;
+    color: #000000;
+    font-size: 15px;
+    font-weight: 500;
+    border-bottom: 1px solid #eef0f2;
+}
+
+.user-activity-table tbody tr:last-child td {
+    border-bottom: none;
+} 
+
+.user-no-data-cell {
+    text-align: center; 
+    color: #7f8c8d;
+}
+
+.btn-view-details {
+    background-color: #f7b767;
+    color: black;
+    border: none;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-view-details:hover {
+    background-color: #f79e67;
+    color: white;
+}
+
+.btn-view-details:active {
+    transform: scale(0.98);
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-card {
+    background: white;
+    display: flex;
+    width: 90%;
+    max-width: 900px;
+    height: 61vh;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.modal-sidebar {
+    width: 260px;
+    background: cyan;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 2px solid #999;
+}
+
+.avatar-circle {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 15px;
+}
+
+.user-info {
+    width: 100%;
+    font-size: 14px;
+    color: #111;
+    line-height: 1.4;
+}
+
+.modal-actions {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-warning {
+    background-color: #f5b041;
+    border: none;
+    padding: 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-danger {
+    background-color: #ff3333;
+    color: white;
+    border: none;
+    padding: 8px;
+    width: 100%;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-content {
+    flex: 1;
+    background: #b0b0b0;
+    padding: 15px 20px;
+    margin-top: 50px;
+    height: 350px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #666;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.close-btn {
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.logs-table th, .logs-table td {
+    padding: 6px 4px;
+    text-align: left;
+}
+/* NEW USER CSS - END */
 
 /*SETTINGS CSS -START */
 .settings-center-wrapper {

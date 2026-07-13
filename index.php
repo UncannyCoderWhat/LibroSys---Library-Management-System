@@ -73,6 +73,7 @@ if (strpos($page, 'admin_') === 0) {
             $data = $controller->getLedgerPageData();
             $currentlyBorrowedCount = $data['currentlyBorrowedCount'] ?? 0;
             $totalFinesAccumulated = $data['totalFinesAccumulated'] ?? 0;
+            $reservations = $data['reservations'] ?? [];
             $view = 'app/Views/admin/dashboard.php';
             break;
 
@@ -106,6 +107,8 @@ if (strpos($page, 'admin_') === 0) {
             $users = $data['users'] ?? [];
             $message = $data['message'] ?? '';
             $message_type = $data['message_type'] ?? '';
+            $controller = new DashboardController($pdo);
+            $activities = $controller->getRecentActivities(10);
             $view = 'app/Views/admin/users.php';
             break;
 

@@ -316,6 +316,61 @@ class AdminModel
         }
     }
 
+    public function getUserCirculationLogs(int $userId): array
+    {
+        $sql = "
+            SELECT 
+                b.title,
+                b.author,
+                b.is_exclusive AS type,
+                TIME(br.borrow_date) AS time_borrowed,
+                DATE(br.borrow_date) AS date_borrowed,
+                br.due_date,
+                br.return_date AS date_returned,
+                br.fine_amount,
+                br.status
+            FROM borrows br
+            JOIN books b ON br.book_id = b.id
+            WHERE br.user_id = :user_id
+            ORDER BY br.borrow_date DESC
+        ";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':user_id' => $userId]);
+        $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($logs as &$log) {
+            $daysLate = 0;
+            $fine = (float)($log['fine_amount'] ?? 0);
+
+            if (!empty($log['due_date'])) {
+                $endDate = !empty($log['date_returned']) ? strtotime($log['date_returned']) : time();
+                $dueDate = strtotime($log['due_date']);
+
+                if ($endDate > $dueDate) {
+                    $daysLate = (int)ceil(($endDate - $dueDate) / 86400);
+
+                    if ($log['status'] === 'borrowed') {
+                        if ($daysLate <= 3) {
+                            $fine = $daysLate * 50;
+                        } elseif ($daysLate <= 10) {
+                            $fine = $daysLate * 100;
+                        } else {
+                            $fine = $daysLate * 150;
+                        }
+                    }
+                }
+            }
+
+            $log['type'] = $log['type'] ? 'Exclusive' : 'Standard';
+            $log['days_late'] = $daysLate;
+            $log['total_fine'] = number_format($fine, 2);
+        }
+        unset($log);
+
+        return $logs;
+    }
+
     // ==================== ADMIN SETTINGS ====================
 
     public function getAdminBySession(string $adminUser): ?array
