@@ -1,5 +1,5 @@
 <?php
-// View template: expects $currentPage, $totalBooks, $availableBooks, $borrowedBooks, $exclusiveBooks, $activities.
+// View template: expects $currentPage, $totalBooks, $availableBooks, $borrowedBooks, $exclusiveBooks, $currentlyBorrowedCount, $totalFinesAccumulated, $activities.
 $currentPage = 'dashboard';
 if (!isset($base_url)) {
     $base_url = '';
@@ -68,6 +68,45 @@ if (!isset($base_url)) {
                     <span class="card-label">EXCLUSIVE BOOKS</span>
                     <span class="card-value"><?php echo htmlspecialchars($exclusiveBooks ?? 0); ?></span>
                     <span class="card-subtext">Special Collection</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW -->
+        <section class="ledger-grid">
+            <div class="ledger-top-cards">
+                <div class="ledger-info-card">
+                    <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
+                        <i class="fa-solid fa-book-reader" style="font-size: 45px; color: black;"></i>
+
+                        <div class="left-text">
+                            <span class="card-label">CURRENTLY BORROWED BOOKS</span>
+                            <span class="card-value"><?php echo htmlspecialchars($currentlyBorrowedCount ?? 0); ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ledger-info-card">
+                    <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
+                        <i class="fa-solid fa-file-invoice-dollar" style="font-size: 45px; color: black;"></i>
+
+                        <div class="left-text">
+                            <span class="card-label">TOTAL FINES ACCUMULATED</span>
+                            <span class="card-value">₱<?php echo number_format((float)($totalFinesAccumulated ?? 0), 2); ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ledger-info-card">
+                    <div class="right-text">
+                        <span class="fine-guide">FINE GUIDE <br></span>
+                        <span class="card-label">
+                            1 - 3 days late :  ₱50/day <br>
+                            4 - 10 days late :  ₱100/day <br>
+                            11+ days late :  ₱150/day
+                        </span>
+                    </div>
+                    <i class="fa-solid fa-receipt" style="font-size: 45px; color: black;"></i>
                 </div>
             </div>
         </section>

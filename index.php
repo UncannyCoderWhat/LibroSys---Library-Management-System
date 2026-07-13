@@ -69,6 +69,10 @@ if (strpos($page, 'admin_') === 0) {
             $availableBooks = $metrics['availableBooks'];
             $borrowedBooks = $metrics['borrowedBooks'];
             $exclusiveBooks = $metrics['exclusiveBooks'];
+            $controller = new LedgerController($pdo);
+            $data = $controller->getLedgerPageData();
+            $currentlyBorrowedCount = $data['currentlyBorrowedCount'] ?? 0;
+            $totalFinesAccumulated = $data['totalFinesAccumulated'] ?? 0;
             $view = 'app/Views/admin/dashboard.php';
             break;
 

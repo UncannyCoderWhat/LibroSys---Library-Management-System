@@ -30,41 +30,7 @@ if (!isset($base_url)) {
             </div>
         </div>
 
-        <div class="ledger-top-cards">
-            <div class="ledger-info-card">
-                <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
-                    <i class="fa-solid fa-book-reader" style="font-size: 45px; color: black;"></i>
-
-                    <div class="left-text">
-                        <h3>Currently Borrowed Books</h3>
-                        <div class="borrow-count"><?php echo htmlspecialchars($currentlyBorrowedCount ?? 0); ?></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ledger-info-card">
-                <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
-                    <i class="fa-solid fa-file-invoice-dollar" style="font-size: 45px; color: black;"></i>
-
-                    <div class="left-text">
-                        <h3>Total Fines Accumulated</h3>
-                        <div class="borrow-count">₱<?php echo number_format((float)($totalFinesAccumulated ?? 0), 2); ?></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ledger-info-card">
-                <div class="right-text">
-                    <h3>Ledger <br></h3>
-                    <h4>
-                        1 - 3 days late :  ₱50/day <br>
-                        4 - 10 days late :  ₱100/day <br>
-                        11+ days late :  ₱150/day
-                    </h4>
-                </div>
-                <i class="fa-solid fa-receipt" style="font-size: 45px; color: black;"></i>
-            </div>
-        </div>
+        
 
         <section class="ledger-table-container">
             <div class="ledger-table">
