@@ -81,6 +81,9 @@ if (strpos($page, 'admin_') === 0) {
             $controller = new BooksController($pdo);
             $controller->handleActions($_GET, $_POST, $_FILES);
             $all_books = $controller->getAllBooks();
+            $all_categories = $controller->getAllCategories();
+            $all_authors = $controller->getAllAuthors();
+            $all_publishers = $controller->getAllPublishers();
             $view = 'app/Views/admin/books.php';
             break;
 

@@ -47,144 +47,128 @@ if (!isset($base_url)) {
             </div>
         </section>
 
-        <!-- New Upload Book Form Section -->
-        <section class="activity-section">
-            <h2 class="section-title">UPLOAD NEW BOOK</h2>
-            <form action="index.php?page=admin_books" method="POST" enctype="multipart/form-data" class="add-book-form">
-                <div class="form-group">
-                    <input type="text" name="title" placeholder="Book Title" required>
-                    <input type="text" name="author" placeholder="Author" required>
-                    <input type="text" name="isbn" placeholder="ISBN/ID" required>
-                    <select name="genre" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-                        <option value="" disabled selected>Select Genre</option>
-                        <option value="Fiction">Fiction</option>
-                        <option value="Non-Fiction">Non-Fiction</option>
-                        <option value="Mystery">Mystery</option>
-                        <option value="Sci-Fi">Sci-Fi</option>
-                        <option value="Fantasy">Fantasy</option>
-                        <option value="Romance">Romance</option>
-                        <option value="Horror">Horror</option>
-                        <option value="History">History</option>
-                        <option value="Biography">Biography</option>
-                        <option value="Action">Action</option>
-                    </select>
-                    <input type="file" name="cover_image" accept="image/*" class="file-input">
-                    <label class="checkbox-container">
-                        <input type="checkbox" name="is_exclusive">
-                        <span class="checkmark"></span>
-                        Exclusive Perk
-                    </label>
-                    <button type="submit" name="add_book" class="submit-btn">UPLOAD BOOK</button>
-                </div>
-            </form>
+        <!-- Toolbar -->
+        <div class="books-toolbar">
+            <button class="btn btn-primary" onclick="openModal('addBookModal')"><i class="fa-solid fa-plus"></i> Add New Book</button>
+            <button class="btn btn-info" onclick="openModal('apiImportModal')"><i class="fa-solid fa-cloud-arrow-down"></i> API Import</button>
+            <button class="btn btn-dark" onclick="switchMgmtTab('categories')"><i class="fa-solid fa-tags"></i> Categories</button>
+            <button class="btn btn-dark" onclick="switchMgmtTab('authors')"><i class="fa-solid fa-user-pen"></i> Authors</button>
+            <button class="btn btn-dark" onclick="switchMgmtTab('publishers')"><i class="fa-solid fa-building"></i> Publishers</button>
+        </div>
+
+        <!-- API Import Modal -->
+        <div id="apiImportModal" class="modal" style="display:none"><div class="modal-content" style="max-width:600px"><span class="close" onclick="closeModal('apiImportModal')">&times;</span><h2 class="section-title">API Book Import</h2><p style="font-size:13px;color:#555;margin-bottom:12px;">Enter an ISBN, Google Books ID, or Open Library ID.</p><form action="index.php?page=admin_books" method="POST" class="api-import-box" style="border-style:solid"><select name="api_source" style="padding:10px;border-radius:6px;border:1px solid #ccc"><option value="isbn">ISBN</option><option value="google_books_id">Google Books ID</option><option value="open_library_id">Open Library ID</option></select><input type="text" name="api_identifier" placeholder="Enter identifier..." required><button type="submit" name="api_import" class="submit-btn"><i class="fa-solid fa-download"></i> Import</button></form></div></div>
+
+        <!-- Search and Filter -->
+        <section class="activity-section" style="padding:12px 0"><div class="search-filter-container"><div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="bookSearch" placeholder="Search by title, author, ISBN..."></div><div class="filter-box"><select id="statusFilter"><option value="all">All Status</option><option value="available">Available</option><option value="unavailable">Unavailable</option><option value="archived">Archived</option></select><select id="categoryFilter"><option value="all">All Categories</option><?php foreach($all_categories??[] as $cat):?><option value="<?php echo htmlspecialchars($cat['name']);?>"><?php echo htmlspecialchars($cat['name']);?></option><?php endforeach;?></select><select id="genreFilter"><option value="all">All Genres</option><option>Fiction</option><option>Non-Fiction</option><option>Mystery</option><option>Sci-Fi</option><option>Fantasy</option><option>Romance</option><option>Horror</option><option>History</option><option>Biography</option></select></div></div></section>
+
+        <!-- Books Table -->
+        <section class="activity-section"><div class="section-header"><h2 class="section-title" style="margin:0"><i class="fa-solid fa-book"></i> Library Collection</h2><span style="font-size:13px;color:#888" id="resultCount"><?php echo count($all_books??[]);?> book(s)</span></div>
+        <div class="books-table-container"><table class="books-table" id="booksTable"><thead><tr><th>Cover</th><th>Title</th><th>Author</th><th>ISBN</th><th>Genre</th><th>Publisher</th><th>Year</th><th>Language</th><th>Shelf</th><th>Copies</th><th>Status</th><th>Actions</th></tr></thead><tbody id="booksTableBody">
+        <?php if(empty($all_books)):?><tr><td colspan="12" style="text-align:center;padding:30px;color:#999">No books found. Add a new book to get started.</td></tr>
+        <?php else: foreach($all_books as $book):?><tr class="book-row" data-title="<?php echo strtolower(htmlspecialchars($book['title']));?>" data-author="<?php echo strtolower(htmlspecialchars($book['author']));?>" data-isbn="<?php echo strtolower(htmlspecialchars($book['isbn']));?>" data-genre="<?php echo strtolower(htmlspecialchars($book['genre']));?>" data-category="<?php echo strtolower(htmlspecialchars($book['category_name']??''));?>" data-status="<?php echo htmlspecialchars($book['status']??'available');?>">
+        <td><img src="<?php echo $base_url;?>/<?php echo htmlspecialchars($book['cover_path']??'images/book-icon.png');?>" class="cover-thumb" alt="Cover"></td>
+        <td><strong><?php echo htmlspecialchars($book['title']);?></strong><?php if($book['is_exclusive']):?><i class="fa-solid fa-star" style="color:#fca311;font-size:11px;margin-left:4px" title="Exclusive"></i><?php endif;?></td>
+        <td><?php echo htmlspecialchars($book['author']);?></td><td><?php echo htmlspecialchars($book['isbn']);?></td><td><?php echo htmlspecialchars($book['genre']);?></td><td><?php echo htmlspecialchars($book['publisher']??'');?></td><td><?php echo htmlspecialchars($book['publication_year']??'');?></td><td><?php echo htmlspecialchars($book['language']??'English');?></td><td><?php echo htmlspecialchars($book['shelf_location']??'');?></td><td><?php echo (int)($book['copies']??1);?></td>
+        <td><span class="status-badge status-<?php echo $book['status']??'available';?>"><?php echo ucfirst($book['status']??'available');?></span></td>
+        <td><div class="dropdown-actions">
+            <button class="dropdown-trigger" onclick="toggleDropdown(this)"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+            <div class="dropdown-menu">
+                <button onclick='openEditModal(<?php echo htmlspecialchars(json_encode($book),ENT_QUOTES);?>)'><i class="fa-solid fa-pen"></i> Edit</button>
+                <button onclick='openEbookModal(<?php echo (int)$book['id'];?>,"<?php echo htmlspecialchars(addslashes($book['title']));?>")'><i class="fa-solid fa-file"></i> eBook</button>
+                <button onclick='openCopiesModal(<?php echo (int)$book['id'];?>,"<?php echo htmlspecialchars(addslashes($book['title']));?>")'><i class="fa-solid fa-copy"></i> Copies</button>
+                <?php $st=$book['status']??'available';if($st==='available'):?>
+                <div class="dropdown-divider"></div>
+                <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"archive_book")'><i class="fa-solid fa-box-archive"></i> Archive</button>
+                <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"unavailable_book")'><i class="fa-solid fa-ban"></i> Mark Unavailable</button>
+                <?php elseif($st==='archived'):?>
+                <div class="dropdown-divider"></div>
+                <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"restore_book")'><i class="fa-solid fa-rotate-left"></i> Restore</button>
+                <?php elseif($st==='unavailable'):?>
+                <div class="dropdown-divider"></div>
+                <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"restore_book")'><i class="fa-solid fa-check"></i> Make Available</button>
+                <?php endif;?>
+                <div class="dropdown-divider"></div>
+                <button onclick='confirmDelete(<?php echo (int)$book['id'];?>)' style="color:#dc3545"><i class="fa-solid fa-trash-can"></i> Delete</button>
+            </div>
+        </div></td></tr><?php endforeach;endif;?>
+        </tbody></table></div>
+        <div class="pagination-controls" id="paginationControls"><button id="prevPage" onclick="changePage(-1)" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button><span class="page-info" id="pageInfo">Page 1 of 1</span><button id="nextPage" onclick="changePage(1)" disabled>Next <i class="fa-solid fa-chevron-right"></i></button><span style="margin-left:15px;font-size:13px"><label>Show:</label><select id="perPageSelect" onchange="resetPagination()" style="padding:4px 8px;border:1px solid #ddd;border-radius:4px"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></span></div>
         </section>
 
-        <!-- Search and Filter Section -->
-        <section class="activity-section">
-            <div class="search-filter-container">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="bookSearch" placeholder="Search by title or author...">
-                </div>
-                <div class="filter-box">
-                    <select id="categoryFilter">
-                        <option value="all">All Categories</option>
-                        <option value="regular">Regular Books</option>
-                        <option value="exclusive">Exclusive Books</option>
-                    </select>
-                </div>
-            </div>
-        </section>
-
-        <!-- Dynamic Book Display -->
-        <section class="activity-section">
-            <h2 class="section-title">LIBRARY COLLECTION</h2>
-            <div class="book-grid" id="bookGrid">
-                <?php if (empty($all_books)): ?>
-                    <p>No books found. Use the form above to add some!</p>
-                <?php else: ?>
-                    <?php foreach ($all_books as $book): ?>
-                        <div class="book-card"
-                             data-title="<?php echo strtolower(htmlspecialchars($book['title'])); ?>"
-                             data-author="<?php echo strtolower(htmlspecialchars($book['author'])); ?>"
-                             data-genre="<?php echo strtolower(htmlspecialchars($book['genre'])); ?>"
-                             data-category="<?php echo $book['is_exclusive'] ? 'exclusive' : 'regular'; ?>">
-                            <div class="book-cover">
-                                <img src="<?php echo $base_url; ?>/<?php echo htmlspecialchars($book['cover_path']); ?>" alt="Cover" width="200" height="300" />
-                                <?php if($book['is_exclusive']): ?>
-                                    <div class="exclusive-badge"><i class="fa-solid fa-star"></i></div>
-                                <?php endif; ?>
-                                <div class="edit-btn-overlay" onclick='openEditModal(<?php echo htmlspecialchars(json_encode($book), ENT_QUOTES); ?>)'>
-                                    <i class="fa-solid fa-pen-to-square" title="Edit Book"></i>
-                                    <i class="fa-solid fa-trash-can" onclick="event.stopPropagation(); confirmDelete(<?php echo $book['id']; ?>)" title="Delete Book"></i>
-                                </div>
-                            </div>
-                            <div class="book-content">
-                                <h3 style="font-size: 14px; margin-bottom: 5px; height: 40px; overflow: hidden;">
-                                    <?php echo htmlspecialchars($book['title']); ?></h3>
-                                <p style="font-size: 12px; color: #666;"><?php echo htmlspecialchars($book['author']); ?></p>
-                                <div class="book-meta">
-                                    <span class="genre"><?php echo htmlspecialchars($book['genre']); ?></span>
-                                    <span class="ID"><?php echo htmlspecialchars($book['isbn']); ?></span>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+        <!-- Management Tabs: Categories, Authors, Publishers -->
+        <section class="activity-section"><div class="mgmt-tabs"><button class="tab active" onclick="switchMgmtTab('categories')"><i class="fa-solid fa-tags"></i> Categories</button><button class="tab" onclick="switchMgmtTab('authors')"><i class="fa-solid fa-user-pen"></i> Authors</button><button class="tab" onclick="switchMgmtTab('publishers')"><i class="fa-solid fa-building"></i> Publishers</button></div>
+        <div id="panel-categories" class="mgmt-panel active"><div class="section-header"><h3 style="font-size:16px">Categories</h3><button class="btn btn-primary btn-sm" onclick="openModal('addCategoryModal')"><i class="fa-solid fa-plus"></i> Add Category</button></div><div class="compact-grid"><?php foreach($all_categories??[] as $cat):?><div class="compact-card"><div class="card-header"><h4><?php echo htmlspecialchars($cat['name']);?></h4></div><div class="card-body"><?php echo htmlspecialchars($cat['description']??'No description');?></div><div class="card-actions"><button class="btn-sm btn-primary" onclick='openCategoryEditModal(<?php echo htmlspecialchars(json_encode($cat),ENT_QUOTES);?>)'>Edit</button><a href="index.php?page=admin_books&delete_category=<?php echo $cat['id'];?>" class="btn-sm btn-danger" onclick="return confirm('Delete this category?')">Delete</a></div></div><?php endforeach;?></div></div>
+        <div id="panel-authors" class="mgmt-panel"><div class="section-header"><h3 style="font-size:16px">Authors</h3><button class="btn btn-primary btn-sm" onclick="openModal('addAuthorModal')"><i class="fa-solid fa-plus"></i> Add Author</button></div><div class="compact-grid"><?php foreach($all_authors??[] as $author):?><div class="compact-card"><div class="card-header"><h4><?php echo htmlspecialchars($author['name']);?></h4></div><div class="card-body"><?php if($author['bio']):?><p><em><?php echo htmlspecialchars($author['bio']);?></em></p><?php endif;?><?php if($author['birth_year']):?><p>Born: <?php echo htmlspecialchars($author['birth_year']);?></p><?php endif;?></div><div class="card-actions"><button class="btn-sm btn-primary" onclick='openAuthorEditModal(<?php echo htmlspecialchars(json_encode($author),ENT_QUOTES);?>)'>Edit</button><a href="index.php?page=admin_books&delete_author=<?php echo $author['id'];?>" class="btn-sm btn-danger" onclick="return confirm('Delete this author?')">Delete</a></div></div><?php endforeach;?></div></div>
+        <div id="panel-publishers" class="mgmt-panel"><div class="section-header"><h3 style="font-size:16px">Publishers</h3><button class="btn btn-primary btn-sm" onclick="openModal('addPublisherModal')"><i class="fa-solid fa-plus"></i> Add Publisher</button></div><div class="compact-grid"><?php foreach($all_publishers??[] as $pub):?><div class="compact-card"><div class="card-header"><h4><?php echo htmlspecialchars($pub['name']);?></h4></div><div class="card-body"><?php if($pub['address']):?><p><?php echo htmlspecialchars($pub['address']);?></p><?php endif;?><?php if($pub['website']):?><p><a href="<?php echo htmlspecialchars($pub['website']);?>" target="_blank"><?php echo htmlspecialchars($pub['website']);?></a></p><?php endif;?></div><div class="card-actions"><button class="btn-sm btn-primary" onclick='openPublisherEditModal(<?php echo htmlspecialchars(json_encode($pub),ENT_QUOTES);?>)'>Edit</button><a href="index.php?page=admin_books&delete_publisher=<?php echo $pub['id'];?>" class="btn-sm btn-danger" onclick="return confirm('Delete this publisher?')">Delete</a></div></div><?php endforeach;?></div></div>
         </section>
     </main>
 
-    <!-- Edit Book Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2 class="section-title">EDIT BOOK DETAILS</h2>
-            <form action="index.php?page=admin_books" method="POST" enctype="multipart/form-data" class="edit-book-form">
-                <input type="hidden" name="book_id" id="edit_book_id">
-                <input type="hidden" name="current_cover" id="edit_current_cover">
+    <!-- ADD BOOK MODAL -->
+    <div id="addBookModal" class="modal modal-large" style="display:none"><div class="modal-content"><span class="close" onclick="closeModal('addBookModal')">&times;</span><h2 class="section-title"><i class="fa-solid fa-plus"></i> Add New Book</h2>
+    <form action="index.php?page=admin_books" method="POST" enctype="multipart/form-data"><div class="form-grid">
+    <div><label>Title *</label><input type="text" name="title" required></div>
+    <div><label>Author *</label><input type="text" name="author" required></div>
+    <div><label>ISBN *</label><input type="text" name="isbn" required></div>
+    <div><label>Genre</label><select name="genre"><option value="">Select Genre</option><option>Fiction</option><option>Non-Fiction</option><option>Mystery</option><option>Sci-Fi</option><option>Fantasy</option><option>Romance</option><option>Horror</option><option>History</option><option>Biography</option></select></div>
+    <div><label>Publisher</label><input type="text" name="publisher"></div>
+    <div><label>Publication Year</label><input type="number" name="publication_year" min="1000" max="2099"></div>
+    <div><label>Language</label><input type="text" name="language" value="English"></div>
+    <div><label>Shelf Location</label><input type="text" name="shelf_location" placeholder="e.g. A-12"></div>
+    <div><label>Copies</label><input type="number" name="copies" value="1" min="1"></div>
+    <div><label>Status</label><select name="status"><option value="available">Available</option><option value="unavailable">Unavailable</option><option value="archived">Archived</option></select></div>
+    <div><label>Category</label><select name="category_id"><option value="">-- Select Category --</option><?php foreach($all_categories??[] as $cat):?><option value="<?php echo $cat['id'];?>"><?php echo htmlspecialchars($cat['name']);?></option><?php endforeach;?></select></div>
+    <div><label>Author (list)</label><select name="author_id"><option value="">-- Select Author --</option><?php foreach($all_authors??[] as $auth):?><option value="<?php echo $auth['id'];?>"><?php echo htmlspecialchars($auth['name']);?></option><?php endforeach;?></select></div>
+    <div><label>Publisher (list)</label><select name="publisher_id"><option value="">-- Select Publisher --</option><?php foreach($all_publishers??[] as $pub):?><option value="<?php echo $pub['id'];?>"><?php echo htmlspecialchars($pub['name']);?></option><?php endforeach;?></select></div>
+    <div><label>Cover Image</label><input type="file" name="cover_image" accept="image/*"></div>
+    <div class="full-width"><label><input type="checkbox" name="is_exclusive" value="1"> Exclusive Perk</label></div>
+    <div class="full-width"><label>Description</label><textarea name="description" placeholder="Book description..."></textarea></div>
+    </div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('addBookModal')">Cancel</button><button type="submit" name="add_book" class="submit-btn"><i class="fa-solid fa-save"></i> Add Book</button></div></form></div></div>
 
-                <div class="modal-body">
-                    <div class="form-group-vertical">
-                        <label>Book Title</label>
-                        <input type="text" name="title" id="edit_title" required>
+    <!-- EDIT BOOK MODAL -->
+    <div id="editBookModal" class="modal modal-large" style="display:none"><div class="modal-content"><span class="close" onclick="closeModal('editBookModal')">&times;</span><h2 class="section-title"><i class="fa-solid fa-pen"></i> Edit Book Details</h2>
+    <form action="index.php?page=admin_books" method="POST" enctype="multipart/form-data"><input type="hidden" name="book_id" id="edit_book_id"><input type="hidden" name="current_cover" id="edit_current_cover"><div class="form-grid">
+    <div><label>Title *</label><input type="text" name="title" id="edit_title" required></div>
+    <div><label>Author *</label><input type="text" name="author" id="edit_author" required></div>
+    <div><label>ISBN *</label><input type="text" name="isbn" id="edit_isbn" required></div>
+    <div><label>Genre</label><select name="genre" id="edit_genre"><option value="">Select Genre</option><option>Fiction</option><option>Non-Fiction</option><option>Mystery</option><option>Sci-Fi</option><option>Fantasy</option><option>Romance</option><option>Horror</option><option>History</option><option>Biography</option></select></div>
+    <div><label>Publisher</label><input type="text" name="publisher" id="edit_publisher"></div>
+    <div><label>Publication Year</label><input type="number" name="publication_year" id="edit_publication_year" min="1000" max="2099"></div>
+    <div><label>Language</label><input type="text" name="language" id="edit_language"></div>
+    <div><label>Shelf Location</label><input type="text" name="shelf_location" id="edit_shelf_location"></div>
+    <div><label>Copies</label><input type="number" name="copies" id="edit_copies" min="1"></div>
+    <div><label>Status</label><select name="status" id="edit_status"><option value="available">Available</option><option value="unavailable">Unavailable</option><option value="archived">Archived</option></select></div>
+    <div><label>Category</label><select name="category_id" id="edit_category_id"><option value="">-- Select Category --</option><?php foreach($all_categories??[] as $cat):?><option value="<?php echo $cat['id'];?>"><?php echo htmlspecialchars($cat['name']);?></option><?php endforeach;?></select></div>
+    <div><label>Author (list)</label><select name="author_id" id="edit_author_id"><option value="">-- Select Author --</option><?php foreach($all_authors??[] as $auth):?><option value="<?php echo $auth['id'];?>"><?php echo htmlspecialchars($auth['name']);?></option><?php endforeach;?></select></div>
+    <div><label>Publisher (list)</label><select name="publisher_id" id="edit_publisher_id"><option value="">-- Select Publisher --</option><?php foreach($all_publishers??[] as $pub):?><option value="<?php echo $pub['id'];?>"><?php echo htmlspecialchars($pub['name']);?></option><?php endforeach;?></select></div>
+    <div><label>Change Cover</label><input type="file" name="cover_image" accept="image/*"></div>
+    <div class="full-width"><label><input type="checkbox" name="is_exclusive" id="edit_is_exclusive" value="1"> Exclusive Perk</label></div>
+    <div class="full-width"><label>Description</label><textarea name="description" id="edit_description" placeholder="Book description..."></textarea></div>
+    </div><div class="modal-footer-actions"><button type="button" class="btn btn-danger" onclick="confirmDelete(document.getElementById('edit_book_id').value)">DELETE</button><button type="submit" name="update_book" class="submit-btn"><i class="fa-solid fa-save"></i> Save Changes</button></div></form></div></div>
 
-                        <label>Author</label>
-                        <input type="text" name="author" id="edit_author" required>
+    <!-- CATEGORY ADD MODAL -->
+    <div id="addCategoryModal" class="modal" style="display:none"><div class="modal-content" style="max-width:500px"><span class="close" onclick="closeModal('addCategoryModal')">&times;</span><h2 class="section-title">Add Category</h2><form action="index.php?page=admin_books" method="POST"><div class="form-grid"><div class="full-width"><label>Category Name *</label><input type="text" name="category_name" required></div><div class="full-width"><label>Description</label><textarea name="category_description" placeholder="Optional description..."></textarea></div></div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('addCategoryModal')">Cancel</button><button type="submit" name="add_category" class="submit-btn">Add Category</button></div></form></div></div>
 
-                        <label>ISBN/ID</label>
-                        <input type="text" name="isbn" id="edit_isbn" required>
+    <!-- CATEGORY EDIT MODAL -->
+    <div id="editCategoryModal" class="modal" style="display:none"><div class="modal-content" style="max-width:500px"><span class="close" onclick="closeModal('editCategoryModal')">&times;</span><h2 class="section-title">Edit Category</h2><form action="index.php?page=admin_books" method="POST"><input type="hidden" name="category_id" id="edit_cat_id"><div class="form-grid"><div class="full-width"><label>Category Name *</label><input type="text" name="category_name" id="edit_cat_name" required></div><div class="full-width"><label>Description</label><textarea name="category_description" id="edit_cat_description" placeholder="Optional description..."></textarea></div></div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('editCategoryModal')">Cancel</button><button type="submit" name="update_category" class="submit-btn">Save Changes</button></div></form></div></div>
 
-                        <label>Genre</label>
-                        <select name="genre" id="edit_genre" required style="padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
-                            <option value="Fiction">Fiction</option>
-                            <option value="Non-Fiction">Non-Fiction</option>
-                            <option value="Mystery">Mystery</option>
-                            <option value="Sci-Fi">Sci-Fi</option>
-                            <option value="Fantasy">Fantasy</option>
-                            <option value="Romance">Romance</option>
-                            <option value="Horror">Horror</option>
-                            <option value="History">History</option>
-                            <option value="Biography">Biography</option>
-                        </select>
+    <!-- AUTHOR ADD MODAL -->
+    <div id="addAuthorModal" class="modal" style="display:none"><div class="modal-content" style="max-width:500px"><span class="close" onclick="closeModal('addAuthorModal')">&times;</span><h2 class="section-title"><i class="fa-solid fa-user-pen"></i> Add Author</h2><form action="index.php?page=admin_books" method="POST"><div class="form-grid"><div class="full-width"><label>Author Name *</label><input type="text" name="author_name" required></div><div class="full-width"><label>Biography</label><textarea name="author_bio" placeholder="Short biography..."></textarea></div><div><label>Birth Year</label><input type="number" name="author_birth_year" min="1000" max="2099" placeholder="e.g. 1950"></div></div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('addAuthorModal')">Cancel</button><button type="submit" name="add_author" class="submit-btn"><i class="fa-solid fa-save"></i> Add Author</button></div></form></div></div>
 
-                        <label>Change Cover Image (Optional)</label>
-                        <input type="file" name="cover_image" accept="image/*">
+    <!-- AUTHOR EDIT MODAL -->
+    <div id="editAuthorModal" class="modal" style="display:none"><div class="modal-content" style="max-width:500px"><span class="close" onclick="closeModal('editAuthorModal')">&times;</span><h2 class="section-title"><i class="fa-solid fa-user-pen"></i> Edit Author</h2><form action="index.php?page=admin_books" method="POST"><input type="hidden" name="author_id" id="edit_author_id_val"><div class="form-grid"><div class="full-width"><label>Author Name *</label><input type="text" name="author_name" id="edit_author_name" required></div><div class="full-width"><label>Biography</label><textarea name="author_bio" id="edit_author_bio" placeholder="Short biography..."></textarea></div><div><label>Birth Year</label><input type="number" name="author_birth_year" id="edit_author_birth_year" min="1000" max="2099"></div></div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('editAuthorModal')">Cancel</button><button type="submit" name="update_author" class="submit-btn"><i class="fa-solid fa-save"></i> Save Changes</button></div></form></div></div>
 
-                        <label class="checkbox-container">
-                            <input type="checkbox" name="is_exclusive" id="edit_is_exclusive">
-                            <span class="checkmark"></span>
-                            Exclusive Perk
-                        </label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="delete-btn-modal" onclick="confirmDelete(document.getElementById('edit_book_id').value)">DELETE BOOK</button>
-                        <button type="submit" name="update_book" class="submit-btn">SAVE CHANGES</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- PUBLISHER ADD MODAL -->
+    <div id="addPublisherModal" class="modal" style="display:none"><div class="modal-content" style="max-width:500px"><span class="close" onclick="closeModal('addPublisherModal')">&times;</span><h2 class="section-title"><i class="fa-solid fa-building"></i> Add Publisher</h2><form action="index.php?page=admin_books" method="POST"><div class="form-grid"><div class="full-width"><label>Publisher Name *</label><input type="text" name="publisher_name" required></div><div class="full-width"><label>Address</label><textarea name="publisher_address" placeholder="Address..."></textarea></div><div class="full-width"><label>Website</label><input type="url" name="publisher_website" placeholder="https://example.com"></div></div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('addPublisherModal')">Cancel</button><button type="submit" name="add_publisher" class="submit-btn"><i class="fa-solid fa-save"></i> Add Publisher</button></div></form></div></div>
+
+    <!-- PUBLISHER EDIT MODAL -->
+    <div id="editPublisherModal" class="modal" style="display:none"><div class="modal-content" style="max-width:500px"><span class="close" onclick="closeModal('editPublisherModal')">&times;</span><h2 class="section-title"><i class="fa-solid fa-building"></i> Edit Publisher</h2><form action="index.php?page=admin_books" method="POST"><input type="hidden" name="publisher_id" id="edit_publisher_id_val"><div class="form-grid"><div class="full-width"><label>Publisher Name *</label><input type="text" name="publisher_name" id="edit_publisher_name" required></div><div class="full-width"><label>Address</label><textarea name="publisher_address" id="edit_publisher_address" placeholder="Address..."></textarea></div><div class="full-width"><label>Website</label><input type="url" name="publisher_website" id="edit_publisher_website" placeholder="https://example.com"></div></div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('editPublisherModal')">Cancel</button><button type="submit" name="update_publisher" class="submit-btn"><i class="fa-solid fa-save"></i> Save Changes</button></div></form></div></div>
+
+    <!-- EBOOK MODAL (AJAX loaded) -->
+    <div id="ebookModal" class="modal modal-large" style="display:none"><div class="modal-content"><span class="close" onclick="closeModal('ebookModal')">&times;</span><div id="ebookModalContent"><p style="text-align:center;padding:20px;">Loading...</p></div></div></div>
+
+    <!-- COPIES MODAL (AJAX loaded) -->
+    <div id="copiesModal" class="modal modal-large" style="display:none"><div class="modal-content"><span class="close" onclick="closeModal('copiesModal')">&times;</span><div id="copiesModalContent"><p style="text-align:center;padding:20px;">Loading...</p></div></div></div>
 
     <script src="<?php echo $base_url; ?>/public/js/books.js"></script>
 </body>
