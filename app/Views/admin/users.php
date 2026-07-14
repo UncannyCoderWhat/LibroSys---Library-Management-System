@@ -69,15 +69,15 @@ if (!isset($base_url)) {
                         <?php if (!empty($users)): ?>
                             <?php foreach ($users as $user): ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($user['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                    <td><?php echo htmlspecialchars($user['credit_score']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['name'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($user['credit_score'] ?? ''); ?></td>
                                     <td>wag pansinin</td>
                                     <td>
                                         <button type="button" 
                                             class="btn-view-details" 
                                             onclick="openUserModal(this)"
-                                            data-id="<?php echo htmlspecialchars($user['user_id'] ?? ''); ?>"
+                                            data-id="<?php echo htmlspecialchars($user['id'] ?? ''); ?>"
                                             data-username="<?php echo htmlspecialchars($user['name'] ?? ''); ?>"
                                             data-email="<?php echo htmlspecialchars($user['email'] ?? ''); ?>"
                                             data-credits="<?php echo htmlspecialchars(($user['credit_score'] ?? '0') . '/10'); ?>"
@@ -116,13 +116,19 @@ if (!isset($base_url)) {
                     <p><strong>Email:</strong> <span id="modalEmail"></span></p>
                     <p><strong>Credits:</strong> <span id="modalCredits"></span></p>
                     <p><strong>Total Fines Owed:</strong> <span id="modalFines"></span></p>
-                    <p><strong>Books Borrowed:</strong> <span id="modalBorrowed"></span></p>
+                    <p><strong>Currently Borrowed:</strong> <span id="modalBorrowed"></span></p>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn-warning">View Fine History</button>
+                    <button type="button" 
+                            class="btn-warning" 
+                            id="viewFineHistoryBtn" 
+                            onclick="triggerFineModal(this)">
+                            View Fine History
+                    </button>
                     <form id="deleteUserForm" action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                        <input type="hidden" name="target_user_id" id="modalDeleteTargetId">
-                        <button type="submit" name="delete_user" class="btn-danger">Delete User</button>
+                        <!-- JS fills this value dynamically -->
+                        <input type="hidden" name="target_user_id" id="modalDeleteTargetId" value="">
+                        <button type="submit" name="delete_user" value="1" class="btn-danger">Delete User</button>
                     </form>
                 </div>
             </div>

@@ -362,9 +362,22 @@ class AdminModel
                 }
             }
 
-            $log['type'] = $log['type'] ? 'Exclusive' : 'Standard';
+            $log['type'] = $log['type'] ? 'Exclusive' : 'Regular';
             $log['days_late'] = $daysLate;
             $log['total_fine'] = number_format($fine, 2);
+
+            if (!empty($log['time_borrowed'])) {
+                $log['time_borrowed'] = date("h:i A", strtotime($log['time_borrowed']));
+            }
+            if (!empty($log['date_borrowed'])) {
+                $log['date_borrowed'] = date("M d, Y", strtotime($log['date_borrowed']));
+            }
+            if (!empty($log['due_date'])) {
+                $log['due_date'] = date("M d, Y", strtotime($log['due_date']));
+            }
+            if (!empty($log['date_returned'])) {
+                $log['date_returned'] = date("M d, Y", strtotime($log['date_returned']));
+            }
         }
         unset($log);
 

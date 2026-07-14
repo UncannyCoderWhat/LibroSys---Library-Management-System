@@ -1148,8 +1148,8 @@ body {
 .modal-card {
     background: white;
     display: flex;
-    width: 90%;
-    max-width: 900px;
+    width: 100%;
+    max-width: 1200px;
     height: 61vh;
     border-radius: 4px;
     overflow: hidden;
@@ -1198,7 +1198,7 @@ body {
 
 .btn-danger {
     background-color: #ff3333;
-    color: white;
+    color: black;
     border: none;
     padding: 8px;
     width: 100%;
@@ -1208,11 +1208,15 @@ body {
 }
 
 .modal-content {
-    flex: 1;
+    overflow: hidden;
+    width: 80%;
+    max-width: 920px;
     background: #b0b0b0;
     padding: 15px 20px;
-    margin-top: 50px;
-    height: 350px;
+    margin-top: 20px;
+    min-height: 0px;
+    max-height: 410px;
+    height: 100%;
 }
 
 .modal-header {
@@ -1222,6 +1226,7 @@ body {
     border-bottom: 2px solid #666;
     padding-bottom: 5px;
     margin-bottom: 15px;
+    flex-shrink: 0;
 }
 
 .close-btn {
@@ -1230,8 +1235,15 @@ body {
     cursor: pointer;
 }
 
+.logs-table-container {
+    height: 320px;       /* Set explicit height to force scrollbar */
+    max-height: 100%;
+    overflow-y: auto; /* Forces vertical scrollbar when table overflows */
+    overflow-x: auto; /* Enables horizontal scrollbar if table is wide */
+}
+
 .logs-table {
-    width: 100%;
+    width: 850px;
     border-collapse: collapse;
     font-size: 12px;
 }
@@ -1239,6 +1251,13 @@ body {
 .logs-table th, .logs-table td {
     padding: 6px 4px;
     text-align: left;
+}
+
+.logs-table th {
+    position: sticky;
+    top: 0;
+    background-color: #b0b0b0; /* Matches your gray container background */
+    z-index: 1;                /* Keeps headers above scrolling table rows */
 }
 /* NEW USER CSS - END */
 

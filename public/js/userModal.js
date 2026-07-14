@@ -5,6 +5,7 @@ function openUserModal(button) {
     document.getElementById('modalCredits').textContent = button.dataset.credits;
     document.getElementById('modalFines').textContent = button.dataset.fines;
     document.getElementById('modalBorrowed').textContent = button.dataset.borrowed;
+
     document.getElementById('modalDeleteTargetId').value = button.dataset.id;
 
     const logs = JSON.parse(button.dataset.logs || '[]');
@@ -27,7 +28,7 @@ function openUserModal(button) {
             tbody.innerHTML += row;
         });
     } else {
-        tbody.innerHTML = '<tr><td colspan="9">No circulation logs found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; vertical-align: middle; height: 270px;">No circulation logs found.</td></tr>';
     }
 
     document.getElementById('userModal').style.display = 'flex';
