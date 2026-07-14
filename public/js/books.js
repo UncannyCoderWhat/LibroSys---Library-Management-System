@@ -127,26 +127,48 @@ function resetPagination() {
 }
 
 // ==================== DROPDOWN ACTIONS ====================
+function positionDropdown(menu, btn) {
+    const rect = btn.getBoundingClientRect();
+    const menuWidth = 180;
+    const left = Math.max(8, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 8));
+    menu.style.left = left + 'px';
+    menu.style.top = (rect.bottom + 4) + 'px';
+}
+
 function toggleDropdown(btn) {
     const menu = btn.nextElementSibling;
     if (!menu) return;
     const isOpen = menu.classList.contains('show');
     // Close all other dropdowns
-    document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+    document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+        m.classList.remove('show');
+        m._btn = null;
+    });
     if (!isOpen) {
-        // Position the fixed dropdown relative to the button
-        const rect = btn.getBoundingClientRect();
-        menu.style.left = Math.max(8, rect.right - 180) + 'px';
-        menu.style.top = (rect.bottom + 4) + 'px';
+        positionDropdown(menu, btn);
         menu.classList.add('show');
+        menu._btn = btn;
     }
 }
 // Close dropdowns on outside click
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.dropdown-actions')) {
-        document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+        document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+            m.classList.remove('show');
+            m._btn = null;
+        });
     }
 });
+// Reposition dropdown on scroll and resize
+function repositionOpenDropdowns() {
+    document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+        if (menu._btn) {
+            positionDropdown(menu, menu._btn);
+        }
+    });
+}
+window.addEventListener('scroll', repositionOpenDropdowns, true);
+window.addEventListener('resize', repositionOpenDropdowns);
 
 // Generic Modal Functions
 function openModal(id) { document.getElementById(id).style.display = 'block'; }

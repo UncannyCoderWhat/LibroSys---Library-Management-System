@@ -443,6 +443,8 @@ class BookModel
         try {
             $stmt = $this->pdo->prepare("INSERT INTO book_copies (book_id, copy_label, status) VALUES (?, ?, 'available')");
             $stmt->execute([$bookId, $label ?? 'Copy #' . (count($this->getBookCopies($bookId)) + 1)]);
+            // Also increment the copies count in the books table
+            $this->pdo->prepare("UPDATE books SET copies = copies + 1 WHERE id = ?")->execute([$bookId]);
             return ['success' => true, 'message' => 'Copy added successfully.'];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Error adding copy: ' . $e->getMessage()];
@@ -463,7 +465,19 @@ class BookModel
     public function deleteCopy(int $copyId): array
     {
         try {
+            // Get the book_id before deleting the copy
+            $stmt = $this->pdo->prepare("SELECT book_id FROM book_copies WHERE id = ?");
+            $stmt->execute([$copyId]);
+            $copy = $stmt->fetch(PDO::FETCH_ASSOC);
+            $bookId = $copy['book_id'] ?? 0;
+
             $this->pdo->prepare("DELETE FROM book_copies WHERE id = ?")->execute([$copyId]);
+            
+            // Decrement the copies count in the books table
+            if ($bookId > 0) {
+                $this->pdo->prepare("UPDATE books SET copies = GREATEST(1, copies - 1) WHERE id = ?")->execute([$bookId]);
+            }
+            
             return ['success' => true, 'message' => 'Copy removed successfully.'];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Error removing copy: ' . $e->getMessage()];

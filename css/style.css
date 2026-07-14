@@ -1088,19 +1088,19 @@ body {
     width: 100%;
     max-width: 1200px;
     height: 61vh;
-    border-radius: 4px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
 
 .modal-sidebar {
     width: 260px;
-    background: cyan;
+    background: #f0f7ff;
     padding: 20px 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-right: 2px solid #999;
+    border-right: 1px solid #e2e8f0;
 }
 
 .avatar-circle {
@@ -1116,12 +1116,47 @@ body {
     line-height: 1.4;
 }
 
-.modal-actions {
+.modal-sidebar .modal-actions {
     width: 100%;
     margin-top: 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+}
+.modal-sidebar .modal-actions .btn-warning {
+    background: #fca311;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+    text-align: center;
+}
+.modal-sidebar .modal-actions .btn-warning:hover {
+    background: #e59400;
+}
+.modal-sidebar .modal-actions form {
+    width: 100%;
+}
+.modal-sidebar .modal-actions .btn-danger {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+    text-align: center;
+}
+.modal-sidebar .modal-actions .btn-danger:hover {
+    background: #c82333;
 }
 
 
@@ -1130,8 +1165,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #666;
-    padding-bottom: 5px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
     margin-bottom: 15px;
     flex-shrink: 0;
 }
@@ -1646,6 +1681,11 @@ body {
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     max-height: 85vh;
     overflow-y: auto;
+}
+/* Remove the border-top from section-title when inside a modal to avoid clashing with the close button */
+.modal .section-title {
+    border-top: none;
+    padding-top: 0;
 }
 .modal-large .modal-content {
     max-width: 900px;
