@@ -1020,11 +1020,11 @@ body {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    background-color: #00ffff;
+    background-color: #1E1E1E;
 }
 
 .user-activity-table th {
-    color: #000000;
+    color: white;
     font-weight: 700;
     font-size: 16px;
     padding: 14px 20px;
@@ -1033,7 +1033,7 @@ body {
 
 .user-activity-table td {
     padding: 14px 20px;
-    color: #000000;
+    color: white;
     font-size: 15px;
     font-weight: 500;
     border-bottom: 1px solid #eef0f2;
@@ -1056,7 +1056,7 @@ body {
 
 .btn-view-details {
     background-color: #f7b767;
-    color: black;
+    color: white;
     border: none;
     padding: 4px 12px;
     font-size: 13px;
@@ -1067,8 +1067,9 @@ body {
 }
 
 .btn-view-details:hover {
-    background-color: #f79e67;
-    color: white;
+    background-color: white;
+    color: #f7b767;
+    text-decoration: underline;
 }
 
 .btn-view-details:active {
@@ -1221,7 +1222,7 @@ body {
 
 .status-badge.status-inactive {
     background-color: #dc3545;
-    color: white;
+    color: black;
 }
 /* NEW USER CSS - END */
 
