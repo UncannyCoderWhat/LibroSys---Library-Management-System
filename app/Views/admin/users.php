@@ -130,7 +130,7 @@ if (!isset($base_url)) {
                     <button type="button" 
                             class="btn-warning" 
                             id="viewFineHistoryBtn" 
-                            onclick="triggerFineModal(this)">
+                            onclick="triggerFineModal(this, event)">
                             View Fine History
                     </button>
                     <form id="deleteUserForm" action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
