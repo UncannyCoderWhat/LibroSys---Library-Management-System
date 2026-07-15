@@ -14,8 +14,6 @@ if (!isset($base_url)) {
     <div class="nav-top">
         <a href="<?php echo $base_url; ?>/index.php?page=admin_dashboard" class="<?php echo ($currentPage == 'dashboard') ? 'active' : ''; ?>">Dashboard</a>
         <a href="<?php echo $base_url; ?>/index.php?page=admin_books" class="<?php echo ($currentPage == 'books') ? 'active' : ''; ?>">Books</a>
-        <a href="<?php echo $base_url; ?>/index.php?page=admin_ledger" class="<?php echo ($currentPage == 'ledger') ? 'active' : ''; ?>">Ledger</a>
-        <a href="<?php echo $base_url; ?>/index.php?page=admin_borrowed" class="<?php echo ($currentPage == 'borrowed') ? 'active' : ''; ?>">Borrowed Books</a>
         <a href="<?php echo $base_url; ?>/index.php?page=admin_users" class="<?php echo ($currentPage == 'users') ? 'active' : ''; ?>">Users</a>
         <a href="<?php echo $base_url; ?>/index.php?page=admin_settings" class="<?php echo ($currentPage == 'settings') ? 'active' : ''; ?>">Settings</a>
     </div>

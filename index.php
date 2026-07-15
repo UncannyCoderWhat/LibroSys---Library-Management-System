@@ -87,23 +87,6 @@ if (strpos($page, 'admin_') === 0) {
             $view = 'app/Views/admin/books.php';
             break;
 
-        case 'borrowed':
-            $controller = new BorrowedController($pdo);
-            $data = $controller->getBorrowedPageData();
-            $activeBorrows = $data['activeBorrows'] ?? [];
-            $view = 'app/Views/admin/borrowed.php';
-            break;
-
-        case 'ledger':
-            $controller = new LedgerController($pdo);
-            $data = $controller->getLedgerPageData();
-            $currentlyBorrowedCount = $data['currentlyBorrowedCount'] ?? 0;
-            $activities = $data['activities'] ?? [];
-            $reservations = $data['reservations'] ?? [];
-            $totalFinesAccumulated = $data['totalFinesAccumulated'] ?? 0;
-            $view = 'app/Views/admin/ledger.php';
-            break;
-
         case 'users':
             $controller = new UsersController($pdo);
             $data = $controller->getUsersPageData($_POST);
