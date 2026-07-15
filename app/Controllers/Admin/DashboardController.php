@@ -43,4 +43,9 @@ class DashboardController
     {
         return $this->adminModel->getUserFineDetails($userId);
     }
+
+    public function getUsersWithStatus(): array
+    {
+        return $this->adminModel->getUsersWithStatus();
+    }
 }

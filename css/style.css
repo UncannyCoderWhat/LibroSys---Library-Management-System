@@ -743,8 +743,6 @@ body {
     box-sizing: border-box;
 }
 
-
-
 .header-left, .header-right {
     display: flex;
     align-items: center;
@@ -1041,6 +1039,12 @@ body {
     border-bottom: 1px solid #eef0f2;
 }
 
+.user-activity-table td span {
+    color: #000000;
+    font-size: 15px;
+    font-weight: 500;
+}
+
 .user-activity-table tbody tr:last-child td {
     border-bottom: none;
 } 
@@ -1159,8 +1163,6 @@ body {
     background: #c82333;
 }
 
-
-
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -1200,6 +1202,26 @@ body {
     top: 0;
     background-color: #b0b0b0; /* Matches your gray container background */
     z-index: 1;                /* Keeps headers above scrolling table rows */
+}
+
+.status-badge {
+    color: #ffffff;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 50px;
+    display: inline-block;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.status-badge.status-active {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-badge.status-inactive {
+    background-color: #dc3545;
+    color: white;
 }
 /* NEW USER CSS - END */
 

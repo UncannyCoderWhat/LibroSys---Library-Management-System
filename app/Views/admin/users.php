@@ -68,11 +68,19 @@ if (!isset($base_url)) {
                     <tbody>
                         <?php if (!empty($users)): ?>
                             <?php foreach ($users as $user): ?>
+                                <?php 
+                                    $status = $user['account_status'] ?? ((($user['active_borrows'] ?? 0) > 0) ? 'Active' : 'Inactive');
+                                    $statusClass = strtolower($status) === 'active' ? 'status-active' : 'status-inactive';
+                                ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($user['name'] ?? ''); ?></td>
                                     <td><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
                                     <td><?php echo htmlspecialchars($user['credit_score'] ?? ''); ?></td>
-                                    <td>wag pansinin</td>
+                                    <td>
+                                        <span class="status-badge <?php echo $statusClass; ?>">
+                                            <?php echo htmlspecialchars($status); ?>
+                                        </span>
+                                    </td>
                                     <td>
                                         <button type="button" 
                                             class="btn-view-details" 

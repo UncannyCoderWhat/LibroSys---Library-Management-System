@@ -259,6 +259,34 @@ class AdminModel
         }
     }
 
+    public function getUsersWithStatus(): array
+    {
+        try {
+            $sql = "
+                SELECT u.id as user_id, u.name, u.email, u.credit_score,
+                    COUNT(CASE WHEN br.status = 'borrowed' THEN 1 END) as active_borrows,
+                    SUM(CASE WHEN br.status = 'borrowed' THEN br.fine_amount ELSE 0 END) as total_fines
+                FROM users u
+                LEFT JOIN borrows br ON u.id = br.user_id
+                GROUP BY u.id, u.name, u.email, u.credit_score
+                ORDER BY u.name ASC
+            ";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($users as &$user) {
+                $user['account_status'] = ((int)($user['active_borrows'] ?? 0) > 0) ? 'Active' : 'Inactive';
+            }
+
+            return $users;
+        } catch (PDOException $e) {
+            error_log("Get users status error: " . $e->getMessage());
+            return [];
+        }
+    }
+
     // ==================== USER MANAGEMENT ====================
 
     public function getAllUsers(): array
