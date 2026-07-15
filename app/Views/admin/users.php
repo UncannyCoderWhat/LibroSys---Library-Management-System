@@ -86,6 +86,7 @@ if (!isset($base_url)) {
                                             class="btn-view-details" 
                                             onclick="openUserModal(this)"
                                             data-id="<?php echo htmlspecialchars($user['user_id'] ?? ''); ?>"
+                                            data-db-id="<?php echo htmlspecialchars($user['id'] ?? ''); ?>"
                                             data-username="<?php echo htmlspecialchars($user['name'] ?? ''); ?>"
                                             data-email="<?php echo htmlspecialchars($user['email'] ?? ''); ?>"
                                             data-credits="<?php echo htmlspecialchars(($user['credit_score'] ?? '0') . '/10'); ?>"
@@ -200,5 +201,6 @@ if (!isset($base_url)) {
     
     <script src="<?php echo $base_url; ?>/public/js/fines.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/userModal.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/userSearch.js"></script>
 </body>
 </html>

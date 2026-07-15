@@ -325,21 +325,27 @@ class AdminModel
     public function deleteUserWithHistory(int $userId): bool
     {
         try {
-            // Delete fine records
-            $stmt = $this->pdo->prepare("DELETE FROM fines WHERE user_id = ?");
-            $stmt->execute([$userId]);
+            // Start a transaction to ensure all-or-nothing execution
+            $this->pdo->beginTransaction();
 
-            // Delete borrow records
+            // 2. Delete borrow records
             $stmt = $this->pdo->prepare("DELETE FROM borrows WHERE user_id = ?");
             $stmt->execute([$userId]);
 
-            // Delete the user
+            // 3. Delete the user (Double-check if your primary key column is 'id' or 'user_id')
             $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
             $stmt->execute([$userId]);
 
+            // Commit transaction
+            $this->pdo->commit();
             return true;
         } catch (PDOException $e) {
-            error_log("Error deleting user: " . $e->getMessage());
+            // Rollback changes if something goes wrong
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            // Write the exact DB error message to your server error log
+            error_log("Error deleting user with ID {$userId}: " . $e->getMessage());
             return false;
         }
     }

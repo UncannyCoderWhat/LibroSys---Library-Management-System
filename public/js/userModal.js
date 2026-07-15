@@ -6,7 +6,7 @@ function openUserModal(button) {
     document.getElementById('modalFines').textContent = button.dataset.fines;
     document.getElementById('modalBorrowed').textContent = button.dataset.borrowed;
 
-    document.getElementById('modalDeleteTargetId').value = button.dataset.id;
+    document.getElementById('modalDeleteTargetId').value = button.dataset.dbId;
 
     const logs = JSON.parse(button.dataset.logs || '[]');
     const tbody = document.getElementById('modalLogsBody');
