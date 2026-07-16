@@ -120,41 +120,26 @@ $message_type    = $data['message_type'] ?? ''; // success|error
             </div>
         </main>
     </div>
-    <script>
+<script>
     document.addEventListener("DOMContentLoaded", function () {
-        const themeToggleBtn = document.getElementById("theme-toggle");
-        const themeIcon = document.getElementById("theme-icon");
+        const themeToggle = document.getElementById("theme-toggle");
 
-        // Function to update the icon visual based on active theme
-        function updateIcon(theme) {
-            if (!themeIcon) return;
-            if (theme === 'light') {
-                themeIcon.className = 'bx bx-moon'; // Show moon icon when in light mode
-            } else {
-                themeIcon.className = 'bx bx-sun';  // Show sun icon when in dark mode
-            }
-        }
+        // 1. Set initial state based on saved preference
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // If dark mode, checkbox should be checked
+        themeToggle.checked = (savedTheme === 'dark');
 
-        // Initialize icon state on page load
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        updateIcon(currentTheme);
+        // 2. Click Handler
+        themeToggle.addEventListener("change", function () {
+            const isDark = this.checked;
+            const newTheme = isDark ? "dark" : "light";
 
-        // Click Handler for Toggle button
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener("click", function () {
-                let currentTheme = document.documentElement.getAttribute("data-theme");
-                let newTheme = currentTheme === "light" ? "dark" : "light";
-
-                // Apply to HTML element immediately
-                document.documentElement.setAttribute("data-theme", newTheme);
-                // Save to LocalStorage so it persists across page transitions
-                localStorage.setItem("theme", newTheme);
-                // Update icon
-                updateIcon(newTheme);
-            });
-        }
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        });
     });
 </script>
-
 </body>
 </html>
