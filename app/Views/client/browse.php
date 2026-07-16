@@ -180,5 +180,41 @@ $cartCount = $data['cartCount'] ?? 0;
     <input type="hidden" id="selectedBookId">
 
     <script src="public/js/browse.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const themeIcon = document.getElementById("theme-icon");
+
+        // Function to update the icon visual based on active theme
+        function updateIcon(theme) {
+            if (!themeIcon) return;
+            if (theme === 'light') {
+                themeIcon.className = 'bx bx-moon'; // Show moon icon when in light mode
+            } else {
+                themeIcon.className = 'bx bx-sun';  // Show sun icon when in dark mode
+            }
+        }
+
+        // Initialize icon state on page load
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        updateIcon(currentTheme);
+
+        // Click Handler for Toggle button
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener("click", function () {
+                let currentTheme = document.documentElement.getAttribute("data-theme");
+                let newTheme = currentTheme === "light" ? "dark" : "light";
+
+                // Apply to HTML element immediately
+                document.documentElement.setAttribute("data-theme", newTheme);
+                // Save to LocalStorage so it persists across page transitions
+                localStorage.setItem("theme", newTheme);
+                // Update icon
+                updateIcon(newTheme);
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
