@@ -140,6 +140,38 @@ body {
     background-color: #e59400;
 }
 
+
+/* HOME START - CSS */
+:root {
+    --main-color: #ffb74d;
+    --text-color: #111111;
+    --transition: 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    position: relative;
+    min-height: 100vh;
+}
+
+.bg-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    opacity: 0.4;
+    z-index: -1;
+}
+
 .client-top-bar {
     position: fixed;
     top: 0;
@@ -161,6 +193,7 @@ body {
     object-fit: contain;
     display: block;
 }
+
 .navigation .nav-links {
     display: flex;
     gap: 30px;
@@ -185,46 +218,186 @@ body {
     border-bottom: 3px solid var(--main-color);
     color: var(--main-color);
 }
-.bg-image{
-    opacity: 40%;
+
+/* Upgrade Premium Nav Button */
+.upgrade-btn {
+    background: #ffb84c;
+    color: #000000;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin-right: 175px;
 }
+
+.upgrade-btn:hover {
+    background: #ffa726;
+}
+
+/* Hero Section & Card Display */
 .hero {
     text-align: center;
-    padding: 15rem 1rem;
-
+    padding: 12rem 1rem 6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
+.hero-card {
+    background-color: rgba(50, 50, 50, 0.65);
+    padding: 3.5rem 4rem;
+    border-radius: 4px;
+    max-width: 850px;
+    width: 100%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.hero-card h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.8rem;
     line-height: 1.2;
-    background-color: transparent;
 }
 
-.hero p {
+.hero-card p {
     font-size: 1.2rem;
-    color: black;
+    color: #ffffff;
     margin-bottom: 2rem;
 }
 
 .b-button {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    background: var(--main-color);
-    color: white;
+    padding: 0.9rem 2.8rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: #ffd500;
+    color: #000000;
     border: none;
-    border-radius: 10px;
+    border-radius: 25px;
     cursor: pointer;
-    transition: 0.3 ease;
+    transition: 0.2s ease;
 }
 
 .b-button:hover {
     transform: translateY(-2px);
+    background: #ffca00;
+}
+
+/* Modal Popup Styling */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #ffffff;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 1.8rem;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-modal:hover {
+    color: #000;
+}
+
+.modal-logo {
+    width: 140px;
+    margin-bottom: 0.5rem;
+}
+
+.modal-content h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #000;
+}
+
+.premium-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffbd59;
+    margin-bottom: 1.5rem;
+}
+
+.premium-table th, 
+.premium-table td {
+    border: 1.5px solid #000000;
+    padding: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.trial-text {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #000;
+}
+
+.price-boxes {
+    display: flex;
+    gap: 15px;
+}
+
+.price-box {
+    flex: 1;
+    border: 2px solid #000000;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s ease;
+}
+
+.price-box:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.price-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}
+
+.price-sub {
+    font-weight: 700;
+    font-size: 0.9rem;
 }
 
 footer {
-    padding: 0;
+    padding: 2rem 0;
     text-align: center;
+    margin-top: 50px;
 }
 
 .social-links {
@@ -241,8 +414,9 @@ footer {
 }
 
 .social-links a:hover {
-    color: var(--accent-color);
+    color: #ffb74d;
 }
+/* HOME END - CSS */
 
 body.browse-page-body {
     background-color: #ffffff;

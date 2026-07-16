@@ -11,7 +11,6 @@ $cartCount = $data['cartCount'] ?? 0;
     <title>LibroSys - Home</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/css/clientstyle.css">
-
 </head>
 <body>
     <img src="/images/library-background.png" alt="Library Background" class="bg-image">
@@ -21,6 +20,7 @@ $cartCount = $data['cartCount'] ?? 0;
             <img src="/images/LibroSys.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
+                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
                     <a href="index.php?page=home" class="active"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=browse"><i class='bx bx-compass'></i>Browse</a>
                     <a href="index.php?page=cart" class="nav-cart-link">
@@ -42,20 +42,59 @@ $cartCount = $data['cartCount'] ?? 0;
                     <span><i class='bx bx-check-circle'></i> Registration successful! Your unique Login ID is: <strong><?php echo htmlspecialchars($generated_user_id); ?></strong>. Please save this ID for future logins.</span>
                 </div>
                 <?php
-                    // Preserve existing behavior: clear temp display id after rendering.
                     if (session_status() === PHP_SESSION_ACTIVE) {
                         unset($_SESSION['temp_user_id_for_display']);
                     }
                 ?>
             <?php endif; ?>
 
-            <div class="hero-content">
+            <div class="hero-card">
                 <h1>Discover Your Next Chapter</h1>
-                <p>Your all-in-one digital library for browsing and borrowing books</p>
+                <p>Your all-in-one digital library for browsing books</p>
                 <button class="b-button" onclick="window.location.href='index.php?page=browse'">Start Browsing</button>
             </div>
         </section>
     </main>
+
+    <!-- Upgrade Premium Modal -->
+    <div id="premiumModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePremiumModal()">&times;</span>
+            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="modal-logo">
+            <h3>Level-up your LibroSys Experience!</h3>
+
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Regular</th>
+                        <th>Premium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>(Perks to)</td>
+                        <td>X</td>
+                        <td>/</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p class="trial-text">Start your 7 day free trial</p>
+
+            <div class="price-boxes">
+                <button type="button" class="price-box" onclick="window.location.href='index.php?page=browse'">
+                    <span class="price-title">P100 /month</span>
+                    <span class="price-sub">1 MONTH</span>
+                </button>
+                <button type="button" class="price-box" onclick="window.location.href='index.php?page=browse'">
+                    <span class="price-title">P90 /month</span>
+                    <span class="price-sub">P1080 annually</span>
+                    <span class="price-sub">1 YEAR</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="footer-content">
@@ -66,5 +105,7 @@ $cartCount = $data['cartCount'] ?? 0;
             </div>
         </div>
     </footer>
+
+    <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
 </body>
 </html>
