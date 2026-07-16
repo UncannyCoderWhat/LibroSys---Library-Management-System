@@ -33,6 +33,12 @@ $browse_error     = $data['browse_error'] ?? null;
     <title>LibroSys - Profile</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/css/clientstyle.css">
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+</script>
 
 
 </head>
@@ -52,6 +58,13 @@ $browse_error     = $data['browse_error'] ?? null;
                         <?php endif; ?>
                     </a>
                     <a href="index.php?page=profile" class="active"><i class='bx bx-user-circle'></i>Profile</a>
+                    <label class="switch-container">
+                    <input type="checkbox" id="theme-toggle" class="switch-input">
+                    <div class="switch-track">
+                        <div class="switch-thumb"></div>
+                    </div>
+                    <span class="switch-label">Dark Mode</span>
+                   </label>
                 </div>
             </nav>
         </div>
@@ -413,5 +426,41 @@ $browse_error     = $data['browse_error'] ?? null;
     </div>
 
     <script src="public/js/profile.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const themeIcon = document.getElementById("theme-icon");
+
+        // Function to update the icon visual based on active theme
+        function updateIcon(theme) {
+            if (!themeIcon) return;
+            if (theme === 'light') {
+                themeIcon.className = 'bx bx-moon'; // Show moon icon when in light mode
+            } else {
+                themeIcon.className = 'bx bx-sun';  // Show sun icon when in dark mode
+            }
+        }
+
+        // Initialize icon state on page load
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        updateIcon(currentTheme);
+
+        // Click Handler for Toggle button
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener("click", function () {
+                let currentTheme = document.documentElement.getAttribute("data-theme");
+                let newTheme = currentTheme === "light" ? "dark" : "light";
+
+                // Apply to HTML element immediately
+                document.documentElement.setAttribute("data-theme", newTheme);
+                // Save to LocalStorage so it persists across page transitions
+                localStorage.setItem("theme", newTheme);
+                // Update icon
+                updateIcon(newTheme);
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

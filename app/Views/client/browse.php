@@ -14,6 +14,12 @@ $cartCount = $data['cartCount'] ?? 0;
     <title>LibroSys - Browse</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/css/clientstyle.css">
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+</script>
 </head>
 <body class="browse-page-body">
     <header>
@@ -30,6 +36,13 @@ $cartCount = $data['cartCount'] ?? 0;
                         <?php endif; ?>
                     </a>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
+                    <label class="switch-container">
+                    <input type="checkbox" id="theme-toggle" class="switch-input">
+                    <div class="switch-track">
+                        <div class="switch-thumb"></div>
+                    </div>
+                    <span class="switch-label">Dark Mode</span>
+                   </label>
                 </div>
             </nav>
         </div>

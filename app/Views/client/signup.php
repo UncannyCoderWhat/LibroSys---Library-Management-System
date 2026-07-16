@@ -11,6 +11,13 @@ $message_type = $data['message_type'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Create Account</title>
     <link rel="stylesheet" href="/css/clientstyle.css">
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
 </head>
 <body class="auth-page">
 
@@ -19,16 +26,20 @@ $message_type = $data['message_type'] ?? '';
     <header class="main-header">
         <div class="header-content">
             <img src="/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <label class="switch-container">
+            <input type="checkbox" id="theme-toggle" class="switch-input">
+            <div class="switch-track">
+                <div class="switch-thumb"></div>
+            </div>
+            <span class="switch-label">Dark Mode</span>
+           </label>
+
         </div>
     </header>
 
     <div class="login-container">
-        <div class="logo-area">
-            <h1>LibroSys</h1>
-            <p>Library Management System</p>
-        </div>
-
         <div class="login-card">
+            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="card-logo">
             <?php if (!empty($message)): ?>
                 <div class="notification-banner" style="margin-bottom: 20px; background-color: <?php echo $message_type === 'success' ? '#d4edda' : '#f8d7da'; ?>; color: <?php echo $message_type === 'success' ? '#155724' : '#721c24'; ?>; border-left-color: <?php echo $message_type === 'success' ? '#28a745' : '#dc3545'; ?>;">
                     <span><?php echo htmlspecialchars($message); ?></span>
@@ -64,6 +75,26 @@ $message_type = $data['message_type'] ?? '';
             </div>
         </div>
     </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggle = document.getElementById("theme-toggle");
 
+        // 1. Set initial state based on saved preference
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // If dark mode, checkbox should be checked
+        themeToggle.checked = (savedTheme === 'dark');
+
+        // 2. Click Handler
+        themeToggle.addEventListener("change", function () {
+            const isDark = this.checked;
+            const newTheme = isDark ? "dark" : "light";
+
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        });
+    });
+</script>
 </body>
 </html>

@@ -11,6 +11,12 @@ $cartCount = (int)($data['cartCount'] ?? 0);
     <title>LibroSys | My Cart</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/css/clientstyle.css">
+    <script>
+    (function () {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+</script>
 </head>
 <body class="profile-page">
     <img src="/images/library-background.png" alt="Library Background" class="bg-image">
@@ -28,6 +34,13 @@ $cartCount = (int)($data['cartCount'] ?? 0);
                         <?php endif; ?>
                     </a>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
+                    <label class="switch-container">
+                    <input type="checkbox" id="theme-toggle" class="switch-input">
+                    <div class="switch-track">
+                        <div class="switch-thumb"></div>
+                    </div>
+                    <span class="switch-label">Dark Mode</span>
+                   </label>
                 </div>
             </nav>
         </div>
@@ -89,5 +102,27 @@ $cartCount = (int)($data['cartCount'] ?? 0);
     </div>
 
     <script src="public/js/cart.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggle = document.getElementById("theme-toggle");
+
+        // 1. Set initial state based on saved preference
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // If dark mode, checkbox should be checked
+        themeToggle.checked = (savedTheme === 'dark');
+
+        // 2. Click Handler
+        themeToggle.addEventListener("change", function () {
+            const isDark = this.checked;
+            const newTheme = isDark ? "dark" : "light";
+
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        });
+    });
+</script>
 </body>
 </html>
