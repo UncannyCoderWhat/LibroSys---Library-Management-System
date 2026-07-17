@@ -223,6 +223,10 @@ html[data-theme="light"] .login-btn {
     display: block;
 }
 
+.navigation {
+    margin-right: -85px;
+}
+
 .navigation .nav-links {
     display: flex;
     gap: 30px;
@@ -239,6 +243,7 @@ html[data-theme="light"] .login-btn {
     align-items: center;
     gap: 6px;
     border-bottom: 3px solid transparent;
+    margin-right: 15px;
 }
 
 .navigation .nav-links a:hover,
@@ -258,11 +263,156 @@ html[data-theme="light"] .login-btn {
     border-radius: 20px;
     cursor: pointer;
     transition: 0.2s ease;
-    margin-right: 50px;
+    margin-right: 175px;
 }
 
 .upgrade-btn:hover {
     background: #ffa726;
+}
+
+/* Isolated Modal Styles */
+.ls-modal-overlay {
+    display: none; /* Controlled via JS */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal box animation trigger */
+.ls-modal-overlay[style*="display: flex"] .ls-modal-container {
+    animation: modalPop 0.3s ease-out forwards;
+}
+
+/* Pop-in animation keyframes */
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.ls-modal-container {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    width: 90%;
+    max-width: 460px;
+    padding: 30px 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.ls-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 26px;
+    font-weight: bold;
+    color: #666666;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.ls-modal-close:hover {
+    color: #000000;
+}
+
+.ls-modal-logo {
+    width: 150px !important;
+    height: auto !important;
+    max-height: 60px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+.ls-modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #222222;
+    margin: 10px 0 18px 0;
+}
+
+.ls-modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #f7a838;
+    border: 1px solid #1a1a1a;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 18px;
+}
+
+.ls-modal-table th, 
+.ls-modal-table td {
+    padding: 8px 12px;
+    border: 1px solid #1a1a1a;
+    text-align: center;
+}
+
+.ls-modal-table td:first-child {
+    text-align: left;
+}
+
+.ls-modal-trial {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #333333;
+    margin-bottom: 15px;
+}
+
+.ls-modal-prices {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.ls-price-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 8px;
+    background-color: #ffffff;
+    border: 2px solid #1a1a1a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.ls-price-card:hover {
+    background-color: #f4f4f4;
+    transform: translateY(-2px);
+}
+
+.ls-price-main {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #000000;
+}
+
+.ls-price-sub {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #444444;
+    text-transform: uppercase;
+    margin-top: 3px;
 }
 
 /* Hero Section & Card Display */
