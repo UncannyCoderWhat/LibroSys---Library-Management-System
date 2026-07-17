@@ -70,13 +70,13 @@ $cartCount = $data['cartCount'] ?? 0;
     </main>
 
     <!-- Upgrade Premium Modal -->
-    <div id="premiumModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closePremiumModal()">&times;</span>
-            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="modal-logo">
-            <h3>Level-up your LibroSys Experience!</h3>
+    <div id="premiumModal" class="ls-modal-overlay">
+        <div class="ls-modal-container">
+            <span class="ls-modal-close" onclick="closePremiumModal()">&times;</span>
+            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="ls-modal-logo">
+            <h3 class="ls-modal-title">Level-up your LibroSys Experience!</h3>
 
-            <table class="premium-table">
+            <table class="ls-modal-table">
                 <thead>
                     <tr>
                         <th></th>
@@ -93,17 +93,17 @@ $cartCount = $data['cartCount'] ?? 0;
                 </tbody>
             </table>
 
-            <p class="trial-text">Start your 7 day free trial</p>
+            <p class="ls-modal-trial">Start your 7 day free trial</p>
 
-            <div class="price-boxes">
-                <button type="button" class="price-box" onclick="window.location.href='index.php?page=browse'">
-                    <span class="price-title">P100 /month</span>
-                    <span class="price-sub">1 MONTH</span>
+            <div class="ls-modal-prices">
+                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=browse'">
+                    <span class="ls-price-main">P100 /month</span>
+                    <span class="ls-price-sub">1 MONTH</span>
                 </button>
-                <button type="button" class="price-box" onclick="window.location.href='index.php?page=browse'">
-                    <span class="price-title">P90 /month</span>
-                    <span class="price-sub">P1080 annually</span>
-                    <span class="price-sub">1 YEAR</span>
+                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=browse'">
+                    <span class="ls-price-main">P90 /month</span>
+                    <span class="ls-price-sub">P1080 annually</span>
+                    <span class="ls-price-sub">1 YEAR</span>
                 </button>
             </div>
         </div>
