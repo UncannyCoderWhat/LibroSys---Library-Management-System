@@ -229,7 +229,7 @@ html[data-theme="light"] .login-btn {
 
 .navigation .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 35px;
     align-items: center;
 }
 
@@ -263,7 +263,7 @@ html[data-theme="light"] .login-btn {
     border-radius: 20px;
     cursor: pointer;
     transition: 0.2s ease;
-    margin-right: 175px;
+    margin-right: 45px;
 }
 
 .upgrade-btn:hover {
