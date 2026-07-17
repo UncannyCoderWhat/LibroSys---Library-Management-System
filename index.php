@@ -134,17 +134,6 @@ switch ($page) {
         $view = 'app/Views/client/browse.php';
         break;
 
-    case 'cart':
-        $controller = new CartController($pdo);
-        $result = $controller->handleRequest($_SESSION);
-        if (!empty($result['redirect'])) {
-            header('Location: ' . $result['redirect']);
-            exit();
-        }
-        $data = $result;
-        $view = 'app/Views/client/cart.php';
-        break;
-
     case 'profile':
         $controller = new ProfileController($pdo);
         $result = $controller->handleRequest($_SESSION);

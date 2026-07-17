@@ -32,15 +32,30 @@ $message_type    = $data['message_type'] ?? ''; // success|error
             <img src="/images/LibroSys.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
-                    <a href="index.php?page=home"><i class='bx bx-home-alt'></i>Home</a>
-                    <a href="index.php?page=browse"><i class='bx bx-compass'></i>Browse</a>
-                    <a href="index.php?page=cart" class="nav-cart-link">
-                        <i class='bx bx-cart'></i>Cart
-                        <?php if($cartCount > 0): ?>
-                            <span class="cart-badge"><?php echo $cartCount; ?></span>
-                        <?php endif; ?>
-                    </a>
-                    <a href="index.php?page=profile" class="active"><i class='bx bx-user-circle'></i>Profile</a>
+                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
+                    <a href="index.php?page=home" class="active"><i class='bx bx-home-alt'></i>Home</a>
+                    <a href="index.php?page=library"><i class='bx bx-book'></i>Library</a>
+                    <div class="dpContainer">
+                        <script src="../../../public/js/dropdown.js"></script>
+                        <button class="dropdown"><i class='bx bx-down-arrow'></i>Browse</button>
+                        <div class="dpwrapper">
+                            <ul>
+                                <li><a href="#" >History</a></li>
+                                <li><a href="#" >Fiction</a></li>
+                                <li><a href="#" >Drama</a></li>
+                                <li><a href="#" >Fantasy</a></li>
+                                <li><a href="#" >Horror</a></li>
+                                <li><a href="#" >Thriller</a></li>
+                                <li><a href="#" >Romance</a></li>
+                                <li><a href="#" >Teen Fiction</a></li>
+                                <li><a href="#" >Mystery</a></li>
+                                <li><a href="#" >Adventure</a></li>
+                                <li><a href="#" >Action</a></li>
+                                <li><a href="#" >Fanfiction</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
                     <label class="switch-container">
                     <input type="checkbox" id="theme-toggle" class="switch-input">
                     <div class="switch-track">
