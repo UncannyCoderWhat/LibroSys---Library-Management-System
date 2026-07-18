@@ -1364,11 +1364,12 @@ html[data-theme="light"] .save-changes-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: none; 
+    background: none;
     border: none;
     border-bottom: 3px solid transparent;
 }
-.dropdown:hover{
+
+.dropdown:hover {
     border-bottom: 3px solid var(--main-color);
     color: var(--main-color);
 }
@@ -1377,7 +1378,8 @@ html[data-theme="light"] .save-changes-btn {
     display: block;
     width: 500px;
     min-height: 100px;
-    background: white; 
+    /* Use the variable to ensure solid background based on theme */
+    background: var(--surface-color);
     position: absolute;
     transform: translateY(80px) translateX(-60%);
     z-index: 1000;
@@ -1385,6 +1387,8 @@ html[data-theme="light"] .save-changes-btn {
     border-radius: 20px;
     font-size: 1.25rem;
     box-shadow: var(--card-shadow);
+    /* Ensure text visibility */
+    color: var(--text-primary);
 }
 
 .dpwrapper {

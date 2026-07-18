@@ -481,27 +481,7 @@ $browse_error     = $data['browse_error'] ?? null;
     </div>
 
     <script src="public/js/profile.js"></script>
-    <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const themeToggle = document.getElementById("theme-toggle");
-
-            // 1. Set initial state based on saved preference
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // If dark mode, checkbox should be checked
-            themeToggle.checked = (savedTheme === 'dark');
-
-            // 2. Click Handler
-            themeToggle.addEventListener("change", function () {
-                const isDark = this.checked;
-                const newTheme = isDark ? "dark" : "light";
-
-                document.documentElement.setAttribute("data-theme", newTheme);
-                localStorage.setItem("theme", newTheme);
-            });
-        });
-    </script>
+    <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
+    
 </body>
 </html>

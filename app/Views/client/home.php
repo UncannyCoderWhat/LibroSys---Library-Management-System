@@ -10,7 +10,7 @@ $cartCount = $data['cartCount'] ?? 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Home</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-<link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
     <script>
     (function () {
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -133,27 +133,7 @@ $cartCount = $data['cartCount'] ?? 0;
         </div>
     </footer>
 
-    <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const themeToggle = document.getElementById("theme-toggle");
+    <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
 
-        // 1. Set initial state based on saved preference
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        
-        // If dark mode, checkbox should be checked
-        themeToggle.checked = (savedTheme === 'dark');
-
-        // 2. Click Handler
-        themeToggle.addEventListener("change", function () {
-            const isDark = this.checked;
-            const newTheme = isDark ? "dark" : "light";
-
-            document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("theme", newTheme);
-        });
-    });
-</script>
 </body>
 </html>
