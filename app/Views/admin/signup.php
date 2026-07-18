@@ -22,33 +22,34 @@ if (!isset($base_url)) {
     </header>
 
     <div class="login-container">
-        <div class="logo-area">
-            <h1>LibroSys</h1>
-            <p>Create a New Administrator Account</p>
-        </div>
-
-        <div class="login-card">
-            <h2>Sign Up</h2>
+        <div class="signup-card">
+            
+            <div class="logo-area">
+            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo">
+            </div>
+            
+            <h2>ADMIN SIGN UP</h2>
             <form action="index.php?page=admin_register" method="POST">
-                <div class="input-group">
+                <div class="input-group-signup">
                     <label for="admin_id">Admin ID</label>
                     <input type="text" id="admin_id" name="admin_id" placeholder="Create Admin ID" required>
                 </div>
                 
-                <div class="input-group">
+                <div class="input-group-signup">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Create Password" required>
                 </div>
 
-                <div class="input-group">
+                <div class="input-group-signup">
                     <label for="confirm_password">Confirm Password</label>
                     <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat Password" required>
                 </div>
 
-                <button type="submit" class="login-btn">Register Admin</button>
+                <button type="submit" class="signup-btn">CREATE ACCOUNT</button>
             </form>
-            <div style="margin-top: 20px; text-align: center;">
-                <a href="index.php?page=admin_login" style="color: #fca311; text-decoration: none; font-size: 0.9rem;">Back to Login</a>
+            <div style="margin-top: 25px; text-align: center; font-size: 0.95rem; color: #000000">
+                <span>Already have an account?</span>
+                <a href="index.php?page=admin_login" style="color: #FFD44A; text-decoration: underline; font-weight: bold;">Login here!</a>
             </div>
         </div>
     </div>
