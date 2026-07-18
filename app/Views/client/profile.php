@@ -32,7 +32,7 @@ $browse_error     = $data['browse_error'] ?? null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Profile</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="/css/clientstyle.css">
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
     <script>
     (function () {
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -43,10 +43,10 @@ $browse_error     = $data['browse_error'] ?? null;
 
 </head>
 <body class="profile-page">
-    <img src="/images/library-background.png" alt="Library Background" class="bg-image">
+    <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
     <header>
         <div class="client-top-bar">
-            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
                     <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
@@ -88,7 +88,7 @@ $browse_error     = $data['browse_error'] ?? null;
     <div class="profile-container">
         <aside class="profile-sidebar">
             <div class="user-avatar-large">
-                <img src="/images/profile.png" alt="User Avatar">
+                <img src="<?php echo $base_url; ?>/images/profile.png" alt="User Avatar">
             </div>
             <h2 class="display-name"><?php echo htmlspecialchars($displayname); ?></h2>
 
@@ -142,7 +142,7 @@ $browse_error     = $data['browse_error'] ?? null;
                 <div class="metric-card">
                     <p class="metric-label">TOTAL RETURNED BOOKS</p>
                     <div class="metric-body">
-                        <img src="/images/book-icon.png" alt="Book">
+                        <img src="<?php echo $base_url; ?>/images/book-icon.png" alt="Book">
                         <span class="metric-value"><?php echo (int)$totalReturned; ?></span>
                     </div>
                     <p class="metric-sub">All returned books</p>
@@ -151,7 +151,7 @@ $browse_error     = $data['browse_error'] ?? null;
                 <div class="metric-card">
                     <p class="metric-label">TOTAL BORROWED BOOKS</p>
                     <div class="metric-body">
-                        <img src="/images/book-icon.png" alt="Book">
+                        <img src="<?php echo $base_url; ?>/images/book-icon.png" alt="Book">
                         <span class="metric-value"><?php echo (int)$totalBorrowed; ?></span>
                     </div>
                     <p class="metric-sub">All borrowed books</p>
@@ -160,7 +160,7 @@ $browse_error     = $data['browse_error'] ?? null;
                 <div class="metric-card">
                     <p class="metric-label">TOTAL PENDING RETURN</p>
                     <div class="metric-body">
-                        <img src="/images/book-icon.png" alt="Book">
+                        <img src="<?php echo $base_url; ?>/images/book-icon.png" alt="Book">
                         <span class="metric-value"><?php echo (int)$totalPending; ?></span>
                     </div>
                     <p class="metric-sub">All unreturned books</p>
@@ -411,7 +411,7 @@ $browse_error     = $data['browse_error'] ?? null;
     <div id="receiptModal" class="modal" style="display: none;">
         <div class="modal-content receipt-card">
             <div class="receipt-header">
-                <img src="../images/LibroSys.png" alt="Logo" style="width: 120px; margin-bottom: 10px;">
+                <img src="<?php echo $base_url; ?>../images/LibroSys.png" alt="Logo" style="width: 120px; margin-bottom: 10px;">
                 <h2>PAYMENT RECEIPT</h2>
                 <p>Transaction ID: #<?php echo strtoupper(uniqid()); ?></p>
                 <p>Date: <?php echo date("M d, Y h:i A"); ?></p>

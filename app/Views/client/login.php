@@ -10,7 +10,7 @@ $message_type = $data['message_type'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - User Login</title>
-    <link rel="stylesheet" href="/css/clientstyle.css">
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
     
     <script>
     (function () {
@@ -21,11 +21,11 @@ $message_type = $data['message_type'] ?? '';
 </head>
 <body class="auth-page">
 
-    <img src="/images/library-background.png" alt="Library Background" class="bg-image">
+    <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
 
     <header class="main-header">
     <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <img src="/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+        <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="logo">
         <label class="switch-container">
             <input type="checkbox" id="theme-toggle" class="switch-input">
             <div class="switch-track">
@@ -40,7 +40,7 @@ $message_type = $data['message_type'] ?? '';
 
     <div class="login-container">
         <div class="login-card">
-            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="card-logo">
+            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="card-logo">
             <?php if (!empty($message)): ?>
                 <div class="notification-banner" style="margin-bottom: 20px; background-color: <?php echo $message_type === 'success' ? '#d4edda' : '#f8d7da'; ?>; color: <?php echo $message_type === 'success' ? '#155724' : '#721c24'; ?>; border-left-color: <?php echo $message_type === 'success' ? '#28a745' : '#dc3545'; ?>;">
                     <span><?php echo htmlspecialchars($message); ?></span>

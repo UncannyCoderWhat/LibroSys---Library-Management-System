@@ -10,7 +10,7 @@ $cartCount = $data['cartCount'] ?? 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Home</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="/css/clientstyle.css">
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
     <script>
     (function () {
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -19,11 +19,11 @@ $cartCount = $data['cartCount'] ?? 0;
     </script>
 </head>
 <body>
-    <img src="/images/library-background.png" alt="Library Background" class="bg-image">
+<img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
 
     <header>
         <div class="client-top-bar">
-            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+<img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
                     <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
@@ -87,7 +87,7 @@ $cartCount = $data['cartCount'] ?? 0;
     <div id="premiumModal" class="ls-modal-overlay">
         <div class="ls-modal-container">
             <span class="ls-modal-close" onclick="closePremiumModal()">&times;</span>
-            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="ls-modal-logo">
+<img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="ls-modal-logo">
             <h3 class="ls-modal-title">Level-up your LibroSys Experience!</h3>
 
             <table class="ls-modal-table">

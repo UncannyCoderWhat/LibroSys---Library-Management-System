@@ -19,7 +19,7 @@ require_once 'app/Controllers/Admin/LedgerController.php';
 require_once 'app/Controllers/Admin/UsersController.php';
 require_once 'app/Controllers/Admin/SettingsController.php';
 
-$base_url = '';
+$base_url = '/LibroSys';
 
 $page = $_GET['page'] ?? 'home';
 
@@ -132,6 +132,17 @@ switch ($page) {
         }
         $data = $result;
         $view = 'app/Views/client/browse.php';
+        break;
+
+    case 'cart':
+        $controller = new CartController($pdo);
+        $result = $controller->handleRequest($_SESSION);
+        if (!empty($result['redirect'])) {
+            header('Location: ' . $result['redirect']);
+            exit();
+        }
+        $data = $result;
+        $view = 'app/Views/client/cart.php';
         break;
 
     case 'profile':

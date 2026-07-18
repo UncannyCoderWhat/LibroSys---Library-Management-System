@@ -16,7 +16,7 @@ $message_type    = $data['message_type'] ?? ''; // success|error
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Settings</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="/css/clientstyle.css">
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
     <script>
     (function () {
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -26,10 +26,10 @@ $message_type    = $data['message_type'] ?? ''; // success|error
 
 </head>
 <body class="profile-page">
-    <img src="/images/library-background.png" alt="Library Background" class="bg-image">
+    <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
     <header>
         <div class="client-top-bar">
-            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
                     <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
