@@ -50,36 +50,36 @@ $browse_error     = $data['browse_error'] ?? null;
             <nav class="navigation">
                 <div class="nav-links">
                     <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
-                    <a href="index.php?page=home" class="active"><i class='bx bx-home-alt'></i>Home</a>
-                    <a href="index.php?page=library"><i class='bx bx-book'></i>Library</a>
+                    <a href="index.php?page=home" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'home' ? 'active' : ''; ?>"><i class='bx bx-home-alt'></i>Home</a>
+                    <a href="index.php?page=library" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'library' ? 'active' : ''; ?>"><i class='bx bx-book'></i>Library</a>
                     <div class="dpContainer">
                         <script src="../../../public/js/dropdown.js"></script>
                         <button class="dropdown"><i class='bx bx-down-arrow'></i>Browse</button>
                         <div class="dpwrapper">
                             <ul>
-                                <li><a href="#" >History</a></li>
-                                <li><a href="#" >Fiction</a></li>
-                                <li><a href="#" >Drama</a></li>
-                                <li><a href="#" >Fantasy</a></li>
-                                <li><a href="#" >Horror</a></li>
-                                <li><a href="#" >Thriller</a></li>
-                                <li><a href="#" >Romance</a></li>
-                                <li><a href="#" >Teen Fiction</a></li>
-                                <li><a href="#" >Mystery</a></li>
-                                <li><a href="#" >Adventure</a></li>
-                                <li><a href="#" >Action</a></li>
-                                <li><a href="#" >Fanfiction</a></li>
+                                <li><a href="index.php?page=browse&genre=history">History</a></li>
+                                <li><a href="index.php?page=browse&genre=fiction">Fiction</a></li>
+                                <li><a href="index.php?page=browse&genre=drama">Drama</a></li>
+                                <li><a href="index.php?page=browse&genre=fantasy">Fantasy</a></li>
+                                <li><a href="index.php?page=browse&genre=horror">Horror</a></li>
+                                <li><a href="index.php?page=browse&genre=thriller">Thriller</a></li>
+                                <li><a href="index.php?page=browse&genre=romance">Romance</a></li>
+                                <li><a href="index.php?page=browse&genre=teen-fiction">Teen Fiction</a></li>
+                                <li><a href="index.php?page=browse&genre=mystery">Mystery</a></li>
+                                <li><a href="index.php?page=browse&genre=adventure">Adventure</a></li>
+                                <li><a href="index.php?page=browse&genre=action">Action</a></li>
+                                <li><a href="index.php?page=browse&genre=fanfiction">Fanfiction</a></li>
                             </ul>
                         </div>
                     </div>
-                    <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
+                    <a href="index.php?page=profile" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'profile' ? 'active' : ''; ?>"><i class='bx bx-user-circle'></i>Profile</a>
                     <label class="switch-container">
-                    <input type="checkbox" id="theme-toggle" class="switch-input">
-                    <div class="switch-track">
-                        <div class="switch-thumb"></div>
-                    </div>
-                    <span class="switch-label">Dark Mode</span>
-                   </label>
+                        <input type="checkbox" id="theme-toggle" class="switch-input">
+                        <div class="switch-track">
+                            <div class="switch-thumb"></div>
+                        </div>
+                        <span class="switch-label">Dark Mode</span>
+                    </label>
                 </div>
             </nav>
         </div>
@@ -440,27 +440,68 @@ $browse_error     = $data['browse_error'] ?? null;
         </div>
     </div>
 
+    <!-- Upgrade Premium Modal -->
+    <div id="premiumModal" class="ls-modal-overlay">
+        <div class="ls-modal-container">
+            <span class="ls-modal-close" onclick="closePremiumModal()">&times;</span>
+            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="ls-modal-logo">
+            <h3 class="ls-modal-title">Level-up your LibroSys Experience!</h3>
+
+            <table class="ls-modal-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Regular</th>
+                        <th>Premium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>(Perks to)</td>
+                        <td>X</td>
+                        <td>/</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p class="ls-modal-trial">Start your 7 day free trial</p>
+
+            <div class="ls-modal-prices">
+                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=browse'">
+                    <span class="ls-price-main">P100 /month</span>
+                    <span class="ls-price-sub">1 MONTH</span>
+                </button>
+                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=browse'">
+                    <span class="ls-price-main">P90 /month</span>
+                    <span class="ls-price-sub">P1080 annually</span>
+                    <span class="ls-price-sub">1 YEAR</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="public/js/profile.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const themeToggle = document.getElementById("theme-toggle");
+    <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggle = document.getElementById("theme-toggle");
 
-        // 1. Set initial state based on saved preference
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        
-        // If dark mode, checkbox should be checked
-        themeToggle.checked = (savedTheme === 'dark');
+            // 1. Set initial state based on saved preference
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // If dark mode, checkbox should be checked
+            themeToggle.checked = (savedTheme === 'dark');
 
-        // 2. Click Handler
-        themeToggle.addEventListener("change", function () {
-            const isDark = this.checked;
-            const newTheme = isDark ? "dark" : "light";
+            // 2. Click Handler
+            themeToggle.addEventListener("change", function () {
+                const isDark = this.checked;
+                const newTheme = isDark ? "dark" : "light";
 
-            document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("theme", newTheme);
+                document.documentElement.setAttribute("data-theme", newTheme);
+                localStorage.setItem("theme", newTheme);
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
