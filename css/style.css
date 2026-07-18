@@ -476,7 +476,7 @@ body {
   left: 0;
   width: 230px;
   height: calc(100vh - 90px);
-  background: #1E1E1E;
+  background: #FFFFFF;
   border-radius: 0 25px 25px 0;
   box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
   z-index: 1;
@@ -1032,11 +1032,11 @@ body {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    background-color: #1E1E1E;
+    background-color: #F7B767;
 }
 
 .user-activity-table th {
-    color: white;
+    color: black;
     font-weight: 700;
     font-size: 16px;
     padding: 14px 20px;
@@ -1045,7 +1045,7 @@ body {
 
 .user-activity-table td {
     padding: 14px 20px;
-    color: white;
+    color: black;
     font-size: 15px;
     font-weight: 500;
     border-bottom: 1px solid #eef0f2;
@@ -1067,7 +1067,7 @@ body {
 }
 
 .btn-view-details {
-    background-color: #f7b767;
+    background-color: green;
     color: white;
     border: none;
     padding: 4px 12px;
@@ -1079,9 +1079,8 @@ body {
 }
 
 .btn-view-details:hover {
-    background-color: white;
-    color: #f7b767;
-    text-decoration: underline;
+    background-color: gray;
+    color: white;
 }
 
 .btn-view-details:active {
