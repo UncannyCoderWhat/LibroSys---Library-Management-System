@@ -78,7 +78,7 @@ $cartCount = $data['cartCount'] ?? 0;
             <div class="hero-card">
                 <h1>Discover Your Next Chapter</h1>
                 <p>Your all-in-one digital library for browsing books</p>
-                <button class="b-button" onclick="window.location.href='index.php?page=browse'">Start Browsing</button>
+                <button class="b-button" onclick="window.location.href='index.php?page=home'">Start Browsing</button>
             </div>
         </section>
     </main>
@@ -110,11 +110,11 @@ $cartCount = $data['cartCount'] ?? 0;
             <p class="ls-modal-trial">Start your 7 day free trial</p>
 
             <div class="ls-modal-prices">
-                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=browse'">
+                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=home'">
                     <span class="ls-price-main">P100 /month</span>
                     <span class="ls-price-sub">1 MONTH</span>
                 </button>
-                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=browse'">
+                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=home'">
                     <span class="ls-price-main">P90 /month</span>
                     <span class="ls-price-sub">P1080 annually</span>
                     <span class="ls-price-sub">1 YEAR</span>

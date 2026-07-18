@@ -19,7 +19,7 @@ require_once 'app/Controllers/Admin/LedgerController.php';
 require_once 'app/Controllers/Admin/UsersController.php';
 require_once 'app/Controllers/Admin/SettingsController.php';
 
-$base_url = '/LibroSys';
+$base_url = '';
 
 $page = $_GET['page'] ?? 'home';
 
