@@ -2,7 +2,7 @@
     --bg-color: #141414;
     --surface-color: #2b2b2b;
     --surface-color-secondary: #1e1e1e;
-    --border-color: #ffd200;
+    --border-color: #3d3d3d;
     --text-primary: #ffffff;
     --text-secondary: #afafaf;
     --text-muted: #777777;
@@ -23,7 +23,7 @@ html[data-theme="light"] {
     --bg-color: #f8f9fa;
     --surface-color: #ffffff;
     --surface-color-secondary: #f1f3f5;
-    --border-color: #ffd200;
+    --border-color: #dddddd;
     --text-primary: #111111;
     --text-secondary: #444444;
     --text-muted: #777777;
@@ -167,7 +167,7 @@ body {
     padding: 12px 15px;
     background-color: var(--surface-color-secondary);
     color: var(--text-primary);
-    border: 3px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     outline: none;
     font-size: 1rem;

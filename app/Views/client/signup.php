@@ -71,8 +71,7 @@ $message_type = $data['message_type'] ?? '';
                 <button type="submit" class="login-btn">Create Account</button>
             </form>
             <div style="margin-top: 20px; text-align: center;">
-                Already have an account?
-                <a href="index.php?page=login" style="color: #fca311; text-decoration: underline; font-size: 0.9rem;">Login here!</a>
+                <a href="index.php?page=login" style="color: #fca311; text-decoration: none; font-size: 0.9rem;">Already have an account? Login</a>
             </div>
         </div>
     </div>
