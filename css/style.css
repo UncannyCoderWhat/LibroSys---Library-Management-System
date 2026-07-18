@@ -750,7 +750,7 @@ body {
     border-collapse: separate; /* Required for sticky borders to render cleanly */
     border-spacing: 0;
     text-align: left;
-    background-color: #00ffff;
+    background-color: #F7B767;
     white-space: nowrap;
 }
 
@@ -758,7 +758,7 @@ body {
 .activity-table th {
     position: sticky;
     top: 0;
-    background-color: #00ffff;
+    background-color: #F7B767;
     z-index: 1;
     color: #000000;
     font-weight: 700;
@@ -772,7 +772,7 @@ body {
 .activity-table td:first-child {
     position: sticky;
     left: 0;
-    background-color: #00ffff;
+    background-color: #F7B767;
     z-index: 2;
 }
 
@@ -996,7 +996,7 @@ body {
     border-collapse: separate; /* Required for sticky borders */
     border-spacing: 0;
     text-align: left;
-    background-color: #00ffff;
+    background-color: #F7B767;
     white-space: nowrap;
 }
 
@@ -1004,7 +1004,7 @@ body {
 .ledger-activity-table th {
     position: sticky;
     top: 0;
-    background-color: #00ffff;
+    background-color: #F7B767;
     z-index: 1;
     color: #000000;
     font-weight: 700;
@@ -1018,7 +1018,7 @@ body {
 .ledger-activity-table td:first-child {
     position: sticky;
     left: 0;
-    background-color: #00ffff;
+    background-color: #F7B767;
     z-index: 2;
 }
 
