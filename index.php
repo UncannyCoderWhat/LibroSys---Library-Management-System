@@ -18,6 +18,7 @@ require_once 'app/Controllers/Admin/BorrowedController.php';
 require_once 'app/Controllers/Admin/LedgerController.php';
 require_once 'app/Controllers/Admin/UsersController.php';
 require_once 'app/Controllers/Admin/SettingsController.php';
+require_once 'app/Controllers/Admin/ActivityLogController.php';
 
 $base_url = '';
 
@@ -99,6 +100,12 @@ if (strpos($page, 'admin_') === 0) {
             $controller = new DashboardController($pdo);
             $activities = $controller->getRecentActivities(10);
             $view = 'app/Views/admin/users.php';
+            break;
+
+        case 'activity_log':
+            $controller = new ActivityLogController($pdo);
+            $logs = $controller->getActivityLogs();
+            $view = 'app/Views/admin/activity_log.php';
             break;
 
         case 'settings':

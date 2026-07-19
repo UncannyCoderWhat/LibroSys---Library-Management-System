@@ -15,10 +15,11 @@ if (!isset($base_url)) {
         <a href="<?php echo $base_url; ?>/index.php?page=admin_dashboard" class="<?php echo ($currentPage == 'dashboard') ? 'active' : ''; ?>">Dashboard</a>
         <a href="<?php echo $base_url; ?>/index.php?page=admin_books" class="<?php echo ($currentPage == 'books') ? 'active' : ''; ?>">Books</a>
         <a href="<?php echo $base_url; ?>/index.php?page=admin_users" class="<?php echo ($currentPage == 'users') ? 'active' : ''; ?>">Users</a>
-        <a href="<?php echo $base_url; ?>/index.php?page=admin_settings" class="<?php echo ($currentPage == 'settings') ? 'active' : ''; ?>">Settings</a>
+        <a href="<?php echo $base_url; ?>/index.php?page=admin_activity_log" class="<?php echo ($currentPage == 'activity_log') ? 'active' : ''; ?>">Activity Log</a>
     </div>
 
     <div class="nav-bottom">
+        <a href="<?php echo $base_url; ?>/index.php?page=admin_settings" class="<?php echo ($currentPage == 'settings') ? 'active' : ''; ?>">Settings</a>
         <a href="<?php echo $base_url; ?>/index.php?page=admin_logout">Logout</a>
     </div>
 

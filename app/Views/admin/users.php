@@ -135,8 +135,9 @@ if (!isset($base_url)) {
                             View Fine History
                     </button>
                     <form id="deleteUserForm" action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                        <!-- JS fills this value dynamically -->
+                        <!-- JS fills these values dynamically -->
                         <input type="hidden" name="target_user_id" id="modalDeleteTargetId" value="">
+                        <input type="hidden" name="target_user_name" id="modalDeleteTargetName" value="">
                         <button type="submit" name="delete_user" value="1" class="btn-danger">Delete User</button>
                     </form>
                 </div>

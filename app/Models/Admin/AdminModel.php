@@ -11,6 +11,36 @@ class AdminModel
         $this->pdo = $pdo;
     }
 
+    // ==================== ACTIVITY LOG ====================
+
+    public function logActivity(string $adminId, string $action, string $details = ''): void
+    {
+        try {
+            $stmt = $this->pdo->prepare("INSERT INTO admin_activity_log (admin_id, action, details) VALUES (?, ?, ?)");
+            $stmt->execute([$adminId, $action, $details]);
+        } catch (PDOException $e) {
+            error_log("Activity log error: " . $e->getMessage());
+        }
+    }
+
+    public function getActivityLogs(int $limit = 50): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT id, admin_id, action, details, created_at
+                FROM admin_activity_log
+                ORDER BY created_at DESC
+                LIMIT :limit
+            ");
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Get activity logs error: " . $e->getMessage());
+            return [];
+        }
+    }
+
     // ==================== AUTHENTICATION ====================
 
     public function authenticateAdmin(string $adminId, string $password): ?array

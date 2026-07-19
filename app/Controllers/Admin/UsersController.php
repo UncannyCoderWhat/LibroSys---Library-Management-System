@@ -34,6 +34,9 @@ class UsersController
                     $message_type = "error";
                 } else {
                     if ($this->adminModel->deleteUserWithHistory($targetId)) {
+                        $deletedName = $post['target_user_name'] ?? 'ID: ' . $targetId;
+                        $adminId = $_SESSION['admin_user'] ?? 'Unknown';
+                        $this->adminModel->logActivity($adminId, 'User deleted', 'Deleted user: ' . $deletedName);
                         $message = "User account and all related history have been permanently removed.";
                         $message_type = "success";
                     } else {

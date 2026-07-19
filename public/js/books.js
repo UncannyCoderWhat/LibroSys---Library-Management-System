@@ -171,7 +171,14 @@ window.addEventListener('scroll', repositionOpenDropdowns, true);
 window.addEventListener('resize', repositionOpenDropdowns);
 
 // Generic Modal Functions
-function openModal(id) { document.getElementById(id).style.display = 'block'; }
+function openModal(id) {
+    // Close all open dropdowns
+    document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+        m.classList.remove('show');
+        m._btn = null;
+    });
+    document.getElementById(id).style.display = 'block';
+}
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 // Close modals on outside click
@@ -276,6 +283,19 @@ function openAuthorEditModal(author) {
     openModal('editAuthorModal');
 }
 
+function openAuthorBooksModal(authorId) {
+    openModal('authorBooksModal');
+    document.getElementById('authorBooksModalContent').innerHTML = '<p style="text-align:center;padding:20px;">Loading...</p>';
+    fetch('index.php?page=admin_books&ajax=get_author_books&author_id=' + authorId)
+        .then(function(response) { return response.text(); })
+        .then(function(html) {
+            document.getElementById('authorBooksModalContent').innerHTML = html;
+        })
+        .catch(function() {
+            document.getElementById('authorBooksModalContent').innerHTML = '<p style="text-align:center;padding:20px;color:red;">Error loading author books.</p>';
+        });
+}
+
 // ==================== PUBLISHER MODALS ====================
 function openPublisherAddModal() { openModal('addPublisherModal'); }
 
@@ -285,6 +305,19 @@ function openPublisherEditModal(pub) {
     document.getElementById('edit_publisher_address').value = pub.address || '';
     document.getElementById('edit_publisher_website').value = pub.website || '';
     openModal('editPublisherModal');
+}
+
+function openPublisherBooksModal(publisherId) {
+    openModal('publisherBooksModal');
+    document.getElementById('publisherBooksModalContent').innerHTML = '<p style="text-align:center;padding:20px;">Loading...</p>';
+    fetch('index.php?page=admin_books&ajax=get_publisher_books&publisher_id=' + publisherId)
+        .then(function(response) { return response.text(); })
+        .then(function(html) {
+            document.getElementById('publisherBooksModalContent').innerHTML = html;
+        })
+        .catch(function() {
+            document.getElementById('publisherBooksModalContent').innerHTML = '<p style="text-align:center;padding:20px;color:red;">Error loading publisher books.</p>';
+        });
 }
 
 // ==================== EBOOK MODAL ====================

@@ -2,16 +2,25 @@
 // app/Controllers/Admin/BooksController.php
 
 require_once __DIR__ . '/../../Models/Admin/BookModel.php';
+require_once __DIR__ . '/../../Models/Admin/AdminModel.php';
 
 class BooksController
 {
     private PDO $pdo;
     private BookModel $bookModel;
+    private AdminModel $adminModel;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
         $this->bookModel = new BookModel($pdo);
+        $this->adminModel = new AdminModel($pdo);
+    }
+
+    private function logActivity(string $action, string $details = ''): void
+    {
+        $adminId = $_SESSION['admin_user'] ?? 'Unknown';
+        $this->adminModel->logActivity($adminId, $action, $details);
     }
 
     public function handleActions(array $get, array $post, array $files): void
@@ -21,6 +30,7 @@ class BooksController
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['add_book'])) {
             $result = $this->bookModel->addBook($post, $files);
             if ($result['success']) {
+                $this->logActivity('Book added', 'Added book: ' . ($post['title'] ?? 'Unknown'));
                 header("Location: index.php?page=admin_books");
                 exit();
             }
@@ -31,6 +41,7 @@ class BooksController
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['update_book'])) {
             $result = $this->bookModel->updateBook($post, $files);
             if ($result['success']) {
+                $this->logActivity('Book edited', 'Edited book: ' . ($post['title'] ?? 'Unknown') . ' (ID: ' . ($post['book_id'] ?? '') . ')');
                 header("Location: index.php?page=admin_books");
                 exit();
             }
@@ -42,6 +53,7 @@ class BooksController
             $bookId = (int)($post['book_id'] ?? 0);
             $result = $this->bookModel->deleteBook($bookId);
             if ($result['success']) {
+                $this->logActivity('Book deleted', 'Deleted book ID: ' . $bookId);
                 header("Location: index.php?page=admin_books");
                 exit();
             }
@@ -53,6 +65,7 @@ class BooksController
             $bookId = (int)($post['book_id'] ?? 0);
             $result = $this->bookModel->archiveBook($bookId);
             if ($result['success']) {
+                $this->logActivity('Book archived', 'Archived book ID: ' . $bookId);
                 header("Location: index.php?page=admin_books");
                 exit();
             }
@@ -64,6 +77,7 @@ class BooksController
             $bookId = (int)($post['book_id'] ?? 0);
             $result = $this->bookModel->restoreBook($bookId);
             if ($result['success']) {
+                $this->logActivity('Book restored', 'Restored book ID: ' . $bookId);
                 header("Location: index.php?page=admin_books");
                 exit();
             }
@@ -139,6 +153,9 @@ class BooksController
             $bookId = (int)($post['ebook_book_id'] ?? 0);
             if (isset($files['ebook_file'])) {
                 $result = $this->bookModel->uploadEBook($bookId, $files['ebook_file']);
+                if ($result['success']) {
+                    $this->logActivity('eBook uploaded', 'Uploaded eBook for book ID: ' . $bookId);
+                }
                 echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
                 exit();
             }
@@ -190,14 +207,29 @@ class BooksController
                 $this->renderCopiesModalAjax($bookId);
                 exit();
             }
+            if ($ajax === 'get_author_books') {
+                $authorId = (int)($get['author_id'] ?? 0);
+                if ($authorId > 0) {
+                    $this->renderAuthorBooksAjax($authorId);
+                }
+                exit();
+            }
+            if ($ajax === 'get_publisher_books') {
+                $publisherId = (int)($get['publisher_id'] ?? 0);
+                if ($publisherId > 0) {
+                    $this->renderPublisherBooksAjax($publisherId);
+                }
+                exit();
+            }
         }
 
         // ============ API BOOK IMPORT ============
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['api_import'])) {
             $identifier = $post['api_identifier'] ?? '';
-            $source = $post['api_source'] ?? 'isbn'; // isbn, google_books_id, open_library_id
+            $source = $post['api_source'] ?? 'isbn';
             $result = $this->importBookFromApi($identifier, $source);
             if ($result['success']) {
+                $this->logActivity('API import performed', 'Imported book via ' . $source . ' with identifier: ' . $identifier);
                 header("Location: index.php?page=admin_books");
                 exit();
             }
@@ -442,6 +474,82 @@ class BooksController
                 <?php endforeach; ?>
                 </tbody>
             </table>
+        <?php endif;
+    }
+
+    /**
+     * Render author books list modal content via AJAX.
+     */
+    private function renderAuthorBooksAjax(int $authorId): void
+    {
+        $authors = $this->bookModel->getAllAuthors();
+        $authorName = '';
+        foreach ($authors as $a) {
+            if ((int)$a['id'] === $authorId) {
+                $authorName = $a['name'];
+                break;
+            }
+        }
+        $books = $this->bookModel->getBooksByAuthor($authorId);
+        ?>
+        <h3 style="margin-bottom:12px;">Books by <em><?php echo htmlspecialchars($authorName); ?></em></h3>
+        <?php if (empty($books)): ?>
+            <p style="text-align:center;padding:20px;color:#888;">No books found for this author.</p>
+        <?php else: ?>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-height:65vh;overflow-y:auto;padding:4px;">
+            <?php foreach ($books as $book): ?>
+                <div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                    <div style="height:140px;overflow:hidden;background:#f8f9fa;display:flex;align-items:center;justify-content:center;">
+                        <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" style="max-height:100%;max-width:100%;object-fit:contain;" alt="Cover">
+                    </div>
+                    <div style="padding:10px 12px;">
+                        <strong style="font-size:14px;display:block;margin-bottom:4px;"><?php echo htmlspecialchars($book['title']); ?></strong>
+                        <span style="font-size:12px;color:#555;display:block;"><?php echo htmlspecialchars($book['author']); ?></span>
+                        <span style="font-size:11px;color:#888;display:block;">ISBN: <?php echo htmlspecialchars($book['isbn']); ?></span>
+                        <?php if ($book['genre']): ?><span style="font-size:11px;color:#888;display:block;">Genre: <?php echo htmlspecialchars($book['genre']); ?></span><?php endif; ?>
+                        <?php if ($book['publication_year']): ?><span style="font-size:11px;color:#888;display:block;">Year: <?php echo htmlspecialchars($book['publication_year']); ?></span><?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            </div>
+        <?php endif;
+    }
+
+    /**
+     * Render publisher books list modal content via AJAX.
+     */
+    private function renderPublisherBooksAjax(int $publisherId): void
+    {
+        $publishers = $this->bookModel->getAllPublishers();
+        $publisherName = '';
+        foreach ($publishers as $p) {
+            if ((int)$p['id'] === $publisherId) {
+                $publisherName = $p['name'];
+                break;
+            }
+        }
+        $books = $this->bookModel->getBooksByPublisher($publisherId);
+        ?>
+        <h3 style="margin-bottom:12px;">Books Published by <em><?php echo htmlspecialchars($publisherName); ?></em></h3>
+        <?php if (empty($books)): ?>
+            <p style="text-align:center;padding:20px;color:#888;">No books found for this publisher.</p>
+        <?php else: ?>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-height:65vh;overflow-y:auto;padding:4px;">
+            <?php foreach ($books as $book): ?>
+                <div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                    <div style="height:140px;overflow:hidden;background:#f8f9fa;display:flex;align-items:center;justify-content:center;">
+                        <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" style="max-height:100%;max-width:100%;object-fit:contain;" alt="Cover">
+                    </div>
+                    <div style="padding:10px 12px;">
+                        <strong style="font-size:14px;display:block;margin-bottom:4px;"><?php echo htmlspecialchars($book['title']); ?></strong>
+                        <span style="font-size:12px;color:#555;display:block;"><?php echo htmlspecialchars($book['author']); ?></span>
+                        <span style="font-size:11px;color:#888;display:block;">ISBN: <?php echo htmlspecialchars($book['isbn']); ?></span>
+                        <?php if ($book['genre']): ?><span style="font-size:11px;color:#888;display:block;">Genre: <?php echo htmlspecialchars($book['genre']); ?></span><?php endif; ?>
+                        <?php if ($book['publication_year']): ?><span style="font-size:11px;color:#888;display:block;">Year: <?php echo htmlspecialchars($book['publication_year']); ?></span><?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            </div>
         <?php endif;
     }
 }

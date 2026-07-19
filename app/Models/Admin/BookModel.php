@@ -66,6 +66,36 @@ class BookModel
         $publisher_id    = !empty($post['publisher_id']) ? (int)$post['publisher_id'] : null;
         $cover_path      = 'images/book-icon.png';
 
+        // Auto-create author if not selected but name is provided
+        if (empty($author_id) && !empty($author)) {
+            $stmt = $this->pdo->prepare("SELECT id FROM authors WHERE LOWER(name) = LOWER(?)");
+            $stmt->execute([$author]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                $author_id = (int)$existing['id'];
+            } else {
+                $addResult = $this->addAuthor($author, null, null);
+                if ($addResult['success']) {
+                    $author_id = (int)$this->pdo->lastInsertId();
+                }
+            }
+        }
+
+        // Auto-create publisher if not selected but name is provided
+        if (empty($publisher_id) && !empty($publisher)) {
+            $stmt = $this->pdo->prepare("SELECT id FROM publishers WHERE LOWER(name) = LOWER(?)");
+            $stmt->execute([$publisher]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                $publisher_id = (int)$existing['id'];
+            } else {
+                $addResult = $this->addPublisher($publisher, null, null);
+                if ($addResult['success']) {
+                    $publisher_id = (int)$this->pdo->lastInsertId();
+                }
+            }
+        }
+
         // Handle cover image upload
         if (isset($files['cover_image']) && ($files['cover_image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
             $upload_dir = __DIR__ . '/../../../uploads/';
@@ -134,6 +164,36 @@ class BookModel
         $author_id        = !empty($post['author_id']) ? (int)$post['author_id'] : null;
         $publisher_id     = !empty($post['publisher_id']) ? (int)$post['publisher_id'] : null;
         $cover_path       = $post['current_cover'] ?? 'images/book-icon.png';
+
+        // Auto-create author if not selected but name is provided
+        if (empty($author_id) && !empty($author)) {
+            $stmt = $this->pdo->prepare("SELECT id FROM authors WHERE LOWER(name) = LOWER(?)");
+            $stmt->execute([$author]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                $author_id = (int)$existing['id'];
+            } else {
+                $addResult = $this->addAuthor($author, null, null);
+                if ($addResult['success']) {
+                    $author_id = (int)$this->pdo->lastInsertId();
+                }
+            }
+        }
+
+        // Auto-create publisher if not selected but name is provided
+        if (empty($publisher_id) && !empty($publisher)) {
+            $stmt = $this->pdo->prepare("SELECT id FROM publishers WHERE LOWER(name) = LOWER(?)");
+            $stmt->execute([$publisher]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                $publisher_id = (int)$existing['id'];
+            } else {
+                $addResult = $this->addPublisher($publisher, null, null);
+                if ($addResult['success']) {
+                    $publisher_id = (int)$this->pdo->lastInsertId();
+                }
+            }
+        }
 
         // Handle cover image upload
         if (isset($files['cover_image']) && ($files['cover_image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
@@ -338,6 +398,30 @@ class BookModel
         }
     }
 
+    public function getBooksByAuthor(int $authorId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT b.id, b.title, b.author, b.isbn, b.genre, b.publication_year, b.cover_path
+            FROM books b
+            WHERE b.author_id = ? AND b.is_deleted = 0
+            ORDER BY b.title ASC
+        ");
+        $stmt->execute([$authorId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getBooksByPublisher(int $publisherId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT b.id, b.title, b.author, b.isbn, b.genre, b.publication_year, b.cover_path
+            FROM books b
+            WHERE b.publisher_id = ? AND b.is_deleted = 0
+            ORDER BY b.title ASC
+        ");
+        $stmt->execute([$publisherId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function deletePublisher(int $id): array
     {
         try {
@@ -499,6 +583,38 @@ class BookModel
         $language = $apiData['language'] ?? 'English';
         $genre = is_array($apiData['categories'] ?? null) ? implode(', ', $apiData['categories']) : ($apiData['categories'] ?? '');
         $cover_path = 'images/book-icon.png';
+        $author_id = null;
+        $publisher_id = null;
+
+        // Auto-create author (no duplicate)
+        if (!empty($author)) {
+            $stmt = $this->pdo->prepare("SELECT id FROM authors WHERE LOWER(name) = LOWER(?)");
+            $stmt->execute([$author]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                $author_id = (int)$existing['id'];
+            } else {
+                $addResult = $this->addAuthor($author, null, null);
+                if ($addResult['success']) {
+                    $author_id = (int)$this->pdo->lastInsertId();
+                }
+            }
+        }
+
+        // Auto-create publisher (no duplicate)
+        if (!empty($publisher)) {
+            $stmt = $this->pdo->prepare("SELECT id FROM publishers WHERE LOWER(name) = LOWER(?)");
+            $stmt->execute([$publisher]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                $publisher_id = (int)$existing['id'];
+            } else {
+                $addResult = $this->addPublisher($publisher, null, null);
+                if ($addResult['success']) {
+                    $publisher_id = (int)$this->pdo->lastInsertId();
+                }
+            }
+        }
 
         // Download cover image from URL if provided
         if (!empty($apiData['thumbnail'])) {
@@ -521,12 +637,12 @@ class BookModel
             $stmt = $this->pdo->prepare("
                 INSERT INTO books 
                     (title, author, isbn, genre, publisher, publication_year, language, 
-                     description, cover_path, copies)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     description, cover_path, copies, author_id, publisher_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $title, $author, $isbn, $genre, $publisher, $publication_year, $language,
-                $description, $cover_path, 1
+                $description, $cover_path, 1, $author_id, $publisher_id
             ]);
 
             $bookId = $this->pdo->lastInsertId();
