@@ -10,12 +10,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const bookSearch = document.getElementById('bookSearch');
     const statusFilter = document.getElementById('statusFilter');
     const categoryFilter = document.getElementById('categoryFilter');
+    const bookTypeFilter = document.getElementById('bookTypeFilter');
     const genreFilter = document.getElementById('genreFilter');
 
     function filterAndPaginate() {
         const searchTerm = (bookSearch ? bookSearch.value : '').toLowerCase();
         const statusVal = statusFilter ? statusFilter.value : 'all';
         const categoryVal = categoryFilter ? categoryFilter.value : 'all';
+        const bookTypeVal = bookTypeFilter ? bookTypeFilter.value : 'all';
         const genreVal = genreFilter ? genreFilter.value : 'all';
 
         const rows = document.querySelectorAll('.book-row');
@@ -26,15 +28,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const author = (row.getAttribute('data-author') || '').toLowerCase();
             const isbn = (row.getAttribute('data-isbn') || '').toLowerCase();
             const genre = (row.getAttribute('data-genre') || '').toLowerCase();
+            const bookType = (row.getAttribute('data-book_type') || '').toLowerCase();
             const category = (row.getAttribute('data-category') || '').toLowerCase();
             const status = row.getAttribute('data-status') || 'available';
 
             const matchesSearch = title.includes(searchTerm) || author.includes(searchTerm) || isbn.includes(searchTerm);
             const matchesStatus = statusVal === 'all' || status === statusVal;
             const matchesCategory = categoryVal === 'all' || category === categoryVal.toLowerCase();
-            const matchesGenre = genreVal === 'all' || genre === genreVal.toLowerCase();
+            const matchesBookType = bookTypeVal === 'all' || bookType === bookTypeVal.toLowerCase();
+            const matchesGenre = genreVal === 'all' || genre.indexOf(genreVal.toLowerCase()) !== -1;
 
-            if (matchesSearch && matchesStatus && matchesCategory && matchesGenre) {
+            if (matchesSearch && matchesStatus && matchesCategory && matchesBookType && matchesGenre) {
                 visible.push(row);
                 row.style.display = '';
             } else {
@@ -80,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (bookSearch) bookSearch.addEventListener('input', function() { currentPage = 1; filterAndPaginate(); });
     if (statusFilter) statusFilter.addEventListener('change', function() { currentPage = 1; filterAndPaginate(); });
     if (categoryFilter) categoryFilter.addEventListener('change', function() { currentPage = 1; filterAndPaginate(); });
+    if (bookTypeFilter) bookTypeFilter.addEventListener('change', function() { currentPage = 1; filterAndPaginate(); });
     if (genreFilter) genreFilter.addEventListener('change', function() { currentPage = 1; filterAndPaginate(); });
 
     // Initial pagination
@@ -190,6 +195,48 @@ window.onclick = function(event) {
 // Add Book Modal
 function openAddModal() { openModal('addBookModal'); }
 
+// ==================== GENRE CHIP SELECTOR ====================
+// Initialize genre chip selection for add modal (script is at bottom of page, DOM is ready)
+initGenreChips('add_genre_input', '#addBookModal .genre-chip');
+// Initialize genre chip selection for edit modal
+initGenreChips('edit_genre_input', '#editBookModal .genre-chip');
+
+// Initialize genre chip selection for edit modal (called when edit modal opens to pre-select the current genre)
+function initEditGenreChips(genreValue) {
+    var chips = document.querySelectorAll('#edit_genre_chips .genre-chip');
+    var input = document.getElementById('edit_genre_input');
+    var selected = [];
+    chips.forEach(function (chip) {
+        chip.classList.remove('selected');
+        var g = chip.getAttribute('data-genre');
+        if (g && genreValue) {
+            var genreList = genreValue.split(',').map(function(s) { return s.trim().toLowerCase(); });
+            if (genreList.indexOf(g.toLowerCase()) !== -1) {
+                chip.classList.add('selected');
+                selected.push(g);
+            }
+        }
+    });
+    if (input) input.value = selected.join(', ');
+}
+
+function initGenreChips(inputId, selector) {
+    var chips = document.querySelectorAll(selector);
+    var input = document.getElementById(inputId);
+    chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            this.classList.toggle('selected');
+            var selected = [];
+            chips.forEach(function (c) {
+                if (c.classList.contains('selected')) {
+                    selected.push(c.getAttribute('data-genre') || '');
+                }
+            });
+            if (input) input.value = selected.join(', ');
+        });
+    });
+}
+
 // Edit Book Modal
 function openEditModal(book) {
     function val(id) { return document.getElementById(id); }
@@ -199,7 +246,6 @@ function openEditModal(book) {
     setVal('edit_title', book.title);
     setVal('edit_author', book.author);
     setVal('edit_isbn', book.isbn);
-    setVal('edit_genre', book.genre);
     setVal('edit_current_cover', book.cover_path);
     setVal('edit_publisher', book.publisher);
     setVal('edit_publication_year', book.publication_year);
@@ -211,7 +257,10 @@ function openEditModal(book) {
     setVal('edit_author_id', book.author_id);
     setVal('edit_publisher_id', book.publisher_id);
     setChecked('edit_is_exclusive', book.is_exclusive == 1);
+    setVal('edit_book_type', book.book_type || '');
     setVal('edit_description', book.description);
+    // Initialize genre chips for edit modal
+    initEditGenreChips(book.genre);
     openModal('editBookModal');
 }
 

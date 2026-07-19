@@ -373,6 +373,11 @@ class BooksController
         return $this->bookModel->getAllPublishers();
     }
 
+    public function getAllBookTypes(): array
+    {
+        return $this->bookModel->getAllBookTypes();
+    }
+
     public function getEBooks(int $bookId): array
     {
         return $this->bookModel->getEBooks($bookId);

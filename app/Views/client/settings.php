@@ -29,7 +29,7 @@ $message_type    = $data['message_type'] ?? ''; // success|error
     <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
     <header>
         <div class="client-top-bar">
-            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
                     <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>

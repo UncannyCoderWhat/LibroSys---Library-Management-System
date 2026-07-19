@@ -590,13 +590,13 @@ body {
 .sidebar a:hover,
 .sidebar a:focus {
   background: #F4B64F;
-  color: #FFFFFF;
+  color: #000000;
 }
 
 /* Active sidebar indicator */
 .sidebar a.active {
     background: #F4B64F;
-    color: #FFFFFF;
+    color: #000000;
 }
 
 /* DASHBOARD CSS - START */
@@ -2166,6 +2166,64 @@ body {
         padding: 16px;
         width: 95%;
     }
+}
+
+/* ==================== GENRE CHIP SELECTOR ==================== */
+.genre-selector-wrapper {
+    grid-column: 1 / -1;
+}
+.genre-chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+.genre-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.genre-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid #d0d5dd;
+    border-radius: 20px;
+    background: #f9fafb;
+    color: #344054;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+.genre-chip:hover {
+    border-color: #fca311;
+    background: #fef6e7;
+    color: #e67e00;
+}
+.genre-chip.selected {
+    border-color: #fca311;
+    background: #fca311;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(252, 163, 17, 0.3);
+}
+.genre-chip.selected:hover {
+    background: #e8920a;
+    border-color: #e8920a;
+}
+
+.genre-chip-static {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 1px 2px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    background: #f0f0f0;
+    color: #344054;
+    white-space: nowrap;
 }
 
 /* ==================== BOOKS PAGE - END ==================== */

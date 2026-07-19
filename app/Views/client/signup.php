@@ -25,7 +25,7 @@ $message_type = $data['message_type'] ?? '';
 
     <header class="main-header">
         <div class="header-content">
-            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
             <label class="switch-container">
             <input type="checkbox" id="theme-toggle" class="switch-input">
             <div class="switch-track">
@@ -39,7 +39,7 @@ $message_type = $data['message_type'] ?? '';
 
     <div class="login-container">
         <div class="login-card">
-            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="card-logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="card-logo">
             <?php if (!empty($message)): ?>
                 <div class="notification-banner" style="margin-bottom: 20px; background-color: <?php echo $message_type === 'success' ? '#d4edda' : '#f8d7da'; ?>; color: <?php echo $message_type === 'success' ? '#155724' : '#721c24'; ?>; border-left-color: <?php echo $message_type === 'success' ? '#28a745' : '#dc3545'; ?>;">
                     <span><?php echo htmlspecialchars($message); ?></span>

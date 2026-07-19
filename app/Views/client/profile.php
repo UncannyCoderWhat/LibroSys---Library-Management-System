@@ -46,7 +46,7 @@ $browse_error     = $data['browse_error'] ?? null;
     <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
     <header>
         <div class="client-top-bar">
-            <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
                     <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
@@ -411,7 +411,7 @@ $browse_error     = $data['browse_error'] ?? null;
     <div id="receiptModal" class="modal" style="display: none;">
         <div class="modal-content receipt-card">
             <div class="receipt-header">
-                <img src="<?php echo $base_url; ?>../images/LibroSys.png" alt="Logo" style="width: 120px; margin-bottom: 10px;">
+                <img src="<?php echo $base_url; ?>../images/librosys_client.png" alt="Logo" style="width: 120px; margin-bottom: 10px;">
                 <h2>PAYMENT RECEIPT</h2>
                 <p>Transaction ID: #<?php echo strtoupper(uniqid()); ?></p>
                 <p>Date: <?php echo date("M d, Y h:i A"); ?></p>
@@ -444,7 +444,7 @@ $browse_error     = $data['browse_error'] ?? null;
     <div id="premiumModal" class="ls-modal-overlay">
         <div class="ls-modal-container">
             <span class="ls-modal-close" onclick="closePremiumModal()">&times;</span>
-            <img src="/images/LibroSys.png" alt="LibroSys Logo" class="ls-modal-logo">
+            <img src="/images/librosys_client.png" alt="LibroSys Logo" class="ls-modal-logo">
             <h3 class="ls-modal-title">Level-up your LibroSys Experience!</h3>
 
             <table class="ls-modal-table">

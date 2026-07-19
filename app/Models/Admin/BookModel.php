@@ -47,6 +47,22 @@ class BookModel
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    public function getAllBookTypes(): array
+    {
+        // Return distinct book_type values that exist, plus common defaults
+        $stmt = $this->pdo->query("SELECT DISTINCT book_type FROM books WHERE book_type IS NOT NULL AND book_type != '' ORDER BY book_type ASC");
+        $existing = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $defaults = ['Novel', 'Manga', 'Light Novel', 'Comic', 'Graphic Novel', 'Textbook', 'Reference', 'Other'];
+        // Merge existing with defaults, keep order
+        $all = $defaults;
+        foreach ($existing as $e) {
+            if (!in_array($e, $all, true)) {
+                $all[] = $e;
+            }
+        }
+        return $all;
+    }
+
     public function addBook(array $post, array $files): array
     {
         $title           = $post['title'] ?? '';
@@ -114,16 +130,18 @@ class BookModel
             }
         }
 
+        $book_type = $post['book_type'] ?? '';
+
         try {
             $stmt = $this->pdo->prepare("
                 INSERT INTO books 
-                    (title, author, isbn, genre, publisher, publication_year, language, 
+                    (title, author, isbn, genre, book_type, publisher, publication_year, language, 
                      shelf_location, copies, description, is_exclusive, status, 
                      category_id, author_id, publisher_id, cover_path)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
-                $title, $author, $isbn, $genre, $publisher, $publication_year, $language,
+                $title, $author, $isbn, $genre, $book_type, $publisher, $publication_year, $language,
                 $shelf_location, $copies, $description, $is_exclusive, $status,
                 $category_id, $author_id, $publisher_id, $cover_path
             ]);
@@ -152,6 +170,7 @@ class BookModel
         $author           = $post['author'] ?? '';
         $isbn             = $post['isbn'] ?? '';
         $genre            = $post['genre'] ?? '';
+        $book_type        = $post['book_type'] ?? '';
         $publisher        = $post['publisher'] ?? '';
         $publication_year = !empty($post['publication_year']) ? (int)$post['publication_year'] : null;
         $language         = $post['language'] ?? 'English';
@@ -213,14 +232,14 @@ class BookModel
         try {
             $stmt = $this->pdo->prepare("
                 UPDATE books SET 
-                    title = ?, author = ?, isbn = ?, genre = ?, publisher = ?, 
+                    title = ?, author = ?, isbn = ?, genre = ?, book_type = ?, publisher = ?, 
                     publication_year = ?, language = ?, shelf_location = ?, 
                     copies = ?, description = ?, is_exclusive = ?, status = ?,
                     category_id = ?, author_id = ?, publisher_id = ?, cover_path = ?
                 WHERE id = ?
             ");
             $stmt->execute([
-                $title, $author, $isbn, $genre, $publisher, $publication_year, $language,
+                $title, $author, $isbn, $genre, $book_type, $publisher, $publication_year, $language,
                 $shelf_location, $copies, $description, $is_exclusive, $status,
                 $category_id, $author_id, $publisher_id, $cover_path, $id
             ]);
@@ -582,6 +601,7 @@ class BookModel
         $description = $apiData['description'] ?? '';
         $language = $apiData['language'] ?? 'English';
         $genre = is_array($apiData['categories'] ?? null) ? implode(', ', $apiData['categories']) : ($apiData['categories'] ?? '');
+        $book_type = $apiData['book_type'] ?? '';
         $cover_path = 'images/book-icon.png';
         $author_id = null;
         $publisher_id = null;

@@ -1410,3 +1410,507 @@ html[data-theme="light"] .save-changes-btn {
     display: flex;
     justify-content: center;
 }
+
+/* ================================================
+   LIBROSYS HOME PAGE STYLES (Manga/Comic Shelf Layout)
+   ================================================ */
+
+.ls-home-main {
+    margin-top: 110px;
+    width: 100%;
+    max-width: 1300px;
+    padding: 0 30px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Notification Banner */
+.ls-notification-banner {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: lsFadeIn 0.5s ease-out;
+}
+
+.ls-notification-banner i {
+    font-size: 1.3rem;
+}
+
+/* Hero Section */
+.ls-hero {
+    padding: 20px 0 40px;
+}
+
+.ls-hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+}
+
+.ls-hero-text {
+    flex: 1;
+    max-width: 550px;
+}
+
+.ls-hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    margin-bottom: 15px;
+}
+
+.ls-hero-subtitle {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.ls-hero-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.ls-btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
+
+.ls-btn-primary {
+    background: var(--main-color);
+    color: #000000;
+}
+
+html[data-theme="light"] .ls-btn-primary {
+    color: #ffffff;
+}
+
+.ls-btn-primary:hover {
+    background: var(--main-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 210, 0, 0.3);
+}
+
+.ls-btn-secondary {
+    background: var(--surface-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.ls-btn-secondary:hover {
+    background: var(--surface-color-secondary);
+    transform: translateY(-2px);
+}
+
+/* Hero Visual - Card Stack */
+.ls-hero-visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ls-hero-card-stack {
+    position: relative;
+    width: 280px;
+    height: 360px;
+}
+
+.ls-hero-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transition: transform 0.3s ease;
+}
+
+.ls-hero-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ls-hero-card:hover {
+    transform: translateY(-10px) scale(1.02) !important;
+    z-index: 10;
+}
+
+/* Stats Strip */
+.ls-stats-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 22px 40px;
+    margin: 10px 0 40px;
+    box-shadow: var(--card-shadow);
+    flex-wrap: wrap;
+}
+
+.ls-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.ls-stat-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--main-color);
+    line-height: 1;
+}
+
+.ls-stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ls-stat-divider {
+    width: 1px;
+    height: 45px;
+    background: var(--border-color);
+}
+
+/* Shelf Sections */
+.ls-shelf-section {
+    margin-bottom: 40px;
+}
+
+.ls-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.ls-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ls-section-title i {
+    color: var(--main-color);
+    font-size: 1.4rem;
+}
+
+.ls-view-all {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.ls-view-all:hover {
+    color: var(--main-color);
+}
+
+/* Horizontal Scroll */
+.ls-horizontal-scroll {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.ls-scroll-track {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 8px 4px;
+    width: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.ls-scroll-track::-webkit-scrollbar {
+    display: none;
+}
+
+.ls-scroll-arrow {
+    position: absolute;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ls-horizontal-scroll:hover .ls-scroll-arrow {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.ls-scroll-left {
+    left: -18px;
+}
+
+.ls-scroll-right {
+    right: -18px;
+}
+
+.ls-scroll-arrow:hover {
+    background: var(--surface-color-secondary);
+    transform: scale(1.1);
+}
+
+/* Book Card */
+.ls-book-card {
+    flex: 0 0 180px;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+    border-radius: 10px;
+}
+
+.ls-book-card:hover {
+    transform: translateY(-6px);
+}
+
+.ls-book-cover-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface-color-secondary);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.ls-book-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.ls-book-card:hover .ls-book-cover {
+    transform: scale(1.05);
+}
+
+.ls-book-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+    z-index: 2;
+}
+
+.ls-book-overlay i {
+    font-size: 2.5rem;
+    color: #ffffff;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.ls-book-card:hover .ls-book-overlay {
+    background: rgba(0,0,0,0.35);
+}
+
+.ls-book-card:hover .ls-book-overlay i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Badges */
+.ls-exclusive-badge,
+.ls-borrowed-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ls-exclusive-badge {
+    background: var(--main-color);
+    color: #000000;
+}
+
+html[data-theme="light"] .ls-exclusive-badge {
+    color: #ffffff;
+}
+
+.ls-borrowed-badge {
+    background: #e74c3c;
+    color: #ffffff;
+}
+
+/* Book Info */
+.ls-book-info {
+    padding: 10px 4px;
+}
+
+.ls-book-info h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ls-book-info p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ls-genre-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    background: var(--surface-color-secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+/* Grid Layout */
+.ls-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.ls-grid-4 .ls-book-card {
+    flex: none;
+}
+
+/* Empty State */
+.ls-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.ls-empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.ls-empty-state p {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Animations */
+@keyframes lsFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .ls-grid-4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .ls-hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .ls-hero-actions {
+        justify-content: center;
+    }
+    .ls-hero-visual {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .ls-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .ls-hero-title {
+        font-size: 2rem;
+    }
+    .ls-home-main {
+        padding: 0 15px;
+    }
+    .ls-stats-strip {
+        padding: 15px 20px;
+        gap: 15px;
+    }
+    .ls-stat-number {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .ls-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .ls-book-card {
+        flex: 0 0 140px;
+    }
+}

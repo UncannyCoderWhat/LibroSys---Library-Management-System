@@ -16,6 +16,76 @@ class ClientModel
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }
 
+    public function getHomePageBooks(): array
+    {
+        // All non-deleted books with availability info
+        $stmt = $this->pdo->query("
+            SELECT b.*, 
+                   CASE WHEN br.book_id IS NOT NULL THEN 1 ELSE 0 END AS is_borrowed,
+                   COALESCE(a.name, '') AS author_name
+            FROM books b
+            LEFT JOIN authors a ON b.author_id = a.id
+            LEFT JOIN (
+                SELECT DISTINCT book_id FROM borrows WHERE status IN ('borrowed', 'reserved')
+            ) br ON b.id = br.book_id
+            WHERE b.is_deleted = 0
+            ORDER BY b.created_at DESC
+        ");
+        $allBooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $exclusive = [];
+        $regular = [];
+        $newReleases = [];
+        $available = [];
+        $borrowed = [];
+        $genreGroups = []; // genre_name => [books]
+        $bookTypeGroups = []; // book_type => [books]
+
+        foreach ($allBooks as $book) {
+            // Group by exclusive/regular
+            if (!empty($book['is_exclusive'])) {
+                $exclusive[] = $book;
+            } else {
+                $regular[] = $book;
+            }
+
+            // New releases (last 30 days)
+            if (!empty($book['created_at']) && strtotime($book['created_at']) > strtotime('-30 days')) {
+                $newReleases[] = $book;
+            }
+
+            // Available vs borrowed
+            if ($book['is_borrowed']) {
+                $borrowed[] = $book;
+            } else {
+                $available[] = $book;
+            }
+
+            // Group by genre
+            $genre = trim($book['genre'] ?? '');
+            if (!empty($genre)) {
+                $genreGroups[$genre][] = $book;
+            }
+
+            // Group by book_type
+            $bookType = trim($book['book_type'] ?? '');
+            if (!empty($bookType)) {
+                $bookTypeGroups[$bookType][] = $book;
+            }
+        }
+
+        return [
+            'exclusive_books' => $exclusive,
+            'regular_books' => $regular,
+            'new_releases' => $newReleases,
+            'available_books' => $available,
+            'borrowed_books' => $borrowed,
+            'all_books' => $allBooks,
+            'genre_groups' => $genreGroups,
+            'book_type_groups' => $bookTypeGroups,
+        ];
+    }
+
     public function getBrowsePageData(int $userId): array
     {
         $userStmt = $this->pdo->prepare("SELECT credit_score FROM users WHERE id = ?");

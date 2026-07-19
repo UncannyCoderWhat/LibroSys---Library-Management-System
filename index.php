@@ -88,6 +88,7 @@ if (strpos($page, 'admin_') === 0) {
             $all_categories = $controller->getAllCategories();
             $all_authors = $controller->getAllAuthors();
             $all_publishers = $controller->getAllPublishers();
+            $all_book_types = $controller->getAllBookTypes();
             $view = 'app/Views/admin/books.php';
             break;
 
