@@ -338,7 +338,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <?php endforeach; ?>
         <?php endif; ?>
 
-        <!-- Book Type Sections -->
+        <!-- Book Type Sections (Customizable Visual Blocks) -->
         <?php if (!empty($book_type_groups)): ?>
             <?php 
             $typeIcons = [
@@ -351,42 +351,64 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 'Reference' => 'bx bxs-bookmark',
                 'Other' => 'bx bxs-category',
             ];
+
+            // Customizable background images for each book type (use empty string for no image)
+            // Add your image paths here - e.g. 'Manga' => 'images/manga-bg.png'
+            $typeBackgrounds = [
+                'Manga' => 'images/manga-photo.jpg',
+                'Novel' => '',
+                'Light Novel' => '',
+                'Comic' => '',
+                'Graphic Novel' => '',
+                'Textbook' => 'images/textbook.jpg',
+                'Reference' => '',
+                'Other' => '',
+            ];
             ?>
             <?php foreach ($book_type_groups as $typeName => $typeBooks): ?>
-                <?php if (count($typeBooks) > 0): ?>
-                <section class="ls-shelf-section">
-                    <div class="ls-section-header">
-                        <h2 class="ls-section-title">
-                            <i class="<?php echo $typeIcons[$typeName] ?? 'bx bxs-category'; ?>"></i>
-                            <?php echo htmlspecialchars($typeName); ?>
-                        </h2>
-                        <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
-                    </div>
-                    <div class="ls-horizontal-scroll">
-                        <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
-                        <div class="ls-scroll-track">
-                            <?php foreach ($typeBooks as $book): ?>
-                            <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
-                                <div class="ls-book-cover-wrap">
-                                    <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
-                                    <div class="ls-book-overlay">
-                                        <i class='bx bx-plus-circle'></i>
-                                    </div>
-                                    <?php if (!empty($book['is_exclusive'])): ?>
-                                    <span class="ls-exclusive-badge">Exclusive</span>
-                                    <?php endif; ?>
-                                    <?php if ($book['is_borrowed'] ?? false): ?>
-                                    <span class="ls-borrowed-badge">Borrowed</span>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="ls-book-info">
-                                    <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
-                                    <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
+                <?php if (count($typeBooks) > 0): 
+                    $typeKey = preg_replace('/[^a-zA-Z0-9-]/', '-', strtolower($typeName));
+                    $bgImage = $typeBackgrounds[$typeName] ?? '';
+                    $bgStyle = !empty($bgImage) ? ' style="background-image: url(' . htmlspecialchars($base_url . '/' . $bgImage) . ');"' : '';
+                ?>
+                <section class="ls-shelf-section ls-shelf-type ls-shelf-type-<?php echo htmlspecialchars($typeKey); ?>"<?php echo $bgStyle; ?>>
+                    <?php if (!empty($bgImage)): ?>
+                    <div class="ls-type-bg-overlay"></div>
+                    <?php endif; ?>
+                    <div class="ls-type-section-content">
+                        <div class="ls-section-header">
+                            <h2 class="ls-section-title">
+                                <i class="<?php echo $typeIcons[$typeName] ?? 'bx bxs-category'; ?>"></i>
+                                <?php echo htmlspecialchars($typeName); ?>
+                            </h2>
+                            <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
                         </div>
-                        <button class="ls-scroll-arrow ls-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
+                        <div class="ls-horizontal-scroll">
+                            <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
+                            <div class="ls-scroll-track">
+                                <?php foreach ($typeBooks as $book): ?>
+                                <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                                    <div class="ls-book-cover-wrap">
+                                        <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
+                                        <div class="ls-book-overlay">
+                                            <i class='bx bx-plus-circle'></i>
+                                        </div>
+                                        <?php if (!empty($book['is_exclusive'])): ?>
+                                        <span class="ls-exclusive-badge">Exclusive</span>
+                                        <?php endif; ?>
+                                        <?php if ($book['is_borrowed'] ?? false): ?>
+                                        <span class="ls-borrowed-badge">Borrowed</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="ls-book-info">
+                                        <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                                        <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button class="ls-scroll-arrow ls-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
+                        </div>
                     </div>
                 </section>
                 <?php endif; ?>

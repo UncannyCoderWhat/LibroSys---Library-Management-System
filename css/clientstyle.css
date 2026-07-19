@@ -1607,6 +1607,141 @@ html[data-theme="light"] .ls-btn-primary {
     margin-bottom: 40px;
 }
 
+/* Book Type Sections - Distinct Visual Blocks */
+.ls-shelf-type {
+    position: relative;
+    border-radius: 16px;
+    padding: 24px 24px 18px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+    transition: box-shadow 0.3s ease;
+}
+
+.ls-shelf-type:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Background image overlay for readability */
+.ls-type-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.70) 100%
+    );
+    z-index: 0;
+}
+
+/* Content wrapper sits above the background */
+.ls-type-section-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Default accent colors for each book type */
+.ls-shelf-type-manga {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-left: 4px solid #e94560;
+}
+
+.ls-shelf-type-novel {
+    background: linear-gradient(135deg, #2d1b2e 0%, #3d1b3d 50%, #4a2040 100%);
+    border-left: 4px solid #c9a84c;
+}
+
+.ls-shelf-type-light-novel {
+    background: linear-gradient(135deg, #1e2a3a 0%, #1a3a4a 50%, #0d3b4a 100%);
+    border-left: 4px solid #4fc3f7;
+}
+
+.ls-shelf-type-comic {
+    background: linear-gradient(135deg, #2a1a1a 0%, #3a1a1a 50%, #4a2020 100%);
+    border-left: 4px solid #ff6b35;
+}
+
+.ls-shelf-type-graphic-novel {
+    background: linear-gradient(135deg, #1a2a1a 0%, #1a3a1a 50%, #203a20 100%);
+    border-left: 4px solid #66bb6a;
+}
+
+.ls-shelf-type-textbook {
+    background: linear-gradient(135deg, #1e1e2a 0%, #2a2a3a 50%, #1a1a2e 100%);
+    border-left: 4px solid #7c4dff;
+}
+
+.ls-shelf-type-reference {
+    background: linear-gradient(135deg, #2a2a1a 0%, #3a3a1a 50%, #2e2e1a 100%);
+    border-left: 4px solid #ffd54f;
+}
+
+.ls-shelf-type-other {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 50%, #2a2a2a 100%);
+    border-left: 4px solid #78909c;
+}
+
+/* Light mode overrides for book type sections */
+html[data-theme="light"] .ls-shelf-type-manga {
+    background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 50%, #e8eaf6 100%);
+    border-left: 4px solid #e94560;
+}
+
+html[data-theme="light"] .ls-shelf-type-novel {
+    background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%);
+    border-left: 4px solid #c9a84c;
+}
+
+html[data-theme="light"] .ls-shelf-type-light-novel {
+    background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #e1f5fe 100%);
+    border-left: 4px solid #4fc3f7;
+}
+
+html[data-theme="light"] .ls-shelf-type-comic {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 50%, #fff3e0 100%);
+    border-left: 4px solid #ff6b35;
+}
+
+html[data-theme="light"] .ls-shelf-type-graphic-novel {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #e8f5e9 100%);
+    border-left: 4px solid #66bb6a;
+}
+
+html[data-theme="light"] .ls-shelf-type-textbook {
+    background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 50%, #ede7f6 100%);
+    border-left: 4px solid #7c4dff;
+}
+
+html[data-theme="light"] .ls-shelf-type-reference {
+    background: linear-gradient(135deg, #fffde7 0%, #fff9c4 50%, #fffde7 100%);
+    border-left: 4px solid #ffd54f;
+}
+
+html[data-theme="light"] .ls-shelf-type-other {
+    background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 50%, #f5f5f5 100%);
+    border-left: 4px solid #78909c;
+}
+
+/* Ensure book type section titles are visible over backgrounds */
+.ls-shelf-type .ls-section-title {
+    color: var(--text-primary);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ls-shelf-type .ls-view-all {
+    color: var(--text-secondary);
+}
+
+.ls-shelf-type .ls-view-all:hover {
+    color: var(--main-color);
+}
+
 .ls-section-header {
     display: flex;
     align-items: center;
