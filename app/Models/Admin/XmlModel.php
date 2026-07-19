@@ -28,25 +28,23 @@ class XmlModel
         foreach ($books as $book) {
             $node = $dom->createElement("book");
 
-            $idNode = $dom->createElement("id");
-            $idNode->appendChild($dom->createTextNode($book['id']));
-            $node->appendChild($idNode);
-
-            $titleNode = $dom->createElement("title");
-            $titleNode->appendChild($dom->createTextNode($book['title']));
-            $node->appendChild($titleNode);
-
-            $authorNode = $dom->createElement("author");
-            $authorNode->appendChild($dom->createTextNode($book['author']));
-            $node->appendChild($authorNode);
-
-            $isbnNode = $dom->createElement("isbn");
-            $isbnNode->appendChild($dom->createTextNode($book['isbn']));
-            $node->appendChild($isbnNode);
-
-            $genreNode = $dom->createElement("genre");
-            $genreNode->appendChild($dom->createTextNode($book['genre']));
-            $node->appendChild($genreNode);
+            $node->appendChild($dom->createElement("id", htmlspecialchars($book['id'] ?? '')));
+            $node->appendChild($dom->createElement("title", htmlspecialchars($book['title'] ?? '')));
+            $node->appendChild($dom->createElement("author", htmlspecialchars($book['author'] ?? '')));
+            $node->appendChild($dom->createElement("isbn", htmlspecialchars($book['isbn'] ?? '')));
+            $node->appendChild($dom->createElement("genre", htmlspecialchars($book['genre'] ?? '')));
+            $node->appendChild($dom->createElement("publisher", htmlspecialchars($book['publisher'] ?? '')));
+            $node->appendChild($dom->createElement("publication_year", htmlspecialchars($book['publication_year'] ?? '')));
+            $node->appendChild($dom->createElement("language", htmlspecialchars($book['language'] ?? 'English')));
+            $node->appendChild($dom->createElement("shelf_location", htmlspecialchars($book['shelf_location'] ?? '')));
+            $node->appendChild($dom->createElement("copies", htmlspecialchars($book['copies'] ?? '1')));
+            $node->appendChild($dom->createElement("description", htmlspecialchars($book['description'] ?? '')));
+            $node->appendChild($dom->createElement("is_exclusive", htmlspecialchars($book['is_exclusive'] ?? '0')));
+            $node->appendChild($dom->createElement("status", htmlspecialchars($book['status'] ?? 'available')));
+            $node->appendChild($dom->createElement("cover_path", htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png')));
+            $node->appendChild($dom->createElement("category_id", htmlspecialchars($book['category_id'] ?? '')));
+            $node->appendChild($dom->createElement("author_id", htmlspecialchars($book['author_id'] ?? '')));
+            $node->appendChild($dom->createElement("publisher_id", htmlspecialchars($book['publisher_id'] ?? '')));
 
             $root->appendChild($node);
         }
@@ -74,13 +72,47 @@ class XmlModel
             $author = $book->getElementsByTagName("author")->item(0)->nodeValue;
             $isbn = $book->getElementsByTagName("isbn")->item(0)->nodeValue;
             $genre = $book->getElementsByTagName("genre")->item(0)->nodeValue;
+            $publisher = $book->getElementsByTagName("publisher")->item(0) ? $book->getElementsByTagName("publisher")->item(0)->nodeValue : '';
+            $publication_year = $book->getElementsByTagName("publication_year")->item(0) ? $book->getElementsByTagName("publication_year")->item(0)->nodeValue : null;
+            $language = $book->getElementsByTagName("language")->item(0) ? $book->getElementsByTagName("language")->item(0)->nodeValue : 'English';
+            $shelf_location = $book->getElementsByTagName("shelf_location")->item(0) ? $book->getElementsByTagName("shelf_location")->item(0)->nodeValue : '';
+            $copies = $book->getElementsByTagName("copies")->item(0) ? (int)$book->getElementsByTagName("copies")->item(0)->nodeValue : 1;
+            $description = $book->getElementsByTagName("description")->item(0) ? $book->getElementsByTagName("description")->item(0)->nodeValue : '';
+            $is_exclusive = $book->getElementsByTagName("is_exclusive")->item(0) ? (int)$book->getElementsByTagName("is_exclusive")->item(0)->nodeValue : 0;
+            $status = $book->getElementsByTagName("status")->item(0) ? $book->getElementsByTagName("status")->item(0)->nodeValue : 'available';
+            $cover_path = $book->getElementsByTagName("cover_path")->item(0) ? $book->getElementsByTagName("cover_path")->item(0)->nodeValue : 'images/book-icon.png';
+            $category_id = $book->getElementsByTagName("category_id")->item(0) ? (int)$book->getElementsByTagName("category_id")->item(0)->nodeValue : null;
+            $author_id = $book->getElementsByTagName("author_id")->item(0) ? (int)$book->getElementsByTagName("author_id")->item(0)->nodeValue : null;
+            $publisher_id = $book->getElementsByTagName("publisher_id")->item(0) ? (int)$book->getElementsByTagName("publisher_id")->item(0)->nodeValue : null;
 
             $check = $this->pdo->prepare("SELECT COUNT(*) FROM books WHERE isbn = ?");
             $check->execute([$isbn]);
 
             if ($check->fetchColumn() == 0) {
-                $stmt = $this->pdo->prepare("INSERT INTO books (title, author, isbn, genre, cover_path) VALUES (?, ?, ?, ?, 'images/book-placeholder.jpg')");
-                $stmt->execute([$title, $author, $isbn, $genre]);
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO books 
+                        (title, author, isbn, genre, publisher, publication_year, language, 
+                         shelf_location, copies, description, is_exclusive, status, cover_path,
+                         category_id, author_id, publisher_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([
+                    $title, $author, $isbn, $genre, $publisher, $publication_year, $language,
+                    $shelf_location, $copies, $description, $is_exclusive, $status, $cover_path,
+                    $category_id, $author_id, $publisher_id
+                ]);
+
+                $bookId = $this->pdo->lastInsertId();
+
+                // Auto-create book copies based on the 'copies' count
+                if ($copies > 0) {
+                    for ($i = 1; $i <= $copies; $i++) {
+                        $label = "Copy #{$i}";
+                        $this->pdo->prepare("INSERT INTO book_copies (book_id, copy_label, status) VALUES (?, ?, 'available')")
+                                  ->execute([$bookId, $label]);
+                    }
+                }
+
                 $successCount++;
             }
         }
@@ -206,19 +238,23 @@ class XmlModel
         $stmtBooks = $this->pdo->query("SELECT * FROM books WHERE is_deleted = 0");
         while ($book = $stmtBooks->fetch(PDO::FETCH_ASSOC)) {
             $bNode = $dom->createElement("book");
-            $bNode->appendChild($dom->createElement("id", $book['id']));
-
-            $titleNode = $dom->createElement("title");
-            $titleNode->appendChild($dom->createTextNode($book['title']));
-            $bNode->appendChild($titleNode);
-
-            $authorNode = $dom->createElement("author");
-            $authorNode->appendChild($dom->createTextNode($book['author']));
-            $bNode->appendChild($authorNode);
-
-            $bNode->appendChild($dom->createElement("isbn", $book['isbn']));
-            $bNode->appendChild($dom->createElement("genre", $book['genre']));
-            $bNode->appendChild($dom->createElement("is_exclusive", $book['is_exclusive']));
+            $bNode->appendChild($dom->createElement("id", htmlspecialchars($book['id'] ?? '')));
+            $bNode->appendChild($dom->createElement("title", htmlspecialchars($book['title'] ?? '')));
+            $bNode->appendChild($dom->createElement("author", htmlspecialchars($book['author'] ?? '')));
+            $bNode->appendChild($dom->createElement("isbn", htmlspecialchars($book['isbn'] ?? '')));
+            $bNode->appendChild($dom->createElement("genre", htmlspecialchars($book['genre'] ?? '')));
+            $bNode->appendChild($dom->createElement("publisher", htmlspecialchars($book['publisher'] ?? '')));
+            $bNode->appendChild($dom->createElement("publication_year", htmlspecialchars($book['publication_year'] ?? '')));
+            $bNode->appendChild($dom->createElement("language", htmlspecialchars($book['language'] ?? 'English')));
+            $bNode->appendChild($dom->createElement("shelf_location", htmlspecialchars($book['shelf_location'] ?? '')));
+            $bNode->appendChild($dom->createElement("copies", htmlspecialchars($book['copies'] ?? '1')));
+            $bNode->appendChild($dom->createElement("description", htmlspecialchars($book['description'] ?? '')));
+            $bNode->appendChild($dom->createElement("is_exclusive", htmlspecialchars($book['is_exclusive'] ?? '0')));
+            $bNode->appendChild($dom->createElement("status", htmlspecialchars($book['status'] ?? 'available')));
+            $bNode->appendChild($dom->createElement("cover_path", htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png')));
+            $bNode->appendChild($dom->createElement("category_id", htmlspecialchars($book['category_id'] ?? '')));
+            $bNode->appendChild($dom->createElement("author_id", htmlspecialchars($book['author_id'] ?? '')));
+            $bNode->appendChild($dom->createElement("publisher_id", htmlspecialchars($book['publisher_id'] ?? '')));
             $booksNode->appendChild($bNode);
         }
 

@@ -564,8 +564,8 @@ body {
   left: 0;
   width: 230px;
   height: calc(100vh - 90px);
-  background: #FFFFFF;
-  border-radius: 0 25px 25px 0;
+  background: #000000;
+  border-radius: 0;
   box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
   z-index: 1;
   display: flex;
@@ -670,23 +670,52 @@ body {
 }
 
 .metric-card {
-    background-color: #f7b767;
+    background-color: #ffffff;
     border-radius: 12px;
-    padding: 15px 20px;
+    padding: 18px 20px;
     display: flex;
     align-items: center;
     text-align: center;
     justify-content: center;
     gap: 15px;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
     width: 100%;
     max-width: 280px;
     box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 12px 0 0 12px;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-total::before { background: #3b82f6; }
+.card-available::before { background: #10b981; }
+.card-borrowed::before { background: #f59e0b; }
+.card-exclusive::before { background: #8b5cf6; }
+
+.card-total .card-icon { color: #3b82f6; }
+.card-available .card-icon { color: #10b981; }
+.card-borrowed .card-icon { color: #f59e0b; }
+.card-exclusive .card-icon { color: #8b5cf6; }
 
 .card-icon {
     font-size: 36px;
-    color: #000000;
+    color: #64748b;
 }
 
 .card-info {
@@ -698,24 +727,24 @@ body {
 }
 
 .card-label {
-    font-size: 13px;
-    font-weight: 800;
-    color: #000000;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
     letter-spacing: 0.5px;
     margin-bottom: 2px;
 }
 
 .card-value {
-    font-size: 36px; /* Change nalang ng bigger font-size kapag nagana na yung pang count para di masira design */
+    font-size: 36px;
     font-weight: 800;
-    color: #000000;
+    color: #1e293b;
     line-height: 1;
     margin-bottom: 4px;
 }
 
 .card-subtext {
     font-size: 11px;
-    color: #333333;
+    color: #94a3b8;
     font-weight: 500;
 }
 
@@ -727,13 +756,14 @@ body {
 }
 
 .section-title {
-    font-family: 'Trebuchet MS';
-    font-size: 18px;
-    font-weight: 800;
-    color: #000000;
-    border-top: 2px solid #000000;
-    padding-top: 8px;
-    letter-spacing: 0.5px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    border-left: 4px solid #f7b767;
+    padding-left: 12px;
+    letter-spacing: 0.3px;
+    margin: 0;
 }
 
 .table-wrapper {
@@ -747,10 +777,10 @@ body {
 .activity-table {
     width: 100%;
     min-width: 600px;
-    border-collapse: separate; /* Required for sticky borders to render cleanly */
+    border-collapse: separate;
     border-spacing: 0;
     text-align: left;
-    background-color: #F7B767;
+    background-color: #ffffff;
     white-space: nowrap;
 }
 
@@ -758,13 +788,15 @@ body {
 .activity-table th {
     position: sticky;
     top: 0;
-    background-color: #F7B767;
+    background-color: #1e293b;
     z-index: 1;
-    color: #000000;
-    font-weight: 700;
-    font-size: 16px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 13px;
     padding: 14px 20px;
-    border-bottom: 1px solid #dcdcdc;
+    border-bottom: 1px solid #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* Sticky first column (for horizontal scroll) */
@@ -772,24 +804,37 @@ body {
 .activity-table td:first-child {
     position: sticky;
     left: 0;
-    background-color: #F7B767;
+    background-color: #1e293b;
     z-index: 2;
 }
 
 .activity-table th:first-child {
-    z-index: 3; /* Top-left corner stays above both row and column headers */
+    z-index: 3;
 }
 
 .activity-table td {
     padding: 14px 20px;
-    color: #000000;
-    font-size: 15px;
+    color: #334155;
+    font-size: 14px;
     font-weight: 500;
     border-bottom: 1px solid #eef0f2;
+    background-color: #ffffff;
+}
+
+.activity-table td:first-child {
+    background-color: #ffffff;
 }
 
 .activity-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+.activity-table tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+.activity-table tbody tr:hover td:first-child {
+    background-color: #f8fafc;
 }
 
 .no-data-cell {
@@ -922,16 +967,33 @@ body {
 .ledger-info-card {
     flex: 1;
     min-width: 320px;
-    background-color: #f7b767;
-    padding: 15px;
+    background-color: #ffffff;
+    padding: 20px;
     border-radius: 15px;
     display: flex;
-    flex-direction: column; /* Stacks children vertically */
-    justify-content: center;  /* Centers children vertically */
-    align-items: center;      /* Centers children horizontally */
-    text-align: center;       /* Centers inline text inside child elements */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    position: relative;
+    overflow: hidden;
 }
+
+.ledger-info-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 15px 0 0 15px;
+}
+
+.ledger-info-card:nth-child(1)::before { background: #3b82f6; }
+.ledger-info-card:nth-child(2)::before { background: #ef4444; }
+.ledger-info-card:nth-child(3)::before { background: #f59e0b; }
 
 .card-left{
     display:flex;
@@ -992,11 +1054,11 @@ body {
 
 .ledger-activity-table {
     width: 100%;
-    min-width: 600px; /* Forces horizontal overflow */
-    border-collapse: separate; /* Required for sticky borders */
+    min-width: 600px;
+    border-collapse: separate;
     border-spacing: 0;
     text-align: left;
-    background-color: #F7B767;
+    background-color: #ffffff;
     white-space: nowrap;
 }
 
@@ -1004,13 +1066,15 @@ body {
 .ledger-activity-table th {
     position: sticky;
     top: 0;
-    background-color: #F7B767;
+    background-color: #1e293b;
     z-index: 1;
-    color: #000000;
-    font-weight: 700;
-    font-size: 16px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 13px;
     padding: 14px 20px;
-    border-bottom: 1px solid #dcdcdc;
+    border-bottom: 1px solid #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* Sticky first column (horizontal scroll) */
@@ -1018,7 +1082,7 @@ body {
 .ledger-activity-table td:first-child {
     position: sticky;
     left: 0;
-    background-color: #F7B767;
+    background-color: #1e293b;
     z-index: 2;
 }
 
@@ -1029,14 +1093,27 @@ body {
 
 .ledger-activity-table td {
     padding: 14px 20px;
-    color: #000000;
-    font-size: 15px;
+    color: #334155;
+    font-size: 14px;
     font-weight: 500;
     border-bottom: 1px solid #eef0f2;
+    background-color: #ffffff;
+}
+
+.ledger-activity-table td:first-child {
+    background-color: #ffffff;
 }
 
 .ledger-activity-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+.ledger-activity-table tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+.ledger-activity-table tbody tr:hover td:first-child {
+    background-color: #f8fafc;
 }
 
 .ledger-no-data-cell {
@@ -1515,7 +1592,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 0;
     align-items: center;
 }
 .books-toolbar .btn {

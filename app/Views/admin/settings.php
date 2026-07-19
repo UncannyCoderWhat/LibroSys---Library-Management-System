@@ -51,6 +51,19 @@ if (!isset($base_url)) {
                     </div>
                 </form>
 
+                <div class="settings-section-title" style="margin-top: 40px;">BOOK DATA MANAGEMENT (XML)</div>
+                <div style="padding-left: 20px; margin-bottom: 20px;">
+                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Backup and restore your library book collection.</p>
+                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        <a href="index.php?page=admin_settings&export_books_xml=1" class="save-changes-btn" style="text-decoration: none; display: inline-block; background-color: #3b82f6;">Export Books to XML</a>
+                        
+                        <form action="index.php?page=admin_settings" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center; border-left: 1px solid #ddd; padding-left: 20px;">
+                            <input type="file" name="books_xml_file" accept=".xml" required style="font-size: 12px;">
+                            <button type="submit" name="import_books_xml" class="save-changes-btn" style="background-color: #3b82f6;">Import Books XML</button>
+                        </form>
+                    </div>
+                </div>
+
                 <div class="settings-section-title" style="margin-top: 40px;">USER DATA MANAGEMENT (XML)</div>
                 <div style="padding-left: 20px; margin-bottom: 20px;">
                     <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Backup your library members and their entire borrow history.</p>

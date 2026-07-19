@@ -39,10 +39,22 @@ class AdminSettingsController
             $this->xmlModel->exportFullSystemToXML();
         }
 
+        if (isset($get['export_books_xml'])) {
+            $this->xmlModel->exportBooksToXML();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['import_users_xml'])) {
             if (isset($files['user_xml_file']) && $files['user_xml_file']['error'] === UPLOAD_ERR_OK) {
                 $count = $this->xmlModel->importUsersFromXML($files['user_xml_file']['tmp_name']);
                 $message = "Successfully imported $count new users and their history.";
+                $message_type = "success";
+            }
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($post['import_books_xml'])) {
+            if (isset($files['books_xml_file']) && $files['books_xml_file']['error'] === UPLOAD_ERR_OK) {
+                $count = $this->xmlModel->importBooksFromXML($files['books_xml_file']['tmp_name']);
+                $message = "Successfully imported $count books from XML.";
                 $message_type = "success";
             }
         }
