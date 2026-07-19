@@ -2,7 +2,14 @@
 // View template: expects $data injected by wrapper/entrypoint.
 $generated_user_id = $data['generated_user_id'] ?? null;
 $cartCount = $data['cartCount'] ?? 0;
+
+$exclusive_books = $data['exclusive_books'] ?? [];
+$regular_books = $data['regular_books'] ?? [];
+$borrowed_books = $data['borrowed_books'] ?? [];
+$current_score = $data['current_score'] ?? 0;
+$cartCount = $data['cartCount'] ?? 0;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +17,7 @@ $cartCount = $data['cartCount'] ?? 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Home</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
+<link rel="stylesheet" href="<?php echo $base_url; ?>/css/clientstyle.css">
     <script>
     (function () {
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -78,7 +85,7 @@ $cartCount = $data['cartCount'] ?? 0;
             <div class="hero-card">
                 <h1>Discover Your Next Chapter</h1>
                 <p>Your all-in-one digital library for browsing books</p>
-                <button class="b-button" onclick="window.location.href='index.php?page=home'">Start Browsing</button>
+                <button class="b-button" onclick="window.location.href='index.php?page=browse'">Start Browsing</button>
             </div>
         </section>
     </main>
@@ -122,6 +129,57 @@ $cartCount = $data['cartCount'] ?? 0;
             </div>
         </div>
     </div>
+    
+    <section class="shelf-section">
+            <h2 class="shelf-title">Exclusive</h2>
+            <div class="shelf-wrapper">
+
+                <button class="scroll-arrow left" id="scrollLeftBtn" aria-label="Scroll Left">
+                    <i class='bx bx-chevron-left'></i>
+                </button>
+
+                <div class="book-grid shelf-grid" id="exclusiveGrid">
+                    <?php foreach ($exclusive_books as $book): ?>
+                        <div class="book-card"
+                             onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)"
+                             data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>"
+                             data-author="<?php echo strtolower(htmlspecialchars($book['author'] ?? '')); ?>"
+                             data-genre="<?php echo strtolower(htmlspecialchars($book['genre'] ?? '')); ?>">
+                            <img src="<?php echo htmlspecialchars($book['cover_path'] ?? ''); ?>" alt="Cover" class="book-cover">
+                            <div class="book-info">
+                                <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                                <p><?php echo htmlspecialchars($book['author'] ?? ''); ?></p>
+                                <p><?php echo htmlspecialchars($book['genre'] ?? ''); ?></p>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <button class="scroll-arrow right" id="scrollRightBtn" aria-label="Scroll Right">
+                    <i class='bx bx-chevron-right'></i>
+                </button>
+            </div>
+    </section>
+
+    <section class="shelf-section">
+            <h2 class="shelf-title">Regular</h2>
+            <div class="book-grid-vertical shelf-grid">
+                <?php foreach ($regular_books as $book): ?>
+                    <div class="book-card"
+                         onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)"
+                         data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>"
+                         data-author="<?php echo strtolower(htmlspecialchars($book['author'] ?? '')); ?>"
+                         data-genre="<?php echo strtolower(htmlspecialchars($book['genre'] ?? '')); ?>">
+                        <img src="<?php echo htmlspecialchars($book['cover_path'] ?? ''); ?>" alt="Cover" class="book-cover">
+                        <div class="book-info">
+                            <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                            <p><?php echo htmlspecialchars($book['author'] ?? ''); ?></p>
+                            <p><?php echo htmlspecialchars($book['genre'] ?? ''); ?></p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+    </section>
 
     <footer>
         <div class="footer-content">
@@ -133,7 +191,27 @@ $cartCount = $data['cartCount'] ?? 0;
         </div>
     </footer>
 
-    <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggle = document.getElementById("theme-toggle");
 
+        // 1. Set initial state based on saved preference
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // If dark mode, checkbox should be checked
+        themeToggle.checked = (savedTheme === 'dark');
+
+        // 2. Click Handler
+        themeToggle.addEventListener("change", function () {
+            const isDark = this.checked;
+            const newTheme = isDark ? "dark" : "light";
+
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        });
+    });
+</script>
 </body>
 </html>
