@@ -61,10 +61,16 @@ class ClientModel
                 $available[] = $book;
             }
 
-            // Group by genre
+            // Group by genre (supports comma-separated multiple genres)
             $genre = trim($book['genre'] ?? '');
             if (!empty($genre)) {
-                $genreGroups[$genre][] = $book;
+                $genres = explode(',', $genre);
+                foreach ($genres as $g) {
+                    $g = trim($g);
+                    if (!empty($g)) {
+                        $genreGroups[$g][] = $book;
+                    }
+                }
             }
 
             // Group by book_type
