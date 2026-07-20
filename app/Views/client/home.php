@@ -149,7 +149,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                 <div class="ls-scroll-track">
                     <?php foreach ($new_releases as $book): ?>
-                    <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                    <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                         <div class="ls-book-cover-wrap">
                             <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                             <div class="ls-book-overlay">
@@ -185,7 +185,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                 <div class="ls-scroll-track">
                     <?php foreach ($exclusive_books as $book): ?>
-                    <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                    <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                         <div class="ls-book-cover-wrap">
                             <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                             <div class="ls-book-overlay">
@@ -217,7 +217,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <?php if (!empty($regular_books)): ?>
             <div class="ls-grid-4">
                 <?php foreach (array_slice($regular_books, 0, 8) as $book): ?>
-                <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                     <div class="ls-book-cover-wrap">
                         <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                         <div class="ls-book-overlay">
@@ -254,7 +254,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                 <div class="ls-scroll-track">
                     <?php foreach ($available_books as $book): ?>
-                    <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                    <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                         <div class="ls-book-cover-wrap">
                             <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                             <div class="ls-book-overlay">
@@ -311,7 +311,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                         <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                         <div class="ls-scroll-track">
                             <?php foreach ($genreBooks as $book): ?>
-                            <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                            <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                                 <div class="ls-book-cover-wrap">
                                     <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                                     <div class="ls-book-overlay">
@@ -387,7 +387,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                             <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                             <div class="ls-scroll-track">
                                 <?php foreach ($typeBooks as $book): ?>
-                                <div class="ls-book-card" onclick="openBorrowModal(<?php echo htmlspecialchars(json_encode($book)); ?>)" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                                <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                                     <div class="ls-book-cover-wrap">
                                         <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                                         <div class="ls-book-overlay">
@@ -456,12 +456,78 @@ $book_type_groups = $data['book_type_groups'] ?? [];
         </div>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <p>© 2026 LibroSys. All rights reserved.</p>
-            <div class="social-links">
-                <a href="#"><i class="bx bxl-twitter"></i></a>
-                <a href="#"><i class="bx bxl-instagram"></i></a>
+    <footer class="ls-footer">
+        <!-- Decorative top divider with layered wave animation -->
+        <div class="ls-footer-divider">
+            <svg viewBox="0 0 1440 60" preserveAspectRatio="none" class="ls-footer-wave">
+                <path d="M0,30 C360,60 720,0 1080,30 C1260,45 1350,15 1440,30 L1440,60 L0,60 Z" fill="var(--surface-color)"></path>
+            </svg>
+            <svg viewBox="0 0 1440 40" preserveAspectRatio="none" class="ls-footer-wave-secondary">
+                <path d="M0,20 C240,40 480,0 720,20 C960,40 1200,0 1440,20 L1440,40 L0,40 Z" fill="var(--main-color)" opacity="0.08"></path>
+            </svg>
+        </div>
+
+        <div class="ls-footer-inner">
+            <!-- Brand Column -->
+            <div class="ls-footer-col ls-footer-brand">
+                <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="ls-footer-logo">
+                <p class="ls-footer-desc">Your all-in-one digital library for browsing books, discovering new stories, and managing your reading journey.</p>
+                <div class="ls-footer-social">
+                    <a href="#" class="ls-footer-social-icon" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                    <a href="#" class="ls-footer-social-icon" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                    <a href="#" class="ls-footer-social-icon" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                    <a href="#" class="ls-footer-social-icon" aria-label="YouTube"><i class='bx bxl-youtube'></i></a>
+                </div>
+            </div>
+
+            <!-- Browse Links -->
+            <div class="ls-footer-col">
+                <h4 class="ls-footer-col-title">Browse</h4>
+                <ul class="ls-footer-links">
+                    <li><a href="index.php?page=library"><i class='bx bx-book'></i> Library</a></li>
+                    <li><a href="index.php?page=browse"><i class='bx bx-star'></i> New Arrivals</a></li>
+                    <li><a href="index.php?page=browse"><i class='bx bx-award'></i> Exclusive</a></li>
+                    <li><a href="index.php?page=browse"><i class='bx bx-category'></i> Categories</a></li>
+                </ul>
+            </div>
+
+            <!-- Support Links -->
+            <div class="ls-footer-col">
+                <h4 class="ls-footer-col-title">Support</h4>
+                <ul class="ls-footer-links">
+                    <li><a href="#"><i class='bx bx-help-circle'></i> Help Center</a></li>
+                    <li><a href="#"><i class='bx bx-question-mark'></i> FAQ</a></li>
+                    <li><a href="#"><i class='bx bx-envelope'></i> Contact Us</a></li>
+                    <li><a href="#"><i class='bx bx-flag'></i> Report Issue</a></li>
+                </ul>
+            </div>
+
+            <!-- My Account Links -->
+            <div class="ls-footer-col">
+                <h4 class="ls-footer-col-title">Account</h4>
+                <ul class="ls-footer-links">
+                    <li><a href="index.php?page=profile"><i class='bx bx-user-circle'></i> My Profile</a></li>
+                    <li><a href="index.php?page=library"><i class='bx bx-book-reader'></i> My Library</a></li>
+                    <li><a href="index.php?page=settings"><i class='bx bx-cog'></i> Settings</a></li>
+                    <li><a href="index.php?page=logout"><i class='bx bx-log-out'></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="ls-footer-bottom">
+            <div class="ls-footer-bottom-inner">
+                <p class="ls-footer-copyright">&copy; 2026 LibroSys. All rights reserved.</p>
+                <div class="ls-footer-legal">
+                    <a href="#">Terms of Service</a>
+                    <span class="ls-footer-legal-dot">·</span>
+                    <a href="#">Privacy Policy</a>
+                    <span class="ls-footer-legal-dot">·</span>
+                    <a href="#">Cookie Policy</a>
+                </div>
+                <button class="ls-footer-back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+                    <i class='bx bx-up-arrow-alt'></i>
+                </button>
             </div>
         </div>
     </footer>

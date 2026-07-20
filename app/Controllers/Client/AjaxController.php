@@ -2,15 +2,18 @@
 // app/Controllers/Client/AjaxController.php
 require_once __DIR__ . '/ClientController.php';
 require_once __DIR__ . '/../../Models/Client/ClientModel.php';
+require_once __DIR__ . '/BookDetailController.php';
 
 class AjaxController extends ClientController
 {
     private ClientModel $model;
+    private BookDetailController $bookDetail;
 
     public function __construct(PDO $pdo)
     {
         parent::__construct($pdo);
         $this->model = new ClientModel($pdo);
+        $this->bookDetail = new BookDetailController($pdo);
     }
 
     /**
@@ -87,6 +90,64 @@ class AjaxController extends ClientController
             echo json_encode($result);
         } catch (PDOException $e) {
             echo json_encode(['status' => 'error']);
+        }
+        exit();
+    }
+
+    /**
+     * Handle /ajax.php?action=read_now requests.
+     * Adds a book to the user's Reading list (Wattpad-style).
+     */
+    public function handleReadNow(array &$session, array $post): void
+    {
+        $authResult = $this->requireAuthentication($session);
+        if ($authResult !== null) {
+            echo json_encode(['status' => 'error', 'message' => 'Not authenticated.']);
+            exit();
+        }
+
+        $userId = (int)$session['user_id'];
+        $bookId = isset($post['book_id']) ? (int)$post['book_id'] : 0;
+
+        if ($bookId <= 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid book ID.']);
+            exit();
+        }
+
+        try {
+            $result = $this->bookDetail->handleReadNow($userId, $bookId);
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+        exit();
+    }
+
+    /**
+     * Handle /ajax.php?action=bookmark requests.
+     * Adds a book to the user's Bookmarked list (Wattpad-style).
+     */
+    public function handleBookmark(array &$session, array $post): void
+    {
+        $authResult = $this->requireAuthentication($session);
+        if ($authResult !== null) {
+            echo json_encode(['status' => 'error', 'message' => 'Not authenticated.']);
+            exit();
+        }
+
+        $userId = (int)$session['user_id'];
+        $bookId = isset($post['book_id']) ? (int)$post['book_id'] : 0;
+
+        if ($bookId <= 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid book ID.']);
+            exit();
+        }
+
+        try {
+            $result = $this->bookDetail->handleBookmark($userId, $bookId);
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
         }
         exit();
     }

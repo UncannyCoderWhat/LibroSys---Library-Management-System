@@ -9,6 +9,9 @@ require_once 'app/Controllers/Client/SettingsController.php';
 require_once 'app/Controllers/Client/LogoutController.php';
 require_once 'app/Controllers/Client/AjaxController.php';
 require_once 'app/Controllers/Client/AuthController.php';
+require_once 'app/Controllers/Client/BookDetailController.php';
+require_once 'app/Controllers/Client/LibraryController.php';
+require_once 'app/Controllers/Client/ReadController.php';
 
 // Admin Controllers
 require_once 'app/Controllers/Admin/AuthController.php';
@@ -188,6 +191,12 @@ switch ($page) {
             case 'mark_read':
                 $controller->handleMarkRead($_SESSION, $_POST);
                 break;
+            case 'read_now':
+                $controller->handleReadNow($_SESSION, $_POST);
+                break;
+            case 'bookmark':
+                $controller->handleBookmark($_SESSION, $_POST);
+                break;
             default:
                 echo json_encode(['status' => 'error', 'message' => 'Unknown AJAX action.']);
                 exit();
@@ -210,6 +219,39 @@ switch ($page) {
         $controller = new LogoutController();
         $controller->logoutAndRedirect();
         exit();
+
+    case 'library':
+        $controller = new LibraryController($pdo);
+        $result = $controller->handleRequest($_SESSION);
+        if (!empty($result['redirect'])) {
+            header('Location: ' . $result['redirect']);
+            exit();
+        }
+        $data = $result;
+        $view = 'app/Views/client/library.php';
+        break;
+
+    case 'read':
+        $controller = new ReadController($pdo);
+        $result = $controller->handleRequest($_SESSION);
+        if (!empty($result['redirect'])) {
+            header('Location: ' . $result['redirect']);
+            exit();
+        }
+        $data = $result;
+        $view = 'app/Views/client/read.php';
+        break;
+
+    case 'book_detail':
+        $controller = new BookDetailController($pdo);
+        $result = $controller->handleRequest($_SESSION);
+        if (!empty($result['redirect'])) {
+            header('Location: ' . $result['redirect']);
+            exit();
+        }
+        $data = $result;
+        $view = 'app/Views/client/book_detail.php';
+        break;
 
     case 'home':
     default:
