@@ -2,6 +2,7 @@
 // View template: expects $data injected by wrapper/entrypoint.
 $book = $data['book'] ?? [];
 $content = $data['content'] ?? [];
+$ebook = $data['ebook'] ?? null;
 $userStatus = $data['userStatus'] ?? '';
 $cartCount = $data['cartCount'] ?? 0;
 
@@ -168,6 +169,22 @@ $firstPage = $totalPages > 0 ? $content[0] : null;
         margin-bottom: 1.2em;
     }
 
+    /* PDF Viewer */
+    .read-pdf-viewer {
+        width: 100%;
+        background: var(--surface-color);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+
+    .read-pdf-viewer iframe {
+        display: block;
+        width: 100%;
+        height: 75vh;
+    }
+
     /* Navigation Arrows */
     .read-navigation {
         display: flex;
@@ -320,7 +337,11 @@ $firstPage = $totalPages > 0 ? $content[0] : null;
 
         <!-- Reading Content -->
         <div class="read-content">
-            <?php if ($totalPages > 0): ?>
+            <?php if ($ebook && !empty($ebook['file_path'])): ?>
+                <div class="read-pdf-viewer">
+                    <iframe src="<?php echo htmlspecialchars($ebook['file_path']); ?>" width="100%" height="75vh" style="border:none;border-radius:12px;" allowfullscreen></iframe>
+                </div>
+            <?php elseif ($totalPages > 0): ?>
                 <?php foreach ($content as $index => $page): ?>
                 <div class="read-page <?php echo $index === 0 ? 'read-page-active' : ''; ?>" data-page="<?php echo $page['page_number']; ?>">
                     <span class="read-page-number">Page <?php echo $page['page_number']; ?></span>
@@ -355,13 +376,11 @@ $firstPage = $totalPages > 0 ? $content[0] : null;
             <a href="index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>" class="read-action-btn">
                 <i class='bx bx-detail'></i> Book Details
             </a>
-            <?php if ($userStatus !== 'bookmarked'): ?>
             <button class="read-action-btn" onclick="window.location.href='index.php?page=library'">
                 <i class='bx bx-library'></i> My Library
             </button>
-            <?php endif; ?>
             <?php if ($userStatus === 'bookmarked'): ?>
-            <button class="read-action-btn" onclick="handleReadNow(<?php echo (int)$book['id']; ?>)">
+            <button class="read-action-btn" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>&action=read_now'">
                 <i class='bx bx-book-reader'></i> Start Reading
             </button>
             <?php endif; ?>

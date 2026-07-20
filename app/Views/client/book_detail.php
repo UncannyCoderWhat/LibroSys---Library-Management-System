@@ -2,6 +2,7 @@
 // app/Views/client/book_detail.php
 $book = $data['book'] ?? [];
 $userStatus = $data['userStatus'] ?? null;
+$ebook = $data['ebook'] ?? null;
 $cartCount = $data['cartCount'] ?? 0;
 ?>
 <!DOCTYPE html>
@@ -126,6 +127,12 @@ $cartCount = $data['cartCount'] ?? 0;
                         </button>
                         <?php endif; ?>
                     </div>
+
+                    <?php if ($ebook && !empty($ebook['file_path'])): ?>
+                    <div class="bd-ebook-badge">
+                        <i class='bx bx-file-pdf'></i> eBook Available
+                    </div>
+                    <?php endif; ?>
 
                     <!-- Stats Row -->
                     <div class="bd-stats">

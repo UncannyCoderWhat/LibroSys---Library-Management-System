@@ -46,10 +46,12 @@ class ReadController extends ClientController
 
         // Generate the book content pages
         $content = $this->generateBookContent($book);
+        $ebook = $this->getBookEbook($bookId);
 
         return [
             'book' => $book,
             'content' => $content,
+            'ebook' => $ebook,
             'userStatus' => $userBorrow['status'],
             'cartCount' => $this->getCartCount($session),
         ];
@@ -66,6 +68,18 @@ class ReadController extends ClientController
         ");
         $stmt->execute([$bookId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    private function getBookEbook(int $bookId): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM ebooks 
+            WHERE book_id = ? AND file_type = 'pdf' 
+            LIMIT 1
+        ");
+        $stmt->execute([$bookId]);
+        $ebook = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $ebook ?: null;
     }
 
     /**

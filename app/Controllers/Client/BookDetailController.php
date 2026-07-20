@@ -40,10 +40,12 @@ class BookDetailController extends ClientController
         }
 
         $userStatus = $this->getUserBookStatus($userId, $bookId);
+        $ebook = $this->getBookEbook($bookId);
 
         return [
             'book' => $book,
             'userStatus' => $userStatus,
+            'ebook' => $ebook,
             'cartCount' => $this->getCartCount($session),
         ];
     }
@@ -84,6 +86,18 @@ class BookDetailController extends ClientController
         $stmt->execute([$userId, $bookId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? $row['status'] : null;
+    }
+
+    private function getBookEbook(int $bookId): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM ebooks 
+            WHERE book_id = ? AND file_type = 'pdf' 
+            LIMIT 1
+        ");
+        $stmt->execute([$bookId]);
+        $ebook = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $ebook ?: null;
     }
 
     public function handleReadNow(int $userId, int $bookId): array
