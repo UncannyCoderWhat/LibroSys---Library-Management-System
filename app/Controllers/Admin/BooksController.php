@@ -89,6 +89,7 @@ class BooksController
             $bookId = (int)($post['book_id'] ?? 0);
             $result = $this->bookModel->markUnavailable($bookId);
             if ($result['success']) {
+                $this->logActivity('Book marked unavailable', 'Marked book ID: ' . $bookId . ' as unavailable');
                 header("Location: index.php?page=admin_books");
                 exit();
             }
@@ -98,16 +99,27 @@ class BooksController
         // ============ CATEGORIES ============
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['add_category'])) {
             $result = $this->bookModel->addCategory($post['category_name'] ?? '', $post['category_description'] ?? '');
+            if ($result['success']) {
+                $this->logActivity('Category added', 'Added category: ' . ($post['category_name'] ?? 'Unknown'));
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['update_category'])) {
             $result = $this->bookModel->updateCategory((int)($post['category_id'] ?? 0), $post['category_name'] ?? '', $post['category_description'] ?? '');
+            if ($result['success']) {
+                $this->logActivity('Category updated', 'Updated category ID: ' . ($post['category_id'] ?? '') . ' to: ' . ($post['category_name'] ?? 'Unknown'));
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
         if (isset($get['delete_category'])) {
-            $result = $this->bookModel->deleteCategory((int)($get['delete_category'] ?? 0));
+            $catId = (int)($get['delete_category'] ?? 0);
+            $catName = $get['category_name'] ?? ('ID: ' . $catId);
+            $result = $this->bookModel->deleteCategory($catId);
+            if ($result['success']) {
+                $this->logActivity('Category deleted', 'Deleted category: ' . $catName . ' (ID: ' . $catId . ')');
+            }
             header("Location: index.php?page=admin_books");
             exit();
         }
@@ -116,17 +128,28 @@ class BooksController
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['add_author'])) {
             $birthYear = !empty($post['author_birth_year']) ? (int)$post['author_birth_year'] : null;
             $result = $this->bookModel->addAuthor($post['author_name'] ?? '', $post['author_bio'] ?? '', $birthYear);
+            if ($result['success']) {
+                $this->logActivity('Author added', 'Added author: ' . ($post['author_name'] ?? 'Unknown'));
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['update_author'])) {
             $birthYear = !empty($post['author_birth_year']) ? (int)$post['author_birth_year'] : null;
             $result = $this->bookModel->updateAuthor((int)($post['author_id'] ?? 0), $post['author_name'] ?? '', $post['author_bio'] ?? '', $birthYear);
+            if ($result['success']) {
+                $this->logActivity('Author updated', 'Updated author: ' . ($post['author_name'] ?? 'Unknown') . ' (ID: ' . ($post['author_id'] ?? '') . ')');
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
         if (isset($get['delete_author'])) {
-            $result = $this->bookModel->deleteAuthor((int)($get['delete_author'] ?? 0));
+            $authorId = (int)($get['delete_author'] ?? 0);
+            $authorName = $get['author_name'] ?? ('ID: ' . $authorId);
+            $result = $this->bookModel->deleteAuthor($authorId);
+            if ($result['success']) {
+                $this->logActivity('Author deleted', 'Deleted author: ' . $authorName . ' (ID: ' . $authorId . ')');
+            }
             header("Location: index.php?page=admin_books");
             exit();
         }
@@ -134,16 +157,27 @@ class BooksController
         // ============ PUBLISHERS ============
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['add_publisher'])) {
             $result = $this->bookModel->addPublisher($post['publisher_name'] ?? '', $post['publisher_address'] ?? '', $post['publisher_website'] ?? '');
+            if ($result['success']) {
+                $this->logActivity('Publisher added', 'Added publisher: ' . ($post['publisher_name'] ?? 'Unknown'));
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['update_publisher'])) {
             $result = $this->bookModel->updatePublisher((int)($post['publisher_id'] ?? 0), $post['publisher_name'] ?? '', $post['publisher_address'] ?? '', $post['publisher_website'] ?? '');
+            if ($result['success']) {
+                $this->logActivity('Publisher updated', 'Updated publisher: ' . ($post['publisher_name'] ?? 'Unknown') . ' (ID: ' . ($post['publisher_id'] ?? '') . ')');
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
         if (isset($get['delete_publisher'])) {
-            $result = $this->bookModel->deletePublisher((int)($get['delete_publisher'] ?? 0));
+            $pubId = (int)($get['delete_publisher'] ?? 0);
+            $pubName = $get['publisher_name'] ?? ('ID: ' . $pubId);
+            $result = $this->bookModel->deletePublisher($pubId);
+            if ($result['success']) {
+                $this->logActivity('Publisher deleted', 'Deleted publisher: ' . $pubName . ' (ID: ' . $pubId . ')');
+            }
             header("Location: index.php?page=admin_books");
             exit();
         }
@@ -163,6 +197,9 @@ class BooksController
         if (isset($get['delete_ebook'])) {
             $ebookId = (int)($get['delete_ebook'] ?? 0);
             $result = $this->bookModel->deleteEBook($ebookId);
+            if ($result['success']) {
+                $this->logActivity('eBook deleted', 'Deleted eBook ID: ' . $ebookId);
+            }
             header("Location: index.php?page=admin_books");
             exit();
         }
@@ -176,6 +213,9 @@ class BooksController
                 'font_size' => $post['font_size'] ?? 'medium',
             ];
             $result = $this->bookModel->updateEBookSettings($ebookId, $settings);
+            if ($result['success']) {
+                $this->logActivity('eBook settings updated', 'Updated settings for eBook ID: ' . $ebookId);
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
@@ -184,12 +224,18 @@ class BooksController
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($post['add_copy'])) {
             $bookId = (int)($post['copy_book_id'] ?? 0);
             $result = $this->bookModel->addCopy($bookId, $post['copy_label'] ?? null);
+            if ($result['success']) {
+                $this->logActivity('Copy added', 'Added copy for book ID: ' . $bookId . ' - ' . ($post['copy_label'] ?? 'Unlabeled'));
+            }
             echo "<script>alert('" . addslashes($result['message']) . "'); window.location.href='index.php?page=admin_books';</script>";
             exit();
         }
         if (isset($get['delete_copy'])) {
             $copyId = (int)($get['delete_copy'] ?? 0);
             $result = $this->bookModel->deleteCopy($copyId);
+            if ($result['success']) {
+                $this->logActivity('Copy deleted', 'Deleted copy ID: ' . $copyId);
+            }
             header("Location: index.php?page=admin_books");
             exit();
         }

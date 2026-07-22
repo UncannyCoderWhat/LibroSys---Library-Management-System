@@ -29,6 +29,7 @@ class AdminAuthController
         if ($admin) {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_user'] = $admin['admin_id'];
+            $this->adminModel->logActivity($admin['admin_id'], 'Admin login', 'Admin logged in successfully');
             header('Location: index.php?page=admin_dashboard');
             exit();
         }
@@ -70,6 +71,7 @@ class AdminAuthController
 
     public function handleLogout(): void
     {
+        $adminId = $_SESSION['admin_user'] ?? 'Unknown';
         $_SESSION = array();
 
         if (ini_get("session.use_cookies")) {
@@ -78,6 +80,7 @@ class AdminAuthController
         }
 
         session_destroy();
+        $this->adminModel->logActivity($adminId, 'Admin logout', 'Admin logged out');
         header("Location: index.php?page=admin_login");
         exit();
     }
