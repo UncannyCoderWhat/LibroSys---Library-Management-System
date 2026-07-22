@@ -197,6 +197,12 @@ switch ($page) {
             case 'bookmark':
                 $controller->handleBookmark($_SESSION, $_POST);
                 break;
+            case 'save_reading_progress':
+                $controller->handleSaveReadingProgress($_SESSION, $_POST);
+                break;
+            case 'get_reading_progress':
+                $controller->handleGetReadingProgress($_SESSION, $_POST);
+                break;
             default:
                 echo json_encode(['status' => 'error', 'message' => 'Unknown AJAX action.']);
                 exit();

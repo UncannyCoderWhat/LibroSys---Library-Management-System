@@ -151,4 +151,63 @@ class AjaxController extends ClientController
         }
         exit();
     }
+
+    public function handleSaveReadingProgress(array &$session, array $post): void
+    {
+        $authResult = $this->requireAuthentication($session);
+        if ($authResult !== null) {
+            echo json_encode(['status' => 'error', 'message' => 'Not authenticated.']);
+            exit();
+        }
+
+        $userId = (int)$session['user_id'];
+        $bookId = isset($post['book_id']) ? (int)$post['book_id'] : 0;
+        $pageNumber = isset($post['page_number']) ? (int)$post['page_number'] : 1;
+
+        if ($bookId <= 0 || $pageNumber < 1) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid parameters.']);
+            exit();
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO reading_progress (user_id, book_id, page_number, updated_at)
+                VALUES (?, ?, ?, NOW())
+                ON DUPLICATE KEY UPDATE page_number = ?, updated_at = NOW()
+            ");
+            $stmt->execute([$userId, $bookId, $pageNumber, $pageNumber]);
+            echo json_encode(['status' => 'success']);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+        exit();
+    }
+
+    public function handleGetReadingProgress(array &$session, array $post): void
+    {
+        $authResult = $this->requireAuthentication($session);
+        if ($authResult !== null) {
+            echo json_encode(['status' => 'error', 'message' => 'Not authenticated.']);
+            exit();
+        }
+
+        $userId = (int)$session['user_id'];
+        $bookId = isset($post['book_id']) ? (int)$post['book_id'] : 0;
+
+        if ($bookId <= 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid book ID.']);
+            exit();
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("SELECT page_number FROM reading_progress WHERE user_id = ? AND book_id = ?");
+            $stmt->execute([$userId, $bookId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $pageNumber = $row ? (int)$row['page_number'] : 1;
+            echo json_encode(['status' => 'success', 'page_number' => $pageNumber]);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+        exit();
+    }
 }

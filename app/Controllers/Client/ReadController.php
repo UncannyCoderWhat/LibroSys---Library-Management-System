@@ -47,11 +47,13 @@ class ReadController extends ClientController
         // Generate the book content pages
         $content = $this->generateBookContent($book);
         $ebook = $this->getBookEbook($bookId);
+        $savedPage = $this->getReadingProgress($userId, $bookId);
 
         return [
             'book' => $book,
             'content' => $content,
             'ebook' => $ebook,
+            'savedPage' => $savedPage,
             'userStatus' => $userBorrow['status'],
             'cartCount' => $this->getCartCount($session),
         ];
@@ -80,6 +82,17 @@ class ReadController extends ClientController
         $stmt->execute([$bookId]);
         $ebook = $stmt->fetch(PDO::FETCH_ASSOC);
         return $ebook ?: null;
+    }
+
+    private function getReadingProgress(int $userId, int $bookId): int
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT page_number FROM reading_progress 
+            WHERE user_id = ? AND book_id = ?
+        ");
+        $stmt->execute([$userId, $bookId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? (int)$row['page_number'] : 1;
     }
 
     /**
