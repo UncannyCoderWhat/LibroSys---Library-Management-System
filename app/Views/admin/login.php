@@ -17,7 +17,7 @@ if (!isset($base_url)) {
 
     <header class="main-header">
         <div class="header-content">
-            <img src="<?php echo $base_url; ?>/images/LibroSysdark.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
         </div>
     </header>
 
