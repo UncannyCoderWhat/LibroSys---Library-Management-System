@@ -1422,6 +1422,22 @@ html[data-theme="light"] .return-action-btn {
     background-color: var(--main-hover);
 }
 
+.extend-action-btn {
+    background-color: #27ae60;
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 8px;
+}
+
+.extend-action-btn:hover {
+    background-color: #219a52;
+}
+
 /* AVAILABILITY BADGES */
 .status-badge {
     padding: 4px 12px;
@@ -2261,6 +2277,11 @@ html[data-theme="light"] .ls-exclusive-badge {
     color: #ffffff;
 }
 
+.ls-unavailable-badge {
+    background: #7f8c8d;
+    color: #ffffff;
+}
+
 /* Book Info */
 .ls-book-info {
     padding: 10px 4px;
@@ -2632,6 +2653,18 @@ html[data-theme="light"] .bd-btn-primary {
     color: var(--main-color);
 }
 
+.bd-btn-borrow {
+    background: #27ae60;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.bd-btn-borrow:hover {
+    background: #219a52;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
 .bd-ebook-badge {
     display: inline-flex;
     align-items: center;
@@ -2788,6 +2821,10 @@ html[data-theme="light"] .bd-btn-primary {
 
 .bd-status-unavailable {
     color: #e74c3c !important;
+}
+
+.bd-status-archived {
+    color: #95a5a6 !important;
 }
 
 /* ===== TOAST NOTIFICATION ===== */
@@ -3181,6 +3218,13 @@ html[data-theme="light"] .bd-btn-primary {
     font-size: 0.7rem;
     color: var(--text-muted);
     font-weight: 500;
+}
+
+.lib-book-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
 }
 
 /* Empty State */

@@ -1,14 +1,17 @@
 <?php
 // app/Models/Admin/AdminModel.php
 // Consolidated admin model — all business logic for admin operations
+require_once __DIR__ . '/BookModel.php';
 
 class AdminModel
 {
     private PDO $pdo;
+    private BookModel $bookModel;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->bookModel = new BookModel($pdo);
     }
 
     // ==================== ACTIVITY LOG ====================
@@ -355,26 +358,29 @@ class AdminModel
     public function deleteUserWithHistory(int $userId): bool
     {
         try {
-            // Start a transaction to ensure all-or-nothing execution
             $this->pdo->beginTransaction();
 
-            // 2. Delete borrow records
+            $bookStmt = $this->pdo->prepare("SELECT DISTINCT book_id FROM borrows WHERE user_id = ? AND status IN ('borrowed', 'reserved')");
+            $bookStmt->execute([$userId]);
+            $affectedBooks = $bookStmt->fetchAll(PDO::FETCH_COLUMN);
+
             $stmt = $this->pdo->prepare("DELETE FROM borrows WHERE user_id = ?");
             $stmt->execute([$userId]);
 
-            // 3. Delete the user (Double-check if your primary key column is 'id' or 'user_id')
             $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
             $stmt->execute([$userId]);
 
-            // Commit transaction
             $this->pdo->commit();
+
+            foreach ($affectedBooks as $bid) {
+                $this->bookModel->syncBookAvailability((int)$bid);
+            }
+
             return true;
         } catch (PDOException $e) {
-            // Rollback changes if something goes wrong
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
-            // Write the exact DB error message to your server error log
             error_log("Error deleting user with ID {$userId}: " . $e->getMessage());
             return false;
         }

@@ -126,11 +126,30 @@ $cartCount = $data['cartCount'] ?? 0;
                             <i class='bx bx-bookmark'></i> Bookmark
                         </button>
                         <?php endif; ?>
+
+                        <?php if ($userStatus !== 'borrowed' && ($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
+                        <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
+                            <i class='bx bx-shopping-bag'></i> Borrow
+                        </button>
+                        <?php elseif ($userStatus === 'borrowed'): ?>
+                        <button class="bd-btn bd-btn-borrow" disabled>
+                            <i class='bx bx-shopping-bag'></i> Borrowed
+                        </button>
+                        <?php endif; ?>
                     </div>
 
                     <?php if ($ebook && !empty($ebook['file_path'])): ?>
                     <div class="bd-ebook-badge">
                         <i class='bx bx-file-pdf'></i> eBook Available
+                    </div>
+                    <?php endif; ?>
+                    <?php
+                    $bookType = strtolower($book['book_type'] ?? '');
+                    $genre = strtolower($book['genre'] ?? '');
+                    $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
+                    if ($isManga): ?>
+                    <div class="bd-ebook-badge" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+                        <i class='bx bx-book-open'></i> Manga Chapters
                     </div>
                     <?php endif; ?>
 
@@ -206,8 +225,29 @@ $cartCount = $data['cartCount'] ?? 0;
                         <?php endif; ?>
                         <div class="bd-detail-item">
                             <span class="bd-detail-label">Status</span>
-                            <span class="bd-detail-value bd-status-<?php echo ($book['available_copies'] > 0) ? 'available' : 'unavailable'; ?>">
-                                <?php echo ($book['available_copies'] > 0) ? 'Available' : 'Currently Unavailable'; ?>
+                            <span class="bd-detail-value 
+                                <?php 
+                                $bookStatus = $book['status'] ?? 'available';
+                                if ($bookStatus === 'archived'): ?>
+                                    bd-status-archived
+                                <?php elseif ($bookStatus === 'unavailable'): ?>
+                                    bd-status-unavailable
+                                <?php elseif ($book['available_copies'] > 0): ?>
+                                    bd-status-available
+                                <?php else: ?>
+                                    bd-status-unavailable
+                                <?php endif; ?>">
+                                <?php 
+                                $bookStatus = $book['status'] ?? 'available';
+                                if ($bookStatus === 'archived'): ?>
+                                    Archived
+                                <?php elseif ($bookStatus === 'unavailable'): ?>
+                                    Not Available
+                                <?php elseif ($book['available_copies'] > 0): ?>
+                                    Available
+                                <?php else: ?>
+                                    No Copies Available
+                                <?php endif; ?>
                             </span>
                         </div>
                         <?php if (!empty($book['shelf_location'])): ?>
@@ -323,5 +363,69 @@ $cartCount = $data['cartCount'] ?? 0;
     <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/dropdown.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
+
+    <!-- Borrow Modal -->
+    <div id="borrowModal" class="ls-modal-overlay" style="display: none;">
+        <div class="ls-modal-container" style="max-width: 500px;">
+            <span class="ls-modal-close" onclick="closeBorrowModal()">&times;</span>
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="ls-modal-logo">
+            <h3 class="ls-modal-title">Borrow Physical Copy</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px; text-align: center;">
+                Please enter your delivery address. Borrowing period is 7 days. Extensions incur a ₱50 fee per 7 days.
+            </p>
+            <form id="borrowForm" onsubmit="submitBorrow(event)">
+                <input type="hidden" id="borrowBookId" value="">
+                <div class="form-group">
+                    <label for="delivery_address" style="display: block; margin-bottom: 8px; font-weight: 600;">Delivery Address</label>
+                    <textarea id="delivery_address" name="delivery_address" rows="3" required placeholder="Enter your full address" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--surface-color); color: var(--text-primary); resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="ls-btn ls-btn-primary" style="width: 100%; margin-top: 20px; justify-content: center;">
+                    <i class='bx bx-shopping-bag'></i> Confirm Borrow
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function openBorrowModal(bookId) {
+        document.getElementById('borrowBookId').value = bookId;
+        document.getElementById('borrowModal').style.display = 'flex';
+        document.getElementById('delivery_address').value = '';
+    }
+
+    function closeBorrowModal() {
+        document.getElementById('borrowModal').style.display = 'none';
+    }
+
+    function submitBorrow(e) {
+        e.preventDefault();
+        const bookId = document.getElementById('borrowBookId').value;
+        const address = document.getElementById('delivery_address').value.trim();
+
+        if (!address) {
+            alert('Please provide a delivery address.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+        formData.append('action', 'borrow');
+        formData.append('delivery_address', address);
+
+        fetch('index.php?page=ajax&action=borrow_handler', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                closeBorrowModal();
+                window.location.reload();
+            }
+        })
+        .catch(err => alert('An error occurred. Please check your connection.'));
+    }
+    </script>
 </body>
 </html>

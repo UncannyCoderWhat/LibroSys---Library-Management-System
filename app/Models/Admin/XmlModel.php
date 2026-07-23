@@ -1,14 +1,17 @@
 <?php
 // app/Models/Admin/XmlModel.php
 // XML export/import business logic using DOMDocument
+require_once __DIR__ . '/BookModel.php';
 
 class XmlModel
 {
     private PDO $pdo;
+    private BookModel $bookModel;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->bookModel = new BookModel($pdo);
     }
 
     /**
@@ -215,6 +218,8 @@ class XmlModel
                             $borrow->getElementsByTagName("fine_amount")->item(0)->nodeValue,
                             $borrow->getElementsByTagName("is_fine_paid")->item(0)->nodeValue
                         ]);
+
+                        $this->bookModel->syncBookAvailability((int)$book_id);
                     }
                 }
             }

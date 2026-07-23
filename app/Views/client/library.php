@@ -221,6 +221,12 @@ if ($debug_mode):
                             <?php if (!empty($book['due_date'])): ?>
                             <span class="lib-due-date">Due: <?php echo date('M d', strtotime($book['due_date'])); ?></span>
                             <?php endif; ?>
+                            <?php if (!$isOverdue && !empty($book['borrow_id'])): ?>
+                            <div class="lib-book-actions" onclick="event.stopPropagation();">
+                                <button onclick="returnBook(<?php echo (int)$book['borrow_id']; ?>)" class="return-action-btn">Return</button>
+                                <button onclick="extendBorrowing(<?php echo (int)$book['borrow_id']; ?>)" class="extend-action-btn">Extend</button>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -380,6 +386,37 @@ if ($debug_mode):
         // Update tab content
         document.querySelectorAll('.lib-tab-content').forEach(tc => tc.classList.remove('lib-tab-active-content'));
         document.getElementById('lib-tab-' + tabName).classList.add('lib-tab-active-content');
+    }
+
+    function returnBook(borrowId) {
+        if(!confirm("Are you sure you want to return this book?")) return;
+        const formData = new FormData();
+        formData.append('borrow_id', borrowId);
+        fetch('index.php?page=ajax&action=return_handler', { method: 'POST', body: formData })
+        .then(res => res.json()).then(data => {
+            alert(data.message);
+            location.reload();
+        })
+        .catch(err => alert("An error occurred while returning the book. Please check your connection."));
+    }
+
+    function extendBorrowing(borrowId) {
+        if(!confirm("Extend borrowing by 7 days? A ₱50 extension fee will be charged.")) return;
+        const formData = new FormData();
+        formData.append('borrow_id', borrowId);
+        formData.append('action', 'extend_borrowing');
+        fetch('index.php?page=ajax&action=borrow_handler', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                location.reload();
+            }
+        })
+        .catch(err => alert("An error occurred while extending the borrow. Please check your connection."));
     }
     </script>
 </body>

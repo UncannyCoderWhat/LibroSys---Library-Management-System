@@ -241,6 +241,7 @@ $browse_error     = $data['browse_error'] ?? null;
                                                     <span class="status-badge on-queue">Payment Required</span>
                                                 <?php else: ?>
                                                     <button onclick="returnBook(<?php echo (int)($row['borrow_id'] ?? 0); ?>)" class="return-action-btn">Return Now</button>
+                                                    <button onclick="extendBorrowing(<?php echo (int)($row['borrow_id'] ?? 0); ?>)" class="extend-action-btn">Extend 7 Days</button>
                                                 <?php endif; ?>
                                             <?php else: ?>
                                                 <?php echo !empty($row['return_date']) ? date("M d, Y", strtotime($row['return_date'])) : ''; ?>

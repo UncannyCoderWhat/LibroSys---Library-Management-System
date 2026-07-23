@@ -201,6 +201,27 @@ initGenreChips('add_genre_input', '#addBookModal .genre-chip');
 // Initialize genre chip selection for edit modal
 initGenreChips('edit_genre_input', '#editBookModal .genre-chip');
 
+// Manga hint toggles
+(function() {
+    function isMangaType(val) {
+        if (!val) return false;
+        var v = val.toLowerCase();
+        return v.indexOf('manga') !== -1 || v.indexOf('manhwa') !== -1 || v.indexOf('manhua') !== -1;
+    }
+    function bindToggle(selectId, hintId) {
+        var select = document.getElementById(selectId);
+        var hint = document.getElementById(hintId);
+        if (!select || !hint) return;
+        function update() {
+            hint.style.display = isMangaType(select.value) ? 'block' : 'none';
+        }
+        update();
+        select.addEventListener('change', update);
+    }
+    bindToggle('add_book_type', 'add_manga_hint');
+    bindToggle('edit_book_type', 'edit_manga_hint');
+})();
+
 // Initialize genre chip selection for edit modal (called when edit modal opens to pre-select the current genre)
 function initEditGenreChips(genreValue) {
     var chips = document.querySelectorAll('#edit_genre_chips .genre-chip');
@@ -400,4 +421,232 @@ function openCopiesModal(bookId, bookTitle) {
         .catch(() => {
             container.innerHTML = '<p style="text-align:center;padding:20px;color:red;">Failed to load copies data.</p>';
         });
+}
+
+// ==================== MANGA CHAPTERS MODAL ====================
+function openMangaChaptersModal(bookId, bookTitle) {
+    const container = document.getElementById('mangaChaptersModalContent');
+    container.innerHTML = '<p style="text-align:center;padding:20px;">Loading chapters...</p>';
+    openModal('mangaChaptersModal');
+    window._mangaBookId = bookId;
+
+    loadMangaChapters(bookId);
+}
+
+function loadMangaChapters(bookId) {
+    const container = document.getElementById('mangaChaptersModalContent');
+    fetch('index.php?page=admin_books&ajax=get_chapters&book_id=' + bookId)
+        .then(r => r.json())
+        .then(data => {
+            if (data.status !== 'success' && !data.success) {
+                container.innerHTML = '<p style="text-align:center;padding:20px;color:red;">Failed to load chapters.</p>';
+                return;
+            }
+            renderMangaChapters(data.chapters || []);
+        })
+        .catch(() => {
+            container.innerHTML = '<p style="text-align:center;padding:20px;color:red;">Failed to load chapters.</p>';
+        });
+}
+
+function renderMangaChapters(chapters) {
+    const container = document.getElementById('mangaChaptersModalContent');
+    let html = '<h3 style="margin-bottom:12px;">Manga Chapters</h3>';
+
+    if (!chapters.length) {
+        html += '<p style="text-align:center;padding:15px;color:#888;">No chapters yet. Add your first chapter below.</p>';
+    } else {
+        html += '<div style="max-height:50vh;overflow-y:auto;margin-bottom:15px;">';
+        chapters.forEach(function(ch) {
+            const totalPages = ch.total_pages || 0;
+            const statusBadge = ch.status === 'ready' ? '#d4edda' : (ch.status === 'error' ? '#f8d7da' : '#fff3cd');
+            const statusText = ch.status === 'ready' ? 'Ready' : (ch.status === 'error' ? 'Error' : 'Draft');
+            html += '<div class="chapter-item" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f7fafc;border-radius:8px;margin-bottom:8px;">';
+            html += '<div style="flex:1;min-width:0;">';
+            html += '<strong>Ch. ' + escapeHtml(ch.chapter_number) + '</strong>';
+            if (ch.title) html += ' - ' + escapeHtml(ch.title);
+            html += '<br><span style="font-size:11px;color:#888;">' + totalPages + ' pages</span>';
+            html += '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:' + statusBadge + ';margin-left:8px;">' + statusText + '</span>';
+            html += '</div>';
+            html += '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:10px;">';
+            html += '<button class="btn-sm btn-info" onclick="editChapter(' + ch.id + ', \'' + escapeHtml(ch.chapter_number) + '\', \'' + escapeHtml(ch.title || '') + '\')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#3498db;cursor:pointer;">Edit</button>';
+            html += '<button class="btn-sm btn-primary" onclick="showUploadSection(' + ch.id + ')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#28a745;cursor:pointer;">Upload</button>';
+            html += '<button class="btn-sm btn-danger" onclick="deleteChapter(' + ch.id + ')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#e74c3c;cursor:pointer;">Delete</button>';
+            html += '</div></div>';
+            html += '<div id="upload-section-' + ch.id + '" style="display:none;padding:10px 14px;background:#eef2f7;border-radius:8px;margin-bottom:8px;">';
+            html += '<p style="font-size:12px;color:#555;margin-bottom:8px;">Upload individual images or a ZIP/CBZ archive for this chapter.</p>';
+            html += '<form onsubmit="uploadChapterZip(event, ' + ch.id + ')" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
+            html += '<input type="file" name="zip_file" accept=".zip,.cbz" required style="font-size:12px;flex:1;min-width:150px;">';
+            html += '<button type="submit" class="btn-sm btn-primary" style="padding:6px 14px;font-size:12px;border:none;border-radius:4px;color:#fff;background:#28a745;cursor:pointer;">Upload ZIP</button>';
+            html += '</form>';
+            html += '<div style="margin-top:10px;border-top:1px solid #ddd;padding-top:10px;">';
+            html += '<p style="font-size:12px;color:#555;margin-bottom:6px;">Or upload images individually:</p>';
+            html += '<input type="file" id="single-page-' + ch.id + '" accept="image/*" style="font-size:12px;margin-bottom:6px;">';
+            html += '<button onclick="uploadSinglePage(' + ch.id + ')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#3498db;cursor:pointer;">Upload Image</button>';
+            html += '<span id="upload-status-' + ch.id + '" style="margin-left:8px;font-size:11px;color:#888;"></span>';
+            html += '</div></div>';
+        });
+        html += '</div>';
+    }
+
+    html += '<div style="border-top:1px solid #ddd;padding-top:12px;">';
+    html += '<h4 style="font-size:14px;margin-bottom:8px;">Add New Chapter</h4>';
+    html += '<form onsubmit="addChapter(event)" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
+    html += '<input type="text" name="chapter_number" placeholder="Chapter number (e.g. 1, 2, 3)" required style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;width:180px;">';
+    html += '<input type="text" name="chapter_title" placeholder="Title (optional)" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;flex:1;min-width:120px;">';
+    html += '<button type="submit" class="submit-btn" style="padding:8px 18px;font-size:13px;">Add Chapter</button>';
+    html += '</form></div>';
+
+    container.innerHTML = html;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function addChapter(e) {
+    e.preventDefault();
+    const form = e.target;
+    const chapterNumber = form.chapter_number.value.trim();
+    const chapterTitle = form.chapter_title.value.trim();
+    const bookId = window._mangaBookId;
+
+    const formData = new FormData();
+    formData.append('book_id', bookId);
+    formData.append('chapter_number', chapterNumber);
+    formData.append('chapter_title', chapterTitle);
+
+    fetch('index.php?page=admin_books&ajax=add_chapter&book_id=' + bookId, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if ((data.status === 'success' || data.success === true)) {
+            loadMangaChapters(bookId);
+        } else {
+            alert(data.message || 'Failed to add chapter.');
+        }
+    })
+    .catch(() => alert('Error adding chapter.'));
+}
+
+function editChapter(chapterId, number, title) {
+    const newNumber = prompt('Chapter number:', number);
+    if (newNumber === null) return;
+    const newTitle = prompt('Chapter title:', title);
+    if (newTitle === null) return;
+
+    const formData = new FormData();
+    formData.append('chapter_id', chapterId);
+    formData.append('chapter_number', newNumber.trim());
+    formData.append('chapter_title', newTitle.trim());
+
+    fetch('index.php?page=admin_books&ajax=update_chapter', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if ((data.status === 'success' || data.success === true)) {
+            loadMangaChapters(window._mangaBookId);
+        } else {
+            alert(data.message || 'Failed to update chapter.');
+        }
+    })
+    .catch(() => alert('Error updating chapter.'));
+}
+
+function deleteChapter(chapterId) {
+    if (!confirm('Delete this chapter and all its pages?')) return;
+    fetch('index.php?page=admin_books&ajax=delete_chapter&chapter_id=' + chapterId)
+        .then(r => r.json())
+        .then(data => {
+            if ((data.status === 'success' || data.success === true)) {
+                loadMangaChapters(window._mangaBookId);
+            } else {
+                alert(data.message || 'Failed to delete chapter.');
+            }
+        })
+        .catch(() => alert('Error deleting chapter.'));
+}
+
+function showUploadSection(chapterId) {
+    const section = document.getElementById('upload-section-' + chapterId);
+    if (section) {
+        section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function uploadChapterZip(e, chapterId) {
+    e.preventDefault();
+    const form = e.target;
+    const fileInput = form.querySelector('input[type="file"]');
+    if (!fileInput.files.length) {
+        alert('Please select a ZIP/CBZ file.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('book_id', window._mangaBookId);
+    formData.append('chapter_id', chapterId);
+    formData.append('zip_file', fileInput.files[0]);
+
+    const statusEl = document.getElementById('upload-status-' + chapterId);
+    if (statusEl) statusEl.textContent = 'Uploading...';
+
+    fetch('index.php?page=admin_books&ajax=upload_chapter_zip&book_id=' + window._mangaBookId, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (statusEl) statusEl.textContent = data.message || '';
+        if ((data.status === 'success' || data.success === true)) {
+            loadMangaChapters(window._mangaBookId);
+        } else {
+            alert(data.message || 'Failed to upload archive.');
+        }
+    })
+    .catch(() => {
+        if (statusEl) statusEl.textContent = 'Upload failed.';
+        alert('Error uploading archive.');
+    });
+}
+
+function uploadSinglePage(chapterId) {
+    const fileInput = document.getElementById('single-page-' + chapterId);
+    if (!fileInput || !fileInput.files.length) {
+        alert('Please select an image file.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('book_id', window._mangaBookId);
+    formData.append('chapter_id', chapterId);
+    formData.append('page_file', fileInput.files[0]);
+
+    const statusEl = document.getElementById('upload-status-' + chapterId);
+    if (statusEl) statusEl.textContent = 'Uploading...';
+
+    fetch('index.php?page=admin_books&ajax=upload_chapter_page&book_id=' + window._mangaBookId, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (statusEl) statusEl.textContent = data.message || '';
+        if ((data.status === 'success' || data.success === true)) {
+            fileInput.value = '';
+            loadMangaChapters(window._mangaBookId);
+        } else {
+            alert(data.message || 'Failed to upload image.');
+        }
+    })
+    .catch(() => {
+        if (statusEl) statusEl.textContent = 'Upload failed.';
+        alert('Error uploading image.');
+    });
 }

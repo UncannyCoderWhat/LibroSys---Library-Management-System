@@ -58,7 +58,7 @@ class BookDetailController extends ClientController
                    (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as borrowed_count
             FROM books b
             LEFT JOIN authors a ON b.author_id = a.id
-            WHERE b.id = ? AND b.is_deleted = 0
+            WHERE b.id = ? AND b.is_deleted = 0 AND b.status != 'archived'
         ");
         $stmt->execute([$bookId]);
         $book = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -121,11 +121,11 @@ class BookDetailController extends ClientController
             return ['status' => 'info', 'message' => 'Book is already in your Reading list.'];
         }
 
-        // Check book exists and is not deleted
-        $stmt = $this->pdo->prepare("SELECT id FROM books WHERE id = ? AND is_deleted = 0");
+        // Check book exists and is not deleted or archived
+        $stmt = $this->pdo->prepare("SELECT id FROM books WHERE id = ? AND is_deleted = 0 AND status != 'archived'");
         $stmt->execute([$bookId]);
         if (!$stmt->fetch()) {
-            return ['status' => 'error', 'message' => 'Book not found.'];
+            return ['status' => 'error', 'message' => 'Book not found or no longer available.'];
         }
 
         $insert = $this->pdo->prepare("
@@ -154,11 +154,11 @@ class BookDetailController extends ClientController
             return ['status' => 'info', 'message' => 'Book is already bookmarked.'];
         }
 
-        // Check book exists and is not deleted
-        $stmt = $this->pdo->prepare("SELECT id FROM books WHERE id = ? AND is_deleted = 0");
+        // Check book exists and is not deleted or archived
+        $stmt = $this->pdo->prepare("SELECT id FROM books WHERE id = ? AND is_deleted = 0 AND status != 'archived'");
         $stmt->execute([$bookId]);
         if (!$stmt->fetch()) {
-            return ['status' => 'error', 'message' => 'Book not found.'];
+            return ['status' => 'error', 'message' => 'Book not found or no longer available.'];
         }
 
         $insert = $this->pdo->prepare("

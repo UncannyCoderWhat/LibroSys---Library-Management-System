@@ -155,12 +155,15 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                             <div class="ls-book-overlay">
                                 <i class='bx bx-plus-circle'></i>
                             </div>
-                            <?php if (!empty($book['is_exclusive'])): ?>
-                            <span class="ls-exclusive-badge">Exclusive</span>
-                            <?php endif; ?>
-                            <?php if ($book['is_borrowed'] ?? false): ?>
-                            <span class="ls-borrowed-badge">Borrowed</span>
-                            <?php endif; ?>
+                             <?php if (!empty($book['is_exclusive'])): ?>
+                             <span class="ls-exclusive-badge">Exclusive</span>
+                             <?php endif; ?>
+                             <?php if ($book['is_borrowed'] ?? false): ?>
+                             <span class="ls-borrowed-badge">Borrowed</span>
+                             <?php endif; ?>
+                             <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                             <span class="ls-unavailable-badge">Not Available</span>
+                             <?php endif; ?>
                         </div>
                         <div class="ls-book-info">
                             <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
@@ -195,6 +198,9 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                             <?php if ($book['is_borrowed'] ?? false): ?>
                             <span class="ls-borrowed-badge">Borrowed</span>
                             <?php endif; ?>
+                            <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                            <span class="ls-unavailable-badge">Not Available</span>
+                            <?php endif; ?>
                         </div>
                         <div class="ls-book-info">
                             <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
@@ -206,7 +212,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <button class="ls-scroll-arrow ls-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
             </div>
         </section>
-        <?php endif; ?>
+    <?php endif; ?>
 
         <!-- Regular Books Grid -->
         <section class="ls-shelf-section">
@@ -225,6 +231,9 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                         </div>
                         <?php if ($book['is_borrowed'] ?? false): ?>
                         <span class="ls-borrowed-badge">Borrowed</span>
+                        <?php endif; ?>
+                        <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                        <span class="ls-unavailable-badge">Not Available</span>
                         <?php endif; ?>
                     </div>
                     <div class="ls-book-info">
@@ -323,6 +332,9 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                     <?php if ($book['is_borrowed'] ?? false): ?>
                                     <span class="ls-borrowed-badge">Borrowed</span>
                                     <?php endif; ?>
+                                    <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                                    <span class="ls-unavailable-badge">Not Available</span>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="ls-book-info">
                                     <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
@@ -398,6 +410,9 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                         <?php endif; ?>
                                         <?php if ($book['is_borrowed'] ?? false): ?>
                                         <span class="ls-borrowed-badge">Borrowed</span>
+                                        <?php endif; ?>
+                                        <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                                        <span class="ls-unavailable-badge">Not Available</span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="ls-book-info">

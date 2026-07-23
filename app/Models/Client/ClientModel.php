@@ -1,12 +1,16 @@
 <?php
 // app/Models/Client/ClientModel.php
+require_once __DIR__ . '/../Admin/BookModel.php';
+
 class ClientModel
 {
     protected PDO $pdo;
+    private BookModel $bookModel;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->bookModel = new BookModel($pdo);
     }
 
     public function getUserById(int $userId): array
@@ -28,7 +32,7 @@ class ClientModel
             LEFT JOIN (
                 SELECT DISTINCT book_id FROM borrows WHERE status IN ('borrowed', 'reserved')
             ) br ON b.id = br.book_id
-            WHERE b.is_deleted = 0
+            WHERE b.is_deleted = 0 AND b.status != 'archived'
             ORDER BY b.created_at DESC
         ");
         $allBooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -125,14 +129,14 @@ class ClientModel
         $exclusive_books = $this->pdo->query("
             SELECT b.*, 0 as is_borrowed
             FROM books b
-            WHERE is_exclusive = 1 AND is_deleted = 0
+            WHERE is_exclusive = 1 AND b.is_deleted = 0 AND b.status != 'archived'
             AND b.id NOT IN (SELECT book_id FROM borrows WHERE status IN ('borrowed', 'reserved'))
         ")->fetchAll(PDO::FETCH_ASSOC);
 
         $regular_books = $this->pdo->query("
             SELECT b.*, 0 as is_borrowed
             FROM books b
-            WHERE is_exclusive = 0 AND is_deleted = 0
+            WHERE is_exclusive = 0 AND b.is_deleted = 0 AND b.status != 'archived'
             AND b.id NOT IN (SELECT book_id FROM borrows WHERE status IN ('borrowed', 'reserved'))
         ")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -141,7 +145,7 @@ class ClientModel
             FROM books b
             JOIN borrows br ON b.id = br.book_id
             WHERE br.status IN ('borrowed', 'reserved')
-            AND b.is_deleted = 0
+            AND b.is_deleted = 0 AND b.status != 'archived'
             AND b.id NOT IN (
                 SELECT book_id
                 FROM borrows
@@ -282,14 +286,52 @@ class ClientModel
 
             $borrowDate = date('Y-m-d H:i:s');
             $dueDate = date('Y-m-d H:i:s', strtotime('+7 days'));
+            $deliveryAddress = trim($_POST['delivery_address'] ?? '');
 
-            $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, due_date, status) VALUES (?, ?, ?, ?, 'borrowed')");
-            $insert->execute([$bookId, $userId, $borrowDate, $dueDate]);
+            if (empty($deliveryAddress)) {
+                return ['status' => 'error', 'message' => 'Please provide a delivery address.'];
+            }
+
+            $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, due_date, status, delivery_address) VALUES (?, ?, ?, ?, 'borrowed', ?)");
+            $insert->execute([$bookId, $userId, $borrowDate, $dueDate, $deliveryAddress]);
 
             $fulfillRes = $this->pdo->prepare("DELETE FROM borrows WHERE book_id = ? AND user_id = ? AND status = 'reserved'");
             $fulfillRes->execute([$bookId, $userId]);
 
+            $this->bookModel->syncBookAvailability($bookId);
+
             return ['status' => 'success', 'message' => 'Book borrowed successfully! Due date: ' . date('M d, Y', strtotime($dueDate))];
+        }
+
+        if ($action === 'extend_borrowing') {
+            $borrowId = isset($_POST['borrow_id']) ? (int)$_POST['borrow_id'] : 0;
+            if ($borrowId <= 0) {
+                return ['status' => 'error', 'message' => 'Invalid borrow record.'];
+            }
+
+            $stmt = $this->pdo->prepare("SELECT br.*, b.title FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.id = ? AND br.user_id = ? AND br.status = 'borrowed'");
+            $stmt->execute([$borrowId, $userId]);
+            $borrow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$borrow) {
+                return ['status' => 'error', 'message' => 'Borrow record not found.'];
+            }
+
+            $now = time();
+            $dueDate = strtotime($borrow['due_date']);
+            if ($now > $dueDate) {
+                return ['status' => 'error', 'message' => 'This book is already overdue. Please return it and pay any applicable fines.'];
+            }
+
+            $extensionFee = 50;
+            $newDueDate = date('Y-m-d H:i:s', strtotime('+7 days', $dueDate));
+
+            $update = $this->pdo->prepare("UPDATE borrows SET due_date = ?, fine_amount = fine_amount + ? WHERE id = ?");
+            $update->execute([$newDueDate, $extensionFee, $borrowId]);
+
+            $this->bookModel->syncBookAvailability($borrow['book_id']);
+
+            return ['status' => 'success', 'message' => 'Borrowing extended by 7 days. Extension fee: ₱' . number_format($extensionFee, 2)];
         }
 
         if ($action === 'reserve') {
@@ -307,6 +349,8 @@ class ClientModel
 
             $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, status) VALUES (?, ?, ?, 'reserved')");
             $insert->execute([$bookId, $userId, date('Y-m-d H:i:s')]);
+
+            $this->bookModel->syncBookAvailability($bookId);
 
             return ['status' => 'success', 'message' => 'Book reserved successfully! You will be notified when it is returned.'];
         }
@@ -341,6 +385,7 @@ class ClientModel
 
                     $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, due_date, status) VALUES (?, ?, ?, ?, 'borrowed')");
                     $insert->execute([$id, $userId, $borrowDate, $dueDate]);
+                    $this->bookModel->syncBookAvailability($id);
                     $successCount++;
                     unset($session['borrow_cart'][$key]);
                 }
@@ -383,6 +428,8 @@ class ClientModel
 
                 $upd = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = TRUE WHERE id = ?");
                 $upd->execute([$now, $fine, $borrow['id']]);
+
+                $this->bookModel->syncBookAvailability($borrow['book_id']);
             }
 
             $clearStmt = $this->pdo->prepare("UPDATE borrows SET is_fine_paid = TRUE WHERE user_id = ? AND status = 'returned' AND fine_amount > 0");
@@ -398,8 +445,18 @@ class ClientModel
 
         if ($action === 'cancel_reservation') {
             $resId = $bookId;
+            $stmt = $this->pdo->prepare("SELECT book_id FROM borrows WHERE id = ? AND user_id = ? AND status = 'reserved'");
+            $stmt->execute([$resId, $userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $cancelBookId = (int)($row['book_id'] ?? 0);
+
             $stmt = $this->pdo->prepare("DELETE FROM borrows WHERE id = ? AND user_id = ? AND status = 'reserved'");
             $stmt->execute([$resId, $userId]);
+
+            if ($cancelBookId > 0) {
+                $this->bookModel->syncBookAvailability($cancelBookId);
+            }
+
             return ['status' => 'success', 'message' => 'Reservation cancelled successfully!'];
         }
 
@@ -431,6 +488,8 @@ class ClientModel
 
         $update = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE id = ?");
         $update->execute([$now, $fine, $borrowId]);
+
+        $this->bookModel->syncBookAvailability($borrow['book_id']);
 
         $resStmt = $this->pdo->prepare("SELECT user_id FROM borrows WHERE book_id = ? AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1");
         $resStmt->execute([$borrow['book_id']]);
@@ -566,9 +625,19 @@ class ClientModel
         $this->pdo->beginTransaction();
         try {
             $this->pdo->prepare("DELETE FROM notifications WHERE user_id = ?")->execute([$userId]);
+            
+            $bookStmt = $this->pdo->prepare("SELECT DISTINCT book_id FROM borrows WHERE user_id = ? AND status IN ('borrowed', 'reserved')");
+            $bookStmt->execute([$userId]);
+            $affectedBooks = $bookStmt->fetchAll(PDO::FETCH_COLUMN);
+            
             $this->pdo->prepare("DELETE FROM borrows WHERE user_id = ?")->execute([$userId]);
             $this->pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$userId]);
             $this->pdo->commit();
+            
+            foreach ($affectedBooks as $bid) {
+                $this->bookModel->syncBookAvailability((int)$bid);
+            }
+            
             return true;
         } catch (PDOException $e) {
             $this->pdo->rollBack();

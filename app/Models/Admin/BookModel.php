@@ -157,6 +157,8 @@ class BookModel
                 }
             }
 
+            $this->syncBookAvailability($bookId);
+
             return ['success' => true, 'message' => 'Book added successfully.', 'book_id' => $bookId];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Error adding book: ' . $e->getMessage()];
@@ -255,6 +257,8 @@ class BookModel
                 }
             }
 
+            $this->syncBookAvailability($id);
+
             return ['success' => true, 'message' => 'Book updated successfully.'];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Error updating book: ' . $e->getMessage()];
@@ -302,6 +306,31 @@ class BookModel
             return ['success' => true, 'message' => 'Book marked as unavailable successfully.'];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Error updating book: ' . $e->getMessage()];
+        }
+    }
+
+    public function syncBookAvailability(int $bookId): void
+    {
+        $book = $this->getBookById($bookId);
+        if (!$book || ($book['status'] ?? '') === 'archived') {
+            return;
+        }
+
+        $totalCopies = (int)($book['copies'] ?? 1);
+
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) FROM borrows 
+            WHERE book_id = ? AND status IN ('borrowed', 'reserved')
+        ");
+        $stmt->execute([$bookId]);
+        $activeBorrows = (int)$stmt->fetchColumn();
+
+        if ($activeBorrows >= $totalCopies) {
+            if (($book['status'] ?? '') !== 'unavailable') {
+                $this->pdo->prepare("UPDATE books SET status = 'unavailable' WHERE id = ?")->execute([$bookId]);
+            }
+        } elseif ($activeBorrows < $totalCopies && ($book['status'] ?? '') === 'unavailable') {
+            $this->pdo->prepare("UPDATE books SET status = 'available' WHERE id = ?")->execute([$bookId]);
         }
     }
 
@@ -548,6 +577,7 @@ class BookModel
             $stmt->execute([$bookId, $label ?? 'Copy #' . (count($this->getBookCopies($bookId)) + 1)]);
             // Also increment the copies count in the books table
             $this->pdo->prepare("UPDATE books SET copies = copies + 1 WHERE id = ?")->execute([$bookId]);
+            $this->syncBookAvailability($bookId);
             return ['success' => true, 'message' => 'Copy added successfully.'];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Error adding copy: ' . $e->getMessage()];
@@ -579,6 +609,7 @@ class BookModel
             // Decrement the copies count in the books table
             if ($bookId > 0) {
                 $this->pdo->prepare("UPDATE books SET copies = GREATEST(1, copies - 1) WHERE id = ?")->execute([$bookId]);
+                $this->syncBookAvailability($bookId);
             }
             
             return ['success' => true, 'message' => 'Copy removed successfully.'];
@@ -672,7 +703,342 @@ class BookModel
 
             return ['success' => true, 'message' => 'Book imported successfully.', 'book_id' => $bookId];
         } catch (PDOException $e) {
-            return ['success' => false, 'message' => 'Error importing book: ' . $e->getMessage()];
+            return ['success' => false, 'message' => 'Error importing book: ' . $e->getMessage()];;
         }
     }
+
+    // ==================== MANGA CHAPTER MANAGEMENT ====================
+
+    public function getMangaChapters(int $bookId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM chapters 
+            WHERE book_id = ? 
+            ORDER BY CAST(SUBSTRING_INDEX(chapter_number, ' ', -1) AS UNSIGNED) ASC, chapter_number ASC
+        ");
+        $stmt->execute([$bookId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getChapter(int $chapterId): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM chapters WHERE id = ?");
+        $stmt->execute([$chapterId]);
+        $chapter = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $chapter ?: null;
+    }
+
+    public function getChapterPages(int $chapterId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM chapter_pages 
+            WHERE chapter_id = ? 
+            ORDER BY page_number ASC
+        ");
+        $stmt->execute([$chapterId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addMangaChapter(int $bookId, string $chapterNumber, ?string $title = null): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO chapters (book_id, chapter_number, title, status) 
+                VALUES (?, ?, ?, 'draft')
+            ");
+            $stmt->execute([$bookId, $chapterNumber, $title]);
+            return ['success' => true, 'chapter_id' => (int)$this->pdo->lastInsertId()];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Error creating chapter: ' . $e->getMessage()];;
+        }
+    }
+
+    public function updateMangaChapter(int $chapterId, string $chapterNumber, ?string $title = null): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE chapters SET chapter_number = ?, title = ? 
+                WHERE id = ?
+            ");
+            $stmt->execute([$chapterNumber, $title, $chapterId]);
+            return ['success' => true, 'message' => 'Chapter updated successfully.'];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Error updating chapter: ' . $e->getMessage()];;
+        }
+    }
+
+    public function uploadChapterPage(int $chapterId, array $file): array
+    {
+        $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($file_ext, $allowed_ext, true)) {
+            return ['success' => false, 'message' => 'Only image files are allowed.'];
+        }
+
+        $upload_dir = __DIR__ . '/../../../uploads/manga/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+
+        $file_name = time() . '_' . uniqid() . '_' . basename($file['name']);
+        $target_file = $upload_dir . $file_name;
+
+        if (move_uploaded_file($file['tmp_name'], $target_file)) {
+            try {
+                $nextPage = (int)$this->pdo->query("SELECT COALESCE(MAX(page_number), 0) + 1 FROM chapter_pages WHERE chapter_id = " . (int)$chapterId)->fetchColumn();
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO chapter_pages (chapter_id, page_number, image_path) 
+                    VALUES (?, ?, ?)
+                ");
+                $stmt->execute([$chapterId, $nextPage, 'uploads/manga/' . $file_name]);
+                $this->pdo->prepare("UPDATE chapters SET total_pages = total_pages + 1 WHERE id = ?")->execute([$chapterId]);
+                return ['success' => true, 'message' => 'Page uploaded successfully.'];
+            } catch (PDOException $e) {
+                @unlink($target_file);
+                return ['success' => false, 'message' => 'Error saving page: ' . $e->getMessage()];
+            }
+        }
+
+        return ['success' => false, 'message' => 'Failed to upload file.'];
+    }
+
+    public function uploadChapterPagesFromZip(int $chapterId, array $file): array
+    {
+        $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if ($file_ext !== 'zip' && $file_ext !== 'cbz') {
+            return ['success' => false, 'message' => 'Only ZIP/CBZ files are allowed for chapter upload.'];
+        }
+
+        $upload_dir = __DIR__ . '/../../../uploads/manga/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+
+        $tmp_file = $upload_dir . 'tmp_' . time() . '_' . uniqid() . '.zip';
+        if (!move_uploaded_file($file['tmp_name'], $tmp_file)) {
+            return ['success' => false, 'message' => 'Failed to upload archive.'];
+        }
+
+        $this->pdo->beginTransaction();
+        try {
+            $this->pdo->prepare("DELETE FROM chapter_pages WHERE chapter_id = ?")->execute([$chapterId]);
+
+            $image_files = [];
+            $normalizedTmp = str_replace('\\', '/', $tmp_file);
+
+            if (class_exists('ZipArchive')) {
+                $zip = new ZipArchive();
+                if ($zip->open($tmp_file) === true) {
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $name = $zip->getNameIndex($i);
+                        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+                            $image_files[] = $name;
+                        }
+                    }
+                    sort($image_files, SORT_NATURAL | SORT_FLAG_CASE);
+                    foreach ($image_files as $page_number => $img_name) {
+                        $image_data = $zip->getFromName($img_name);
+                        if ($image_data !== false && $this->isValidImageData($image_data)) {
+                            $ext = strtolower(pathinfo($img_name, PATHINFO_EXTENSION));
+                            $file_name = time() . '_' . uniqid() . '_' . ($page_number + 1) . '.' . $ext;
+                            $target_file = $upload_dir . $file_name;
+                            file_put_contents($target_file, $image_data, LOCK_EX);
+                            $this->pdo->prepare("
+                                INSERT INTO chapter_pages (chapter_id, page_number, image_path) 
+                                VALUES (?, ?, ?)
+                            ")->execute([$chapterId, $page_number + 1, 'uploads/manga/' . $file_name]);
+                        }
+                    }
+                    $zip->close();
+                }
+            } else {
+                $extracted = false;
+                $extract_dir = $upload_dir . 'extract_' . time() . '_' . uniqid() . '/';
+                if (mkdir($extract_dir, 0777, true)) {
+                    if (class_exists('PharData')) {
+                        try {
+                            $phar = new PharData($normalizedTmp);
+                            if ($phar->extractTo($extract_dir)) {
+                                $extracted = true;
+                            }
+                        } catch (Exception $e) {
+                            $extracted = false;
+                        }
+                    }
+
+                    if (!$extracted && stripos(PHP_OS, 'WIN') === 0) {
+                        $extract_dir = rtrim(str_replace('\\', '/', $extract_dir), '/');
+                        $tarCmd = 'tar -xf ' . escapeshellarg($normalizedTmp) . ' -C ' . escapeshellarg($extract_dir);
+                        exec($tarCmd . ' 2>&1', $output, $returnVar);
+                        if ($returnVar === 0) {
+                            $extracted = true;
+                        }
+                    }
+
+                    if ($extracted && is_dir($extract_dir)) {
+                        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($extract_dir), RecursiveIteratorIterator::SELF_FIRST);
+                        foreach ($files as $fileInfo) {
+                            if (!$fileInfo->isFile()) {
+                                continue;
+                            }
+                            $path = $fileInfo->getPathname();
+                            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                            if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+                                $image_files[] = $path;
+                            }
+                        }
+                        sort($image_files, SORT_NATURAL | SORT_FLAG_CASE);
+                        foreach ($image_files as $page_number => $source_path) {
+                            $ext = strtolower(pathinfo($source_path, PATHINFO_EXTENSION));
+                            $file_name = time() . '_' . uniqid() . '_' . ($page_number + 1) . '.' . $ext;
+                            $target_file = $upload_dir . $file_name;
+                            $src = @fopen($source_path, 'rb');
+                            $dst = @fopen($target_file, 'wb');
+                            if ($src && $dst) {
+                                stream_copy_to_stream($src, $dst);
+                                fclose($src);
+                                fclose($dst);
+                                if ($this->isValidImageFile($target_file)) {
+                                    $this->pdo->prepare("
+                                        INSERT INTO chapter_pages (chapter_id, page_number, image_path) 
+                                        VALUES (?, ?, ?)
+                                    ")->execute([$chapterId, $page_number + 1, 'uploads/manga/' . $file_name]);
+                                } else {
+                                    @unlink($target_file);
+                                }
+                            } else {
+                                if ($src) fclose($src);
+                                if ($dst) fclose($dst);
+                            }
+                        }
+                        $this->deleteDirectory($extract_dir);
+                    }
+                }
+            }
+
+            @unlink($tmp_file);
+
+            $total_pages = (int)$this->pdo->query("SELECT COUNT(*) FROM chapter_pages WHERE chapter_id = " . (int)$chapterId)->fetchColumn();
+            $this->pdo->prepare("
+                UPDATE chapters SET status = 'ready', total_pages = ? 
+                WHERE id = ?
+            ")->execute([$total_pages, $chapterId]);
+
+            $this->pdo->commit();
+            return ['success' => true, 'message' => "Chapter uploaded with " . $total_pages . " pages."];
+        } catch (Exception $e) {
+            @unlink($tmp_file);
+            $this->pdo->rollBack();
+            return ['success' => false, 'message' => 'Error processing archive: ' . $e->getMessage()];
+        }
+    }
+
+    public function deleteChapter(int $chapterId): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("SELECT book_id FROM chapters WHERE id = ?");
+            $stmt->execute([$chapterId]);
+            $chapter = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $pages = $this->getChapterPages($chapterId);
+            foreach ($pages as $page) {
+                $file_path = __DIR__ . '/../../../' . $page['image_path'];
+                if (file_exists($file_path)) {
+                    @unlink($file_path);
+                }
+            }
+
+            $this->pdo->prepare("DELETE FROM chapter_pages WHERE chapter_id = ?")->execute([$chapterId]);
+            $this->pdo->prepare("DELETE FROM chapters WHERE id = ?")->execute([$chapterId]);
+
+            return ['success' => true, 'message' => 'Chapter deleted successfully.'];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Error deleting chapter: ' . $e->getMessage()];;
+        }
+    }
+
+    public function deleteChapterPage(int $pageId): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("SELECT image_path FROM chapter_pages WHERE id = ?");
+            $stmt->execute([$pageId]);
+            $page = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($page) {
+                $file_path = __DIR__ . '/../../../' . $page['image_path'];
+                if (file_exists($file_path)) {
+                    @unlink($file_path);
+                }
+                $this->pdo->prepare("DELETE FROM chapter_pages WHERE id = ?")->execute([$pageId]);
+                return ['success' => true, 'message' => 'Page deleted successfully.'];
+            }
+
+            return ['success' => false, 'message' => 'Page not found.'];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Error deleting page: ' . $e->getMessage()];;
+        }
+    }
+
+    public function renumberChapterPages(int $chapterId): void
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT id FROM chapter_pages 
+            WHERE chapter_id = ? 
+            ORDER BY page_number ASC, id ASC
+        ");
+        $stmt->execute([$chapterId]);
+        $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $update = $this->pdo->prepare("UPDATE chapter_pages SET page_number = ? WHERE id = ?");
+        foreach ($pages as $index => $page) {
+            $update->execute([$index + 1, $page['id']]);
+        }
+
+        $this->pdo->prepare("
+            UPDATE chapters SET total_pages = ? 
+            WHERE id = ?
+        ")->execute([count($pages), $chapterId]);
+    }
+
+    private function deleteDirectory(string $dir): bool
+    {
+        if (!is_dir($dir)) {
+            return true;
+        }
+        $items = array_diff(scandir($dir), ['.', '..']);
+        foreach ($items as $item) {
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                $this->deleteDirectory($path);
+            } else {
+                @unlink($path);
+            }
+        }
+        return @rmdir($dir);
+    }
+
+    private function isValidImageData(string $data): bool
+    {
+        if (empty($data) || strlen($data) < 16) {
+            return false;
+        }
+        $info = @getimagesizefromstring($data);
+        return $info !== false && isset($info[0], $info[1]);
+    }
+
+    private function isValidImageFile(string $path): bool
+    {
+        if (!is_file($path) || filesize($path) < 16) {
+            return false;
+        }
+        $info = @getimagesize($path);
+        return $info !== false && isset($info[0], $info[1]);
+    }
 }
+
+
+
+
+

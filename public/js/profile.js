@@ -93,6 +93,26 @@ function cancelReservation(resId) {
     });
 }
 
+function extendBorrowing(borrowId) {
+    if(!confirm("Extend borrowing by 7 days? A ₱50 extension fee will be charged.")) return;
+    const formData = new FormData();
+    formData.append('borrow_id', borrowId);
+    formData.append('action', 'extend_borrowing');
+
+    fetch('index.php?page=ajax&action=borrow_handler', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === 'success') {
+            window.location.reload();
+        }
+    })
+    .catch(err => alert("An error occurred while extending the borrow. Please check your connection."));
+}
+
 function returnBook(borrowId) {
     if(!confirm("Are you sure you want to return this book?")) return;
     const formData = new FormData();

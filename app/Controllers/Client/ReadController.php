@@ -1,12 +1,16 @@
 <?php
 // app/Controllers/Client/ReadController.php
 require_once __DIR__ . '/ClientController.php';
+require_once __DIR__ . '/../../Models/Admin/BookModel.php';
 
 class ReadController extends ClientController
 {
+    private BookModel $bookModel;
+
     public function __construct(?PDO $pdo = null)
     {
         parent::__construct($pdo);
+        $this->bookModel = new BookModel($this->pdo);
     }
 
     public function handleRequest(array &$session): array
@@ -23,13 +27,11 @@ class ReadController extends ClientController
             return ['redirect' => 'index.php?page=library'];
         }
 
-        // Fetch the book
         $book = $this->getBook($bookId);
         if (!$book) {
             return ['redirect' => 'index.php?page=library'];
         }
 
-        // Check if user has this book in their library (reading, bookmarked, or borrowed)
         $stmt = $this->pdo->prepare("
             SELECT id, status FROM borrows 
             WHERE user_id = ? AND book_id = ? 
@@ -39,12 +41,25 @@ class ReadController extends ClientController
         $stmt->execute([$userId, $bookId]);
         $userBorrow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // If user doesn't have this book in their library, redirect
         if (!$userBorrow) {
             return ['redirect' => 'index.php?page=book_detail&id=' . $bookId];
         }
 
-        // Generate the book content pages
+        $bookType = strtolower($book['book_type'] ?? '');
+        $genre = strtolower($book['genre'] ?? '');
+        $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
+
+        if ($isManga) {
+            $chapterId = isset($_GET['chapter_id']) ? (int)$_GET['chapter_id'] : 0;
+            $chapterData = $this->getMangaReadingData($bookId, $userId, $chapterId);
+            return array_merge($chapterData, [
+                'book' => $book,
+                'userStatus' => $userBorrow['status'],
+                'cartCount' => $this->getCartCount($session),
+                'isManga' => true,
+            ]);
+        }
+
         $content = $this->generateBookContent($book);
         $ebook = $this->getBookEbook($bookId);
         $savedPage = $this->getReadingProgress($userId, $bookId);
@@ -56,6 +71,7 @@ class ReadController extends ClientController
             'savedPage' => $savedPage,
             'userStatus' => $userBorrow['status'],
             'cartCount' => $this->getCartCount($session),
+            'isManga' => false,
         ];
     }
 
@@ -95,25 +111,18 @@ class ReadController extends ClientController
         return $row ? (int)$row['page_number'] : 1;
     }
 
-    /**
-     * Generate sample book content for reading.
-     * In production, this would come from a book_contents table or file storage.
-     * For now, we generate placeholder content based on the book's description.
-     */
     private function generateBookContent(array $book): array
     {
         $title = $book['title'] ?? 'Untitled';
         $author = $book['author_name'] ?: ($book['author'] ?? 'Unknown Author');
         $description = $book['description'] ?? '';
 
-        // Split description into paragraphs for the sample content
         $paragraphs = [];
         if (!empty($description)) {
             $paragraphs = explode("\n", $description);
             $paragraphs = array_filter(array_map('trim', $paragraphs));
         }
 
-        // If no description, create some sample paragraphs
         if (empty($paragraphs)) {
             $paragraphs = [
                 "This is the beginning of \"" . $title . "\" by " . $author . ".",
@@ -126,7 +135,6 @@ class ReadController extends ClientController
             ];
         }
 
-        // Build pages: each page is a set of 2-3 paragraphs
         $pages = [];
         $chunkSize = 3;
         $chunks = array_chunk($paragraphs, $chunkSize);
@@ -143,5 +151,52 @@ class ReadController extends ClientController
         }
 
         return $pages;
+    }
+
+    private function getMangaReadingData(int $bookId, int $userId, int $requestedChapterId): array
+    {
+        $chapters = $this->bookModel->getMangaChapters($bookId);
+        if (empty($chapters)) {
+            return [
+                'mangaChapters' => [],
+                'mangaPages' => [],
+                'currentChapter' => null,
+                'currentPage' => 1,
+                'nextChapter' => null,
+            ];
+        }
+
+        $currentChapterId = $requestedChapterId > 0 ? $requestedChapterId : (int)($chapters[0]['id'] ?? 0);
+        $currentChapter = null;
+        $nextChapter = null;
+
+        foreach ($chapters as $index => $ch) {
+            if ((int)$ch['id'] === $currentChapterId) {
+                $currentChapter = $ch;
+                if (isset($chapters[$index + 1])) {
+                    $nextChapter = $chapters[$index + 1];
+                }
+                break;
+            }
+        }
+
+        if (!$currentChapter && !empty($chapters)) {
+            $currentChapter = $chapters[0];
+            $currentChapterId = (int)$currentChapter['id'];
+            if (isset($chapters[1])) {
+                $nextChapter = $chapters[1];
+            }
+        }
+
+        $pages = $this->bookModel->getChapterPages($currentChapterId);
+        $savedPage = $this->getReadingProgress($userId, $bookId);
+
+        return [
+            'mangaChapters' => $chapters,
+            'mangaPages' => $pages,
+            'currentChapter' => $currentChapter,
+            'currentPage' => $savedPage,
+            'nextChapter' => $nextChapter,
+        ];
     }
 }

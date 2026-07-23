@@ -267,6 +267,101 @@ class BooksController
                 }
                 exit();
             }
+
+            // ============ MANGA CHAPTER AJAX ============
+            if ($ajax === 'get_chapters' && $bookId > 0) {
+                $chapters = $this->bookModel->getMangaChapters($bookId);
+                echo json_encode(['status' => 'success', 'chapters' => $chapters]);
+                exit();
+            }
+
+            if ($ajax === 'add_chapter' && $bookId > 0) {
+                $chapterNumber = trim($post['chapter_number'] ?? '');
+                $title = trim($post['chapter_title'] ?? '');
+                if (empty($chapterNumber)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Chapter number is required.']);
+                    exit();
+                }
+                $result = $this->bookModel->addMangaChapter($bookId, $chapterNumber, $title ?: null);
+                echo json_encode($result);
+                exit();
+            }
+
+            if ($ajax === 'update_chapter') {
+                $chapterId = (int)($post['chapter_id'] ?? 0);
+                $chapterNumber = trim($post['chapter_number'] ?? '');
+                $title = trim($post['chapter_title'] ?? '');
+                if ($chapterId <= 0 || empty($chapterNumber)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid parameters.']);
+                    exit();
+                }
+                $result = $this->bookModel->updateMangaChapter($chapterId, $chapterNumber, $title ?: null);
+                echo json_encode($result);
+                exit();
+            }
+
+            if ($ajax === 'delete_chapter') {
+                $chapterId = (int)($get['chapter_id'] ?? 0);
+                if ($chapterId > 0) {
+                    $result = $this->bookModel->deleteChapter($chapterId);
+                    echo json_encode($result);
+                }
+                exit();
+            }
+
+            if ($ajax === 'get_chapter_pages') {
+                $chapterId = (int)($get['chapter_id'] ?? 0);
+                if ($chapterId > 0) {
+                    $pages = $this->bookModel->getChapterPages($chapterId);
+                    echo json_encode(['status' => 'success', 'pages' => $pages]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid chapter.']);
+                }
+                exit();
+            }
+
+            if ($ajax === 'upload_chapter_page') {
+                $chapterId = (int)($post['chapter_id'] ?? 0);
+                if ($chapterId <= 0 || empty($_FILES['page_file']['tmp_name'])) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
+                    exit();
+                }
+                $result = $this->bookModel->uploadChapterPage($chapterId, $_FILES['page_file']);
+                echo json_encode($result);
+                exit();
+            }
+
+            if ($ajax === 'upload_chapter_zip') {
+                $chapterId = (int)($post['chapter_id'] ?? 0);
+                if ($chapterId <= 0 || empty($_FILES['zip_file']['tmp_name'])) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
+                    exit();
+                }
+                $result = $this->bookModel->uploadChapterPagesFromZip($chapterId, $_FILES['zip_file']);
+                echo json_encode($result);
+                exit();
+            }
+
+            if ($ajax === 'delete_chapter_page') {
+                $pageId = (int)($get['page_id'] ?? 0);
+                if ($pageId > 0) {
+                    $result = $this->bookModel->deleteChapterPage($pageId);
+                    echo json_encode($result);
+                }
+                exit();
+            }
+
+            if ($ajax === 'renumber_chapter_pages') {
+                $chapterId = (int)($post['chapter_id'] ?? 0);
+                if ($chapterId > 0) {
+                    $this->bookModel->renumberChapterPages($chapterId);
+                    $pages = $this->bookModel->getChapterPages($chapterId);
+                    echo json_encode(['status' => 'success', 'pages' => $pages]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid chapter.']);
+                }
+                exit();
+            }
         }
 
         // ============ API BOOK IMPORT ============

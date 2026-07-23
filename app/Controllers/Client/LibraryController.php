@@ -88,7 +88,7 @@ class LibraryController extends ClientController
                        br.status as borrow_status
                 FROM borrows br
                 JOIN books b ON br.book_id = b.id
-                WHERE br.user_id = ? AND br.status = ? AND b.is_deleted = 0
+                WHERE br.user_id = ? AND br.status = ? AND b.is_deleted = 0 AND b.status != 'archived'
                 ORDER BY br.borrow_date DESC
             ");
             $stmt->execute([$userId, $status]);
@@ -116,7 +116,7 @@ class LibraryController extends ClientController
                        br.fine_amount
                 FROM borrows br
                 JOIN books b ON br.book_id = b.id
-                WHERE br.user_id = ? AND br.status IN ('returned') AND b.is_deleted = 0
+                WHERE br.user_id = ? AND br.status IN ('returned') AND b.is_deleted = 0 AND b.status != 'archived'
                 ORDER BY br.return_date DESC
             ");
             $stmt->execute([$userId]);
