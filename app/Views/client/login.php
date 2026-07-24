@@ -79,13 +79,6 @@ $message_type = $data['message_type'] ?? '';
     <header class="main-header">
         <div class="header-content">
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
-            <label class="switch-container">
-                <input type="checkbox" id="theme-toggle" class="switch-input">
-                <div class="switch-track">
-                    <div class="switch-thumb"></div>
-                </div>
-                <span class="switch-label">Dark Mode</span>
-            </label>
         </div>
     </header>
 
@@ -176,18 +169,6 @@ $message_type = $data['message_type'] ?? '';
     </div>
 
     <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
-    <script>
-        const authWrapper = document.getElementById('authWrapper');
-        const registerBtn = document.getElementById('registerBtn');
-        const loginBtn = document.getElementById('loginBtn');
-
-        registerBtn.addEventListener('click', () => {
-            authWrapper.classList.add('active');
-        });
-
-        loginBtn.addEventListener('click', () => {
-            authWrapper.classList.remove('active');
-        });
-    </script>
+    <script src="<?php echo $base_url; ?>/public/js/loginSignupAnimation.js"></script>
 </body>
 </html>
