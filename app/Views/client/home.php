@@ -60,7 +60,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                         </div>
                     </div>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
-                    <label class="switch-container">
+                    <div class="switch-container">
                         <span class="switch-label">Dark Mode</span>
                     
                         <label class="main-toggle">
@@ -68,7 +68,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                             <div class="main-track"></div>
                             <div class="main-knob"></div>
                         </label>
-                    </label>
+                    </div>
                 </div>
             </nav>
         </div>
