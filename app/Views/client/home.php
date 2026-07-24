@@ -34,7 +34,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
 
     <header>
         <div class="client-top-bar">
-<img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
                     <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
@@ -61,7 +61,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                     </div>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
                     <div class="switch-container">
-                        <span class="switch-label">Dark Mode</span>
+                        <span class="switch-label"></span>
                     
                         <label class="main-toggle">
                             <input type="checkbox" id="theme-toggle" class="main-checkbox">

@@ -1948,6 +1948,7 @@ html[data-theme="light"] .save-changes-btn {
     color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 600;
+    margin-right: 15px;
 }
 
 .switch-label {
@@ -1959,8 +1960,8 @@ html[data-theme="light"] .save-changes-btn {
 .main-toggle {
     position: relative;
     display: block;
-    width: 90px;
-    height: 40px;
+    width: 55px;
+    height: 30px;
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -1985,12 +1986,11 @@ html[data-theme="light"] .save-changes-btn {
     position: absolute;
     top: 50%;
     left: 0;
-    transform: translate(-4px, -50%);
-    width: 40px;
-    height: 46px;
+    transform: translate(0px, -50%);
+    width: 27px;
+    height: 27px;
     background: #fff;
     border: 4px solid #000;
-    box-shadow: 3px 3px 0 #000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2006,7 +2006,7 @@ html[data-theme="light"] .save-changes-btn {
 
 .main-knob::after {
     content: "☀";
-    font-size: 22px;
+    font-size: 16px;
     color: #000;
 }
 
@@ -2015,7 +2015,7 @@ html[data-theme="light"] .save-changes-btn {
 }
 
 .main-checkbox:checked ~ .main-knob {
-    transform: translate(50px, -50%);
+    transform: translate(27px, -50%);
 }
 
 .main-checkbox:checked ~ .main-knob::after {

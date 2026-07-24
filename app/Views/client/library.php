@@ -71,7 +71,7 @@ if ($debug_mode):
                     </div>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
                     <div class="switch-container">
-                        <span class="switch-label">Dark Mode</span>
+                        <span class="switch-label"></span>
                     
                         <label class="main-toggle">
                             <input type="checkbox" id="theme-toggle" class="main-checkbox">

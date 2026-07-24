@@ -74,7 +74,7 @@ $browse_error     = $data['browse_error'] ?? null;
                     </div>
                     <a href="index.php?page=profile" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'profile' ? 'active' : ''; ?>"><i class='bx bx-user-circle'></i>Profile</a>
                     <div class="switch-container">
-                        <span class="switch-label">Dark Mode</span>
+                        <span class="switch-label"></span>
                     
                         <label class="main-toggle">
                             <input type="checkbox" id="theme-toggle" class="main-checkbox">
