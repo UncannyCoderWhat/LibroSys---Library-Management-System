@@ -12,12 +12,14 @@ if (!isset($base_url)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibroSys - Dashboard</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/css/style.css">
+    <!-- FontAwesome Icons Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <?php require_once __DIR__ . '/sidebar.php'; ?>
 
     <main class="content-workspace">
-        <!-- Orange Sub-Topbar Navigation Title -->
+        <!-- Sub-Topbar Navigation -->
         <div class="z-index">
             <div class="dashboard-bar">
                 <div class="left-title">
@@ -33,8 +35,9 @@ if (!isset($base_url)) {
             </div>
         </div>
 
-        <!-- Library Analytics Summary Metrics Grid -->
+        <!-- Unified Metrics Grid -->
         <section class="metrics-grid">
+            <!-- Total Books -->
             <div class="metric-card card-total">
                 <i class="fa-solid fa-book-open card-icon"></i>
                 <div class="card-info">
@@ -44,6 +47,7 @@ if (!isset($base_url)) {
                 </div>
             </div>
 
+            <!-- Available Books -->
             <div class="metric-card card-available">
                 <i class="fa-solid fa-circle-check card-icon"></i>
                 <div class="card-info">
@@ -53,6 +57,7 @@ if (!isset($base_url)) {
                 </div>
             </div>
 
+            <!-- Borrowed Books -->
             <div class="metric-card card-borrowed">
                 <i class="fa-solid fa-hand-holding-hand card-icon"></i>
                 <div class="card-info">
@@ -62,6 +67,7 @@ if (!isset($base_url)) {
                 </div>
             </div>
 
+            <!-- Exclusive Books -->
             <div class="metric-card card-exclusive">
                 <i class="fa-solid fa-award card-icon"></i>
                 <div class="card-info">
@@ -70,43 +76,37 @@ if (!isset($base_url)) {
                     <span class="card-subtext">Special Collection</span>
                 </div>
             </div>
-        </section>
 
-        <!-- NEW -->
-        <section class="ledger-grid">
-            <div class="ledger-top-cards">
-                <div class="ledger-info-card">
-                    <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
-                        <i class="fa-solid fa-book-reader" style="font-size: 45px; color: black;"></i>
-
-                        <div class="left-text">
-                            <span class="card-label">CURRENTLY BORROWED BOOKS</span>
-                            <span class="card-value"><?php echo htmlspecialchars($currentlyBorrowedCount ?? 0); ?></span>
-                        </div>
-                    </div>
+            <!-- Merged: Currently Borrowed -->
+            <div class="metric-card card-borrowed">
+                <i class="fa-solid fa-book-reader card-icon"></i>
+                <div class="card-info">
+                    <span class="card-label">CURRENTLY BORROWED</span>
+                    <span class="card-value"><?php echo htmlspecialchars($currentlyBorrowedCount ?? 0); ?></span>
+                    <span class="card-subtext">Books out with members</span>
                 </div>
+            </div>
 
-                <div class="ledger-info-card">
-                    <div class="card-left" style="display: flex; align-items: center; gap: 18px;">
-                        <i class="fa-solid fa-file-invoice-dollar" style="font-size: 45px; color: black;"></i>
-
-                        <div class="left-text">
-                            <span class="card-label">TOTAL FINES ACCUMULATED</span>
-                            <span class="card-value">₱<?php echo number_format((float)($totalFinesAccumulated ?? 0), 2); ?></span>
-                        </div>
-                    </div>
+            <!-- Merged: Total Fines -->
+            <div class="metric-card card-exclusive">
+                <i class="fa-solid fa-file-invoice-dollar card-icon"></i>
+                <div class="card-info">
+                    <span class="card-label">TOTAL FINES ACCUMULATED</span>
+                    <span class="card-value">₱<?php echo number_format((float)($totalFinesAccumulated ?? 0), 2); ?></span>
+                    <span class="card-subtext">Unpaid library fees</span>
                 </div>
+            </div>
 
-                <div class="ledger-info-card">
-                    <div class="right-text">
-                        <span class="fine-guide">FINE GUIDE <br></span>
-                        <span class="card-label">
-                            1 - 3 days late :  ₱50/day <br>
-                            4 - 10 days late :  ₱100/day <br>
-                            11+ days late :  ₱150/day
-                        </span>
-                    </div>
-                    <i class="fa-solid fa-receipt" style="font-size: 45px; color: black;"></i>
+            <!-- Merged: Fine Rate Guide -->
+            <div class="metric-card card-borrowed">
+                <i class="fa-solid fa-receipt card-icon"></i>
+                <div class="card-info">
+                    <span class="card-label">FINE RATE GUIDE</span>
+                    <span class="fine-guide-text">
+                        1–3 days late: <strong>₱50/day</strong><br>
+                        4–10 days late: <strong>₱100/day</strong><br>
+                        11+ days late: <strong>₱150/day</strong>
+                    </span>
                 </div>
             </div>
         </section>
@@ -136,7 +136,7 @@ if (!isset($base_url)) {
                                     <td><?php echo htmlspecialchars($row['user_name']); ?></td>
                                     <td><?php echo htmlspecialchars($formattedDate); ?></td>
                                     <td>
-                                        <span class="status-badge <?php echo $statusClass; ?>">
+                                        <span class="status-badge <?php echo htmlspecialchars($statusClass); ?>">
                                             <?php echo htmlspecialchars(ucfirst($row['status'])); ?>
                                         </span>
                                     </td>
@@ -152,11 +152,11 @@ if (!isset($base_url)) {
             </div>
         </section>
 
-        <!-- Active Reservation Section -->
-        <section class="ledger-table-container">
+        <!-- FIXED: Active Reservation Section -->
+        <section class="activity-section">
             <h2 class="section-title">ACTIVE RESERVATIONS (WAITLIST)</h2>
-            <div class="ledger-table">
-                <table class="ledger-activity-table">
+            <div class="table-wrapper">
+                <table class="activity-table">
                     <thead>
                         <tr>
                             <th>User Name</th>

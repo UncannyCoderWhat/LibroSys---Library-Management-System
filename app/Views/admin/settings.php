@@ -19,23 +19,28 @@ if (!isset($base_url)) {
     <?php require_once __DIR__ . '/sidebar.php'; ?>
 
     <div class="main-content-container">
-        <div class="section-header">
-            <div class="header-left">
-                <img src="<?php echo $base_url; ?>/images/lineMenu.png" class="menu-icon" alt="Menu">
-                <h2>Admin Settings</h2>
-            </div>
-            <div class="header-right">
-                <span>Admin</span>
-                <img src="<?php echo $base_url; ?>/images/profile.png" class="profile-pic" alt="Admin Profile">
+        <!-- Sub-Topbar Navigation -->
+        <div class="z-index">
+            <div class="dashboard-bar">
+                <div class="left-title">
+                    <img src="<?php echo $base_url; ?>/images/lineMenu.png" class="line-menu" alt="Menu Image">
+                    <span>Settings</span>
+                </div>
+                <div class="right-profile">
+                    <span>Admin</span>
+                    <div class="admin-profile">
+                        <img src="<?php echo $base_url; ?>/images/profile.png" alt="Admin Image">
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="settings-center-wrapper">
-            <main class="settings-profile-card" style="width: 100%; max-width: 700px; border-radius: 12px; margin-top: 0; min-height: auto; background-color: #ffffff;">
-                <a href="index.php?page=admin_dashboard" style="text-decoration: none; color: #666; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;"><i class="fa-solid fa-arrow-left"></i> Return to Dashboard</a>
+            <main class="settings-profile-card">
+                <a href="index.php?page=admin_dashboard" class="back-link"><i class="fa-solid fa-arrow-left"></i> Return to Dashboard</a>
                 
                 <?php if ($message): ?>
-                    <div class="status-badge <?php echo $message_type === 'success' ? 'available' : 'returned'; ?>" style="width: 100%; margin-bottom: 20px; padding: 12px; text-align: center; border-radius: 8px;">
+                    <div class="status-badge <?php echo $message_type === 'success' ? 'available' : 'returned'; ?>">
                         <?php echo htmlspecialchars($message); ?>
                     </div>
                 <?php endif; ?>
@@ -51,34 +56,34 @@ if (!isset($base_url)) {
                     </div>
                 </form>
 
-                <div class="settings-section-title" style="margin-top: 40px;">BOOK DATA MANAGEMENT (XML)</div>
-                <div style="padding-left: 20px; margin-bottom: 20px;">
-                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Backup and restore your library book collection.</p>
-                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                        <a href="index.php?page=admin_settings&export_books_xml=1" class="save-changes-btn" style="text-decoration: none; display: inline-block; background-color: #3b82f6;">Export Books to XML</a>
+                <div class="settings-section-title settings-section-title-spaced">BOOK DATA MANAGEMENT (XML)</div>
+                <div class="settings-data-section">
+                    <p class="settings-desc">Backup and restore your library book collection.</p>
+                    <div class="settings-actions-group">
+                        <a href="index.php?page=admin_settings&export_books_xml=1" class="save-changes-btn btn-blue">Export Books to XML</a>
                         
-                        <form action="index.php?page=admin_settings" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center; border-left: 1px solid #ddd; padding-left: 20px;">
-                            <input type="file" name="books_xml_file" accept=".xml" required style="font-size: 12px;">
-                            <button type="submit" name="import_books_xml" class="save-changes-btn" style="background-color: #3b82f6;">Import Books XML</button>
+                        <form action="index.php?page=admin_settings" method="POST" enctype="multipart/form-data" class="xml-import-form">
+                            <input type="file" name="books_xml_file" accept=".xml" required class="xml-file-input">
+                            <button type="submit" name="import_books_xml" class="save-changes-btn btn-blue">Import Books XML</button>
                         </form>
                     </div>
                 </div>
 
-                <div class="settings-section-title" style="margin-top: 40px;">USER DATA MANAGEMENT (XML)</div>
-                <div style="padding-left: 20px; margin-bottom: 20px;">
-                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Backup your library members and their entire borrow history.</p>
-                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                        <a href="index.php?page=admin_settings&export_users_xml=1" class="save-changes-btn" style="text-decoration: none; display: inline-block;">Export All Users & Borrows</a>
-                        <a href="index.php?page=admin_settings&export_full_xml=1" class="save-changes-btn" style="text-decoration: none; display: inline-block; background-color: #2a9d8f;">Export Full System (Books + Users)</a>
+                <div class="settings-section-title settings-section-title-spaced">USER DATA MANAGEMENT (XML)</div>
+                <div class="settings-data-section">
+                    <p class="settings-desc">Backup your library members and their entire borrow history.</p>
+                    <div class="settings-actions-group">
+                        <a href="index.php?page=admin_settings&export_users_xml=1" class="save-changes-btn btn-link">Export All Users & Borrows</a>
+                        <a href="index.php?page=admin_settings&export_full_xml=1" class="save-changes-btn btn-teal">Export Full System (Books + Users)</a>
                         
-                        <form action="index.php?page=admin_settings" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center; border-left: 1px solid #ddd; padding-left: 20px;">
-                            <input type="file" name="user_xml_file" accept=".xml" required style="font-size: 12px;">
+                        <form action="index.php?page=admin_settings" method="POST" enctype="multipart/form-data" class="xml-import-form">
+                            <input type="file" name="user_xml_file" accept=".xml" required class="xml-file-input">
                             <button type="submit" name="import_users_xml" class="save-changes-btn">Import XML</button>
                         </form>
                     </div>
                 </div>
 
-                <div class="settings-section-title" style="margin-top: 40px;">SECURITY</div>
+                <div class="settings-section-title settings-section-title-spaced">SECURITY</div>
                 <form action="index.php?page=admin_settings" method="POST">
                     <div class="settings-form-row">
                         <label>Current Password:</label>
@@ -97,11 +102,11 @@ if (!isset($base_url)) {
                     </div>
                 </form>
 
-                <div class="settings-section-title" style="margin-top: 40px; color: #dc3545;">DANGER ZONE</div>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px; padding-left: 20px;">Once you delete your admin account, you will lose all access to the LibroSys dashboard.</p>
+                <div class="settings-section-title settings-section-title-spaced settings-section-title-danger">DANGER ZONE</div>
+                <p class="settings-desc settings-desc-left">Once you delete your admin account, you will lose all access to the LibroSys dashboard.</p>
                 <form action="index.php?page=admin_settings" method="POST" onsubmit="return confirm('Are you ABSOLUTELY certain? This will permanently delete your administrator account.');">
-                    <div class="settings-save-area" style="justify-content: flex-start; padding-left: 20px; border: none;">
-                        <button type="submit" name="delete_account" style="background-color: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;">Delete Admin Account</button>
+                    <div class="settings-save-area settings-save-area-left">
+                        <button type="submit" name="delete_account" class="btn-danger">Delete Admin Account</button>
                     </div>
                 </form>
             </main>

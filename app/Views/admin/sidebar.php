@@ -6,7 +6,7 @@ if (!isset($base_url)) {
 <link rel="stylesheet" href="<?php echo $base_url; ?>/css/style.css">
 
 <div class="topbar">
-    <img src="<?php echo $base_url; ?>/images/LibroSys.png" alt="Logo">
+    <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="Logo">
 </div>
 
 <div class="sidebar">

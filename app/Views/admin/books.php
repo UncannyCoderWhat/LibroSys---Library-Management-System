@@ -17,14 +17,14 @@ if (!isset($base_url)) {
 <body>
     <?php require_once __DIR__ . '/sidebar.php'; ?>
     <main class="content-workspace">
-        <!-- Orange Sub-Topbar Navigation Title -->
+        <!-- Sub-Topbar Navigation -->
         <div class="z-index">
             <div class="dashboard-bar">
                 <div class="left-title">
                     <img src="<?php echo $base_url; ?>/images/lineMenu.png" class="line-menu" alt="Menu Image">
                     <span>Books</span>
                 </div>
-                <div class="books-right">
+                <div class="right-profile">
                     <span>Admin</span>
                     <div class="admin-profile">
                         <img src="<?php echo $base_url; ?>/images/profile.png" alt="Admin Image">
