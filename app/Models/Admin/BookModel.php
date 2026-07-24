@@ -828,8 +828,10 @@ class BookModel
             $normalizedTmp = str_replace('\\', '/', $tmp_file);
 
             if (class_exists('ZipArchive')) {
+
                 $zip = new ZipArchive();
                 if ($zip->open($tmp_file) === true) {
+
                     for ($i = 0; $i < $zip->numFiles; $i++) {
                         $name = $zip->getNameIndex($i);
                         $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
@@ -838,9 +840,12 @@ class BookModel
                         }
                     }
                     sort($image_files, SORT_NATURAL | SORT_FLAG_CASE);
+
                     foreach ($image_files as $page_number => $img_name) {
                         $image_data = $zip->getFromName($img_name);
-                        if ($image_data !== false && $this->isValidImageData($image_data)) {
+                        $valid = $image_data !== false && $this->isValidImageData($image_data);
+
+                        if ($valid) {
                             $ext = strtolower(pathinfo($img_name, PATHINFO_EXTENSION));
                             $file_name = time() . '_' . uniqid() . '_' . ($page_number + 1) . '.' . $ext;
                             $target_file = $upload_dir . $file_name;
@@ -852,6 +857,8 @@ class BookModel
                         }
                     }
                     $zip->close();
+                } else {
+
                 }
             } else {
                 $extracted = false;
@@ -927,10 +934,12 @@ class BookModel
             ")->execute([$total_pages, $chapterId]);
 
             $this->pdo->commit();
+
             return ['success' => true, 'message' => "Chapter uploaded with " . $total_pages . " pages."];
         } catch (Exception $e) {
             @unlink($tmp_file);
             $this->pdo->rollBack();
+
             return ['success' => false, 'message' => 'Error processing archive: ' . $e->getMessage()];
         }
     }
@@ -1002,23 +1011,6 @@ class BookModel
         ")->execute([count($pages), $chapterId]);
     }
 
-    private function deleteDirectory(string $dir): bool
-    {
-        if (!is_dir($dir)) {
-            return true;
-        }
-        $items = array_diff(scandir($dir), ['.', '..']);
-        foreach ($items as $item) {
-            $path = $dir . DIRECTORY_SEPARATOR . $item;
-            if (is_dir($path)) {
-                $this->deleteDirectory($path);
-            } else {
-                @unlink($path);
-            }
-        }
-        return @rmdir($dir);
-    }
-
     private function isValidImageData(string $data): bool
     {
         if (empty($data) || strlen($data) < 16) {
@@ -1035,6 +1027,23 @@ class BookModel
         }
         $info = @getimagesize($path);
         return $info !== false && isset($info[0], $info[1]);
+    }
+
+    private function deleteDirectory(string $dir): bool
+    {
+        if (!is_dir($dir)) {
+            return true;
+        }
+        $items = array_diff(scandir($dir), ['.', '..']);
+        foreach ($items as $item) {
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                $this->deleteDirectory($path);
+            } else {
+                @unlink($path);
+            }
+        }
+        return @rmdir($dir);
     }
 }
 

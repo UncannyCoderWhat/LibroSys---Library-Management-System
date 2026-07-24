@@ -323,10 +323,14 @@ class ClientModel
                 return ['status' => 'error', 'message' => 'This book is already overdue. Please return it and pay any applicable fines.'];
             }
 
+            if (!empty($borrow['extension_used'])) {
+                return ['status' => 'error', 'message' => 'You have already extended this loan.'];
+            }
+
             $extensionFee = 50;
             $newDueDate = date('Y-m-d H:i:s', strtotime('+7 days', $dueDate));
 
-            $update = $this->pdo->prepare("UPDATE borrows SET due_date = ?, fine_amount = fine_amount + ? WHERE id = ?");
+            $update = $this->pdo->prepare("UPDATE borrows SET due_date = ?, fine_amount = fine_amount + ?, extension_used = 1 WHERE id = ?");
             $update->execute([$newDueDate, $extensionFee, $borrowId]);
 
             $this->bookModel->syncBookAvailability($borrow['book_id']);
@@ -347,12 +351,16 @@ class ClientModel
                 return ['status' => 'error', 'message' => 'This book is available on the shelves. You should rent it instead!'];
             }
 
-            $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, status) VALUES (?, ?, ?, 'reserved')");
-            $insert->execute([$bookId, $userId, date('Y-m-d H:i:s')]);
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) + 1 FROM borrows WHERE book_id = ? AND status = 'reserved' AND borrow_date < ?");
+            $stmt->execute([$bookId, date('Y-m-d H:i:s')]);
+            $queuePosition = (int)$stmt->fetchColumn();
+
+            $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, status, queue_position) VALUES (?, ?, ?, 'reserved', ?)");
+            $insert->execute([$bookId, $userId, date('Y-m-d H:i:s'), $queuePosition]);
 
             $this->bookModel->syncBookAvailability($bookId);
 
-            return ['status' => 'success', 'message' => 'Book reserved successfully! You will be notified when it is returned.'];
+            return ['status' => 'success', 'message' => 'Book reserved successfully! Queue position: ' . $queuePosition];
         }
 
         if ($action === 'checkout') {
@@ -643,5 +651,17 @@ class ClientModel
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    public function getQueuePosition(int $userId, int $bookId): int
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT queue_position FROM borrows 
+            WHERE user_id = ? AND book_id = ? AND status = 'reserved'
+            LIMIT 1
+        ");
+        $stmt->execute([$userId, $bookId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? (int)$row['queue_position'] : 0;
     }
 }

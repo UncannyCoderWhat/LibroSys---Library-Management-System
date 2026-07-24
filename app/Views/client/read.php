@@ -10,6 +10,7 @@ $isManga = !empty($data['isManga']);
 $mangaChapters = $data['mangaChapters'] ?? [];
 $mangaPages = $data['mangaPages'] ?? [];
 $currentChapter = $data['currentChapter'] ?? null;
+$savedMangaPage = isset($data['currentPage']) ? (int)$data['currentPage'] : 1;
 
 $totalPages = count($content);
 $firstPage = $totalPages > 0 ? $content[0] : null;
@@ -680,7 +681,8 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
                 const bookId = <?php echo (int)$book['id']; ?>;
                 const chapterId = <?php echo $currentChapterId; ?>;
                 const pages = <?php echo json_encode(array_column($mangaPages, 'image_path')); ?>;
-                let currentPage = 0;
+                const savedPage = <?php echo $savedMangaPage; ?>;
+                let currentPage = Math.max(0, Math.min(savedPage - 1, pages.length - 1));
                 let mode = 'page';
 
                 function updateMangaUI() {
@@ -692,7 +694,7 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
                     fetch('index.php?page=ajax&action=save_reading_progress', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: 'book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(currentPage + 1)
+                        body: 'book_id=' + encodeURIComponent(bookId) + '&chapter_id=' + encodeURIComponent(chapterId) + '&page_number=' + encodeURIComponent(currentPage + 1)
                     }).catch(() => {});
                 }
 

@@ -4,6 +4,8 @@ $book = $data['book'] ?? [];
 $userStatus = $data['userStatus'] ?? null;
 $ebook = $data['ebook'] ?? null;
 $cartCount = $data['cartCount'] ?? 0;
+$savedPage = isset($data['savedPage']) ? (int)$data['savedPage'] : 1;
+$savedChapterId = isset($data['savedChapterId']) ? (int)$data['savedChapterId'] : 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -107,34 +109,51 @@ $cartCount = $data['cartCount'] ?? 0;
 
                     <!-- Action Buttons -->
                     <div class="bd-actions">
-                        <?php if ($userStatus === 'reading'): ?>
-                        <button class="bd-btn bd-btn-reading" disabled>
-                            <i class='bx bx-book-reader'></i> Reading
+                        <?php if ($userStatus === 'reading' || $userStatus === 'bookmarked'): 
+                            $bookType = strtolower($book['book_type'] ?? '');
+                            $genre = strtolower($book['genre'] ?? '');
+                            $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
+                            $continueUrl = 'index.php?page=read&id=' . (int)$book['id'];
+                            if ($isManga && $savedChapterId > 0) {
+                                $continueUrl .= '&chapter_id=' . $savedChapterId;
+                            }
+                        ?>
+                        <button class="bd-btn bd-btn-primary" onclick="continueReading(<?php echo (int)$book['id']; ?>, <?php echo $userStatus === 'bookmarked' ? 'true' : 'false'; ?>)">
+                            <i class='bx bx-book-reader'></i> Continue Reading
                         </button>
-                        <?php elseif ($userStatus === 'bookmarked'): ?>
-                        <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>&action=read_now'">
-                            <i class='bx bx-book-reader'></i> Read Now
-                        </button>
+                        <?php if ($userStatus === 'bookmarked'): ?>
                         <button class="bd-btn bd-btn-bookmarked" disabled>
                             <i class='bx bx-bookmark'></i> Bookmarked
                         </button>
+                        <?php endif; ?>
+                        <?php elseif ($userStatus === 'borrowed'): 
+                            $canExtend = !empty($userBorrow) && empty($userBorrow['extension_used']);
+                        ?>
+                        <button class="bd-btn bd-btn-return" onclick="returnBook(<?php echo (int)$book['id']; ?>)">
+                            <i class='bx bx-arrow-back'></i> Return Book
+                        </button>
+                        <?php if ($canExtend): ?>
+                        <button class="bd-btn bd-btn-extend" onclick="extendLoan(<?php echo (int)$book['id']; ?>)">
+                            <i class='bx bx-time'></i> Extend Loan
+                        </button>
                         <?php else: ?>
-                        <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>&action=read_now'">
-                            <i class='bx bx-book-reader'></i> Read Now
+                        <button class="bd-btn bd-btn-extend" disabled>
+                            <i class='bx bx-time'></i> Extension Used
+                        </button>
+                        <?php endif; ?>
+                        <?php else: ?>
+                        <?php if (($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
+                        <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
+                            <i class='bx bx-shopping-bag'></i> Borrow
                         </button>
                         <button class="bd-btn bd-btn-secondary" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>&action=bookmark'">
                             <i class='bx bx-bookmark'></i> Bookmark
                         </button>
+                        <?php else: ?>
+                        <button class="bd-btn bd-btn-reserve" onclick="reserveBook(<?php echo (int)$book['id']; ?>)">
+                            <i class='bx bx-time'></i> Reserve
+                        </button>
                         <?php endif; ?>
-
-                        <?php if ($userStatus !== 'borrowed' && ($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
-                        <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
-                            <i class='bx bx-shopping-bag'></i> Borrow
-                        </button>
-                        <?php elseif ($userStatus === 'borrowed'): ?>
-                        <button class="bd-btn bd-btn-borrow" disabled>
-                            <i class='bx bx-shopping-bag'></i> Borrowed
-                        </button>
                         <?php endif; ?>
                     </div>
 
@@ -421,6 +440,105 @@ $cartCount = $data['cartCount'] ?? 0;
             alert(data.message);
             if (data.status === 'success') {
                 closeBorrowModal();
+                window.location.reload();
+            }
+        })
+        .catch(err => alert('An error occurred. Please check your connection.'));
+    }
+
+    function returnBook(bookId) {
+        if (!confirm('Are you sure you want to return this book?')) return;
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+        formData.append('action', 'return');
+        formData.append('borrow_id', '<?php echo !empty($userBorrow) ? (int)$userBorrow['id'] : 0; ?>');
+        fetch('index.php?page=ajax&action=return_handler', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                window.location.reload();
+            }
+        })
+        .catch(err => alert('An error occurred. Please check your connection.'));
+    }
+
+    function extendLoan(bookId) {
+        if (!confirm('Extend this loan by 7 days? A ₱50 extension fee will be charged.')) return;
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+        formData.append('action', 'extend_borrowing');
+        fetch('index.php?page=ajax&action=borrow_handler', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                window.location.reload();
+            }
+        })
+        .catch(err => alert('An error occurred. Please check your connection.'));
+    }
+
+    function cancelReservation(bookId) {
+        if (!confirm('Cancel your reservation for this book?')) return;
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+        formData.append('action', 'cancel_reservation');
+        fetch('index.php?page=ajax&action=borrow_handler', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                window.location.reload();
+            }
+        })
+        .catch(err => alert('An error occurred. Please check your connection.'));
+    }
+
+    function continueReading(bookId, isBookmarked) {
+        if (isBookmarked) {
+            const formData = new FormData();
+            formData.append('book_id', bookId);
+            formData.append('action', 'read_now');
+            fetch('index.php?page=ajax&action=read_now', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' || data.status === 'info') {
+                    window.location.href = 'index.php?page=read&id=' + bookId;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => alert('An error occurred. Please check your connection.'));
+        } else {
+            window.location.href = 'index.php?page=read&id=' + bookId;
+        }
+    }
+
+    function reserveBook(bookId) {
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+        formData.append('action', 'reserve');
+        fetch('index.php?page=ajax&action=borrow_handler', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
                 window.location.reload();
             }
         })

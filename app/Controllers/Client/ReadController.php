@@ -51,6 +51,10 @@ class ReadController extends ClientController
 
         if ($isManga) {
             $chapterId = isset($_GET['chapter_id']) ? (int)$_GET['chapter_id'] : 0;
+            if ($chapterId <= 0) {
+                $mangaProgress = $this->getMangaReadingProgress($userId, $bookId);
+                $chapterId = (int)($mangaProgress['chapter_id'] ?? 0);
+            }
             $chapterData = $this->getMangaReadingData($bookId, $userId, $chapterId);
             return array_merge($chapterData, [
                 'book' => $book,
@@ -109,6 +113,40 @@ class ReadController extends ClientController
         $stmt->execute([$userId, $bookId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? (int)$row['page_number'] : 1;
+    }
+
+    private function getMangaReadingProgress(int $userId, int $bookId): array
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT chapter_id, page_number FROM reading_progress 
+                WHERE user_id = ? AND book_id = ? AND chapter_id IS NOT NULL
+                LIMIT 1
+            ");
+            $stmt->execute([$userId, $bookId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                return [
+                    'chapter_id' => (int)$row['chapter_id'],
+                    'page_number' => (int)$row['page_number'],
+                ];
+            }
+        } catch (PDOException $e) {
+            // chapter_id column may not exist yet
+        }
+
+        $stmt = $this->pdo->prepare("
+            SELECT page_number FROM reading_progress 
+            WHERE user_id = ? AND book_id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$userId, $bookId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return [
+            'chapter_id' => 0,
+            'page_number' => $row ? (int)$row['page_number'] : 1,
+        ];
     }
 
     private function generateBookContent(array $book): array
@@ -189,7 +227,14 @@ class ReadController extends ClientController
         }
 
         $pages = $this->bookModel->getChapterPages($currentChapterId);
-        $savedPage = $this->getReadingProgress($userId, $bookId);
+        $mangaProgress = $this->getMangaReadingProgress($userId, $bookId);
+        $savedPage = $mangaProgress['page_number'] ?? 1;
+
+        if ((int)$mangaProgress['chapter_id'] === $currentChapterId) {
+            $savedPage = $mangaProgress['page_number'] ?? 1;
+        } else {
+            $savedPage = 1;
+        }
 
         return [
             'mangaChapters' => $chapters,
