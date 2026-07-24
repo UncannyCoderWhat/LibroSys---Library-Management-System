@@ -26,13 +26,12 @@ $message_type = $data['message_type'] ?? '';
     <header class="main-header">
         <div class="header-content">
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
-            <label class="switch-container">
-            <input type="checkbox" id="theme-toggle" class="switch-input">
-            <div class="switch-track">
-                <div class="switch-thumb"></div>
-            </div>
-            <span class="switch-label">Dark Mode</span>
-           </label>
+                        <label class="main-toggle">
+                            <input type="checkbox" id="theme-toggle" class="main-checkbox">
+                            <div class="main-track"></div>
+                            <div class="main-knob"></div>
+                        </label>
+                    </label>
 
         </div>
     </header>

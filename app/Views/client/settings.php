@@ -56,13 +56,12 @@ $message_type    = $data['message_type'] ?? ''; // success|error
                         </div>
                     </div>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
-                    <label class="switch-container">
-                    <input type="checkbox" id="theme-toggle" class="switch-input">
-                    <div class="switch-track">
-                        <div class="switch-thumb"></div>
-                    </div>
-                    <span class="switch-label">Dark Mode</span>
-                   </label>
+                        <label class="main-toggle">
+                            <input type="checkbox" id="theme-toggle" class="main-checkbox">
+                            <div class="main-track"></div>
+                            <div class="main-knob"></div>
+                        </label>
+                    </label>
                 </div>
             </nav>
         </div>
