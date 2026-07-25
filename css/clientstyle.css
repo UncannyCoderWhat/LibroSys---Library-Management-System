@@ -20,7 +20,7 @@
 
 html[data-theme="light"] {
     /* LIGHT MODE */
-    --bg-color: #f8f9fa;
+    --bg-color: #f8faf9;
     --surface-color: #ffffff;
     --surface-color-secondary: #f1f3f5;
     --border-color: #dddddd;
@@ -4004,3 +4004,23 @@ img {
     -webkit-user-drag: none;
     user-drag: none;
 }
+
+
+
+/* ========================
+    FOR LIGHT MODE (MORE IN OTHER PART) - START
+=========================== */
+html[data-theme="light"] .ls-book-info-forLight p {
+    color: #c69f9f;
+}
+
+html[data-theme="light"] .ls-book-info-forLight h4 {
+    color: #ffffff;
+}
+
+html[data-theme="light"] .ls-section-title-forLight {
+    color: #ffffff;
+}
+/* ========================
+    FOR LIGHT MODE (MORE IN OTHER PART) - END
+=========================== */

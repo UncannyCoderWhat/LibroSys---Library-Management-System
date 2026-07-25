@@ -30,7 +30,6 @@ $book_type_groups = $data['book_type_groups'] ?? [];
     </script>
 </head>
 <body>
-<img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
 
     <header>
         <div class="client-top-bar">
@@ -391,7 +390,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                     <?php endif; ?>
                     <div class="ls-type-section-content">
                         <div class="ls-section-header">
-                            <h2 class="ls-section-title">
+                            <h2 class="ls-section-title ls-section-title-forLight">
                                 <i class="<?php echo $typeIcons[$typeName] ?? 'bx bxs-category'; ?>"></i>
                                 <?php echo htmlspecialchars($typeName); ?>
                             </h2>
@@ -417,7 +416,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                         <span class="ls-unavailable-badge">Not Available</span>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="ls-book-info">
+                                    <div class="ls-book-info ls-book-info-forLight">
                                         <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
                                         <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
                                     </div>
@@ -553,5 +552,6 @@ $book_type_groups = $data['book_type_groups'] ?? [];
     <script src="<?php echo $base_url; ?>/public/js/dropdown.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/browse.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/home.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
 </body>
 </html>

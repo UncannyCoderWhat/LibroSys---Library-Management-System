@@ -22,7 +22,6 @@ $cartCount = $data['cartCount'] ?? 0;
     </script>
 </head>
 <body>
-<img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
 <?php
 // DEBUG: Show query results
 $debug_mode = true;
@@ -379,6 +378,7 @@ if ($debug_mode):
     <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/dropdown.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
     <script>
     function switchLibTab(tabName, btn) {
         // Update tab buttons
