@@ -271,7 +271,6 @@ function openEditModal(book) {
     setVal('edit_publisher', book.publisher);
     setVal('edit_publication_year', book.publication_year);
     setVal('edit_language', book.language || 'English');
-    setVal('edit_shelf_location', book.shelf_location);
     setVal('edit_copies', book.copies || 1);
     setVal('edit_status', book.status || 'available');
     setVal('edit_category_id', book.category_id);

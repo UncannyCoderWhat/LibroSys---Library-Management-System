@@ -96,11 +96,13 @@ class BookDetailController extends ClientController
             return null;
         }
 
-        // Use book_copies table as the sole source of truth
+        // Use book_copies table as the sole source of truth for total copies
         $totalCopies = (int)($book['actual_copies'] ?? 0);
 
         $borrowedCount = (int)($book['borrowed_count'] ?? 0);
         $book['available_copies'] = max(0, $totalCopies - $borrowedCount);
+        // Override the denormalized 'copies' field with the actual count from book_copies
+        $book['copies'] = $totalCopies;
 
         return $book;
     }

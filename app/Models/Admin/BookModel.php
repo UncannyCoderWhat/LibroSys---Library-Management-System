@@ -85,7 +85,6 @@ class BookModel
         $publisher       = $post['publisher'] ?? '';
         $publication_year = !empty($post['publication_year']) ? (int)$post['publication_year'] : null;
         $language        = $post['language'] ?? 'English';
-        $shelf_location  = $post['shelf_location'] ?? '';
         $copies          = max(1, (int)($post['copies'] ?? 1));
         $description     = $post['description'] ?? '';
         $is_exclusive    = isset($post['is_exclusive']) ? 1 : 0;
@@ -149,13 +148,13 @@ class BookModel
             $stmt = $this->pdo->prepare("
                 INSERT INTO books 
                     (title, author, isbn, genre, book_type, publisher, publication_year, language, 
-                     shelf_location, copies, description, is_exclusive, status, 
+                     copies, description, is_exclusive, status, 
                      category_id, author_id, publisher_id, cover_path)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $title, $author, $isbn, $genre, $book_type, $publisher, $publication_year, $language,
-                $shelf_location, $copies, $description, $is_exclusive, $status,
+                $copies, $description, $is_exclusive, $status,
                 $category_id, $author_id, $publisher_id, $cover_path
             ]);
 
@@ -189,7 +188,6 @@ class BookModel
         $publisher        = $post['publisher'] ?? '';
         $publication_year = !empty($post['publication_year']) ? (int)$post['publication_year'] : null;
         $language         = $post['language'] ?? 'English';
-        $shelf_location   = $post['shelf_location'] ?? '';
         $copies           = max(1, (int)($post['copies'] ?? 1));
         $description      = $post['description'] ?? '';
         $is_exclusive     = isset($post['is_exclusive']) ? 1 : 0;
@@ -248,14 +246,14 @@ class BookModel
             $stmt = $this->pdo->prepare("
                 UPDATE books SET 
                     title = ?, author = ?, isbn = ?, genre = ?, book_type = ?, publisher = ?, 
-                    publication_year = ?, language = ?, shelf_location = ?, 
+                    publication_year = ?, language = ?, 
                     copies = ?, description = ?, is_exclusive = ?, status = ?,
                     category_id = ?, author_id = ?, publisher_id = ?, cover_path = ?
                 WHERE id = ?
             ");
             $stmt->execute([
                 $title, $author, $isbn, $genre, $book_type, $publisher, $publication_year, $language,
-                $shelf_location, $copies, $description, $is_exclusive, $status,
+                $copies, $description, $is_exclusive, $status,
                 $category_id, $author_id, $publisher_id, $cover_path, $id
             ]);
 

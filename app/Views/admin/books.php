@@ -100,7 +100,6 @@ if (!isset($base_url)) {
     <div><label>Publisher</label><input type="text" name="publisher"></div>
     <div><label>Publication Year</label><input type="number" name="publication_year" min="1000" max="2099"></div>
     <div><label>Language</label><input type="text" name="language" value="English"></div>
-    <div><label>Shelf Location</label><input type="text" name="shelf_location" placeholder="e.g. A-12"></div>
     <div><label>Copies</label><input type="number" name="copies" value="1" min="1"></div>
     <div><label>Status</label><select name="status"><option value="available">Available</option><option value="unavailable">Unavailable</option><option value="archived">Archived</option></select></div>
     <div><label>Category</label><select name="category_id"><option value="">-- Select Category --</option><?php foreach($all_categories??[] as $cat):?><option value="<?php echo $cat['id'];?>"><?php echo htmlspecialchars($cat['name']);?></option><?php endforeach;?></select></div>
@@ -123,7 +122,6 @@ if (!isset($base_url)) {
     <div><label>Publisher</label><input type="text" name="publisher" id="edit_publisher"></div>
     <div><label>Publication Year</label><input type="number" name="publication_year" id="edit_publication_year" min="1000" max="2099"></div>
     <div><label>Language</label><input type="text" name="language" id="edit_language"></div>
-    <div><label>Shelf Location</label><input type="text" name="shelf_location" id="edit_shelf_location"></div>
     <div><label>Copies</label><input type="number" name="copies" id="edit_copies" min="1"></div>
     <div><label>Status</label><select name="status" id="edit_status"><option value="available">Available</option><option value="unavailable">Unavailable</option><option value="archived">Archived</option></select></div>
     <div><label>Category</label><select name="category_id" id="edit_category_id"><option value="">-- Select Category --</option><?php foreach($all_categories??[] as $cat):?><option value="<?php echo $cat['id'];?>"><?php echo htmlspecialchars($cat['name']);?></option><?php endforeach;?></select></div>

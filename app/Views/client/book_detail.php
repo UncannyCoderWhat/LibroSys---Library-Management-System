@@ -295,12 +295,7 @@ $userBorrow = $data['userBorrow'] ?? null;
                                 <?php endif; ?>
                             </span>
                         </div>
-                        <?php if (!empty($book['shelf_location'])): ?>
-                        <div class="bd-detail-item">
-                            <span class="bd-detail-label">Shelf Location</span>
-                            <span class="bd-detail-value"><?php echo htmlspecialchars($book['shelf_location']); ?></span>
-                        </div>
-                        <?php endif; ?>
+
                     </div>
                 </div>
             </div>

@@ -366,9 +366,22 @@ class ClientModel
                 return ['status' => 'error', 'message' => 'You already have an active request for this book.'];
             }
 
+            // Check book_copies table for actual available copies
+            $copiesStmt = $this->pdo->prepare("SELECT COUNT(*) FROM book_copies WHERE book_id = ?");
+            $copiesStmt->execute([$bookId]);
+            $totalCopies = (int)$copiesStmt->fetchColumn();
+
+            if ($totalCopies === 0) {
+                return ['status' => 'error', 'message' => 'No copies of this book are available for reservation.'];
+            }
+
             $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved')");
             $stmt->execute([$bookId]);
-            if ((int)$stmt->fetchColumn() === 0) {
+            $activeBorrows = (int)$stmt->fetchColumn();
+
+            if ($activeBorrows >= $totalCopies) {
+                // All copies are borrowed, reservation is valid - proceed below
+            } else {
                 return ['status' => 'error', 'message' => 'This book is available on the shelves. You should rent it instead!'];
             }
 
