@@ -270,7 +270,18 @@ class ClientModel
         }
 
         if ($action === 'borrow') {
-            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
+            $userStmt = $this->pdo->prepare("SELECT id, status FROM borrows WHERE book_id = ? AND user_id = ? AND status IN ('reading', 'borrowed') LIMIT 1");
+            $userStmt->execute([$bookId, $userId]);
+            $userExisting = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($userExisting) {
+                if ($userExisting['status'] === 'borrowed') {
+                    return ['status' => 'error', 'message' => 'You have already borrowed this book.'];
+                }
+                return ['status' => 'error', 'message' => 'You are already reading this book. Please finish reading before borrowing.'];
+            }
+
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reading')");
             $stmt->execute([$bookId]);
             if ((int)$stmt->fetchColumn() > 0) {
                 return ['status' => 'error', 'message' => 'This book is currently out on loan.'];
@@ -309,7 +320,7 @@ class ClientModel
                 return ['status' => 'error', 'message' => 'Invalid borrow record.'];
             }
 
-            $stmt = $this->pdo->prepare("SELECT br.*, b.title FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.id = ? AND br.user_id = ? AND br.status = 'borrowed'");
+            $stmt = $this->pdo->prepare("SELECT br.*, b.title FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.id = ? AND br.user_id = ? AND br.status IN ('borrowed', 'reading')");
             $stmt->execute([$borrowId, $userId]);
             $borrow = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -355,8 +366,8 @@ class ClientModel
             $stmt->execute([$bookId, date('Y-m-d H:i:s')]);
             $queuePosition = (int)$stmt->fetchColumn();
 
-            $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, status, queue_position) VALUES (?, ?, ?, 'reserved', ?)");
-            $insert->execute([$bookId, $userId, date('Y-m-d H:i:s'), $queuePosition]);
+            $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, status) VALUES (?, ?, ?, 'reserved')");
+            $insert->execute([$bookId, $userId, date('Y-m-d H:i:s')]);
 
             $this->bookModel->syncBookAvailability($bookId);
 
@@ -373,30 +384,51 @@ class ClientModel
             $successCount = 0;
 
             foreach ($session['borrow_cart'] as $key => $id) {
-                $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
+                $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reading')");
                 $stmt->execute([$id]);
                 $isBorrowed = (int)$stmt->fetchColumn() > 0;
+
+                $userStmt = $this->pdo->prepare("SELECT id, status FROM borrows WHERE book_id = ? AND user_id = ? AND status IN ('reading', 'borrowed') LIMIT 1");
+                $userStmt->execute([$id, $userId]);
+                $userExisting = $userStmt->fetch(PDO::FETCH_ASSOC);
 
                 $qStmt = $this->pdo->prepare("SELECT user_id FROM borrows WHERE book_id = ? AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1");
                 $qStmt->execute([$id]);
                 $firstInLine = $qStmt->fetchColumn();
                 $isHeldForOthers = ($firstInLine && (int)$firstInLine !== $userId);
 
+                if ($isBorrowed && !$userExisting) {
+                    continue;
+                }
+
+                if ($isHeldForOthers && !$userExisting) {
+                    continue;
+                }
+
                 $bookStmt = $this->pdo->prepare("SELECT is_exclusive FROM books WHERE id = ?");
                 $bookStmt->execute([$id]);
                 $b = $bookStmt->fetch(PDO::FETCH_ASSOC);
 
-                if (!$isBorrowed && !$isHeldForOthers) {
-                    if (!empty($b['is_exclusive']) && (int)($user['credit_score'] ?? 0) <= 5) {
-                        continue;
+                if ($userExisting) {
+                    if ($userExisting['status'] === 'reading') {
+                        $upd = $this->pdo->prepare("UPDATE borrows SET status = 'borrowed', borrow_date = NOW(), due_date = ? WHERE id = ?");
+                        $upd->execute([$dueDate, $userExisting['id']]);
+                        $this->bookModel->syncBookAvailability($id);
+                        $successCount++;
+                        unset($session['borrow_cart'][$key]);
                     }
-
-                    $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, due_date, status) VALUES (?, ?, ?, ?, 'borrowed')");
-                    $insert->execute([$id, $userId, $borrowDate, $dueDate]);
-                    $this->bookModel->syncBookAvailability($id);
-                    $successCount++;
-                    unset($session['borrow_cart'][$key]);
+                    continue;
                 }
+
+                if (!empty($b['is_exclusive']) && (int)($user['credit_score'] ?? 0) <= 5) {
+                    continue;
+                }
+
+                $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, due_date, status) VALUES (?, ?, ?, ?, 'borrowed')");
+                $insert->execute([$id, $userId, $borrowDate, $dueDate]);
+                $this->bookModel->syncBookAvailability($id);
+                $successCount++;
+                unset($session['borrow_cart'][$key]);
             }
 
             $session['borrow_cart'] = array_values($session['borrow_cart']);
@@ -473,12 +505,16 @@ class ClientModel
 
     public function handleReturnAction(int $userId, int $borrowId): array
     {
-        $stmt = $this->pdo->prepare("SELECT br.*, b.title FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.id = ? AND br.user_id = ? AND br.status = 'borrowed'");
+        $stmt = $this->pdo->prepare("SELECT br.*, b.title, b.id as book_id FROM borrows br JOIN books b ON br.book_id = b.id WHERE br.id = ? AND br.user_id = ?");
         $stmt->execute([$borrowId, $userId]);
         $borrow = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$borrow) {
             return ['status' => 'error', 'message' => 'Active borrow record not found.'];
+        }
+
+        if (!in_array($borrow['status'], ['borrowed', 'reading'], true)) {
+            return ['status' => 'error', 'message' => 'This book is not currently borrowed.'];
         }
 
         $now = date('Y-m-d H:i:s');
@@ -494,8 +530,8 @@ class ClientModel
             else $fine = $daysLate * 150;
         }
 
-        $update = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE id = ?");
-        $update->execute([$now, $fine, $borrowId]);
+        $update = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'reading')");
+        $update->execute([$now, $fine, $userId, $borrow['book_id']]);
 
         $this->bookModel->syncBookAvailability($borrow['book_id']);
 
@@ -656,12 +692,12 @@ class ClientModel
     public function getQueuePosition(int $userId, int $bookId): int
     {
         $stmt = $this->pdo->prepare("
-            SELECT queue_position FROM borrows 
-            WHERE user_id = ? AND book_id = ? AND status = 'reserved'
-            LIMIT 1
+            SELECT COUNT(*) FROM borrows 
+            WHERE book_id = ? AND status = 'reserved' AND borrow_date <= (
+                SELECT borrow_date FROM borrows WHERE user_id = ? AND book_id = ? AND status = 'reserved' LIMIT 1
+            )
         ");
-        $stmt->execute([$userId, $bookId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? (int)$row['queue_position'] : 0;
+        $stmt->execute([$bookId, $userId, $bookId]);
+        return (int)$stmt->fetchColumn();
     }
 }
