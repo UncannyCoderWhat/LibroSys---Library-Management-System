@@ -6,6 +6,7 @@ $ebook = $data['ebook'] ?? null;
 $cartCount = $data['cartCount'] ?? 0;
 $savedPage = isset($data['savedPage']) ? (int)$data['savedPage'] : 1;
 $savedChapterId = isset($data['savedChapterId']) ? (int)$data['savedChapterId'] : 0;
+$userBorrow = $data['userBorrow'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -128,6 +129,9 @@ $savedChapterId = isset($data['savedChapterId']) ? (int)$data['savedChapterId'] 
                         <?php endif; ?>
                         <?php elseif ($userStatus === 'borrowed'): 
                             $canExtend = !empty($userBorrow) && empty($userBorrow['extension_used']);
+                            $bookType = strtolower($book['book_type'] ?? '');
+                            $genre = strtolower($book['genre'] ?? '');
+                            $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
                         ?>
                         <button class="bd-btn bd-btn-return" onclick="returnBook(<?php echo (int)$book['id']; ?>)">
                             <i class='bx bx-arrow-back'></i> Return Book
@@ -139,6 +143,11 @@ $savedChapterId = isset($data['savedChapterId']) ? (int)$data['savedChapterId'] 
                         <?php else: ?>
                         <button class="bd-btn bd-btn-extend" disabled>
                             <i class='bx bx-time'></i> Extension Used
+                        </button>
+                        <?php endif; ?>
+                        <?php if ($isManga): ?>
+                        <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
+                            <i class='bx bx-book-reader'></i> Read Manga
                         </button>
                         <?php endif; ?>
                         <?php else: ?>
@@ -154,6 +163,11 @@ $savedChapterId = isset($data['savedChapterId']) ? (int)$data['savedChapterId'] 
                             <i class='bx bx-time'></i> Reserve
                         </button>
                         <?php endif; ?>
+                        <?php endif; ?>
+                        <?php if ($ebook && !empty($ebook['file_path'])): ?>
+                        <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
+                            <i class='bx bx-file-pdf'></i> Read eBook
+                        </button>
                         <?php endif; ?>
                     </div>
 
@@ -470,6 +484,7 @@ $savedChapterId = isset($data['savedChapterId']) ? (int)$data['savedChapterId'] 
         if (!confirm('Extend this loan by 7 days? A ₱50 extension fee will be charged.')) return;
         const formData = new FormData();
         formData.append('book_id', bookId);
+        formData.append('borrow_id', '<?php echo !empty($userBorrow) ? (int)$userBorrow['id'] : 0; ?>');
         formData.append('action', 'extend_borrowing');
         fetch('index.php?page=ajax&action=borrow_handler', {
             method: 'POST',

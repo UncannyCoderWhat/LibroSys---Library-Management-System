@@ -320,7 +320,7 @@ class BookModel
 
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*) FROM borrows 
-            WHERE book_id = ? AND status IN ('borrowed', 'reserved')
+            WHERE book_id = ? AND status IN ('borrowed', 'reading', 'reserved')
         ");
         $stmt->execute([$bookId]);
         $activeBorrows = (int)$stmt->fetchColumn();

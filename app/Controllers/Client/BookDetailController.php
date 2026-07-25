@@ -83,7 +83,7 @@ class BookDetailController extends ClientController
         $stmt = $this->pdo->prepare("
             SELECT b.*, 
                    COALESCE(a.name, b.author) as author_name,
-                   (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as borrowed_count
+                   (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status IN ('borrowed', 'reading')) as borrowed_count
             FROM books b
             LEFT JOIN authors a ON b.author_id = a.id
             WHERE b.id = ? AND b.is_deleted = 0 AND b.status != 'archived'
@@ -175,37 +175,40 @@ class BookDetailController extends ClientController
 
     public function handleReadNow(int $userId, int $bookId): array
     {
-        // Check if already reading or bookmarked
         $stmt = $this->pdo->prepare("
             SELECT id, status FROM borrows 
             WHERE user_id = ? AND book_id = ? 
-            AND status IN ('reading', 'bookmarked')
+            AND status IN ('reading', 'bookmarked', 'borrowed')
         ");
         $stmt->execute([$userId, $bookId]);
         $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($existing) {
+            if ($existing['status'] === 'borrowed' || $existing['status'] === 'reading') {
+                return ['status' => 'info', 'message' => 'You are already reading this book.'];
+            }
+
             if ($existing['status'] === 'bookmarked') {
-                // Upgrade from bookmarked to reading
                 $update = $this->pdo->prepare("UPDATE borrows SET status = 'reading', borrow_date = NOW() WHERE id = ?");
                 $update->execute([$existing['id']]);
                 return ['status' => 'success', 'message' => 'Book moved to Reading!'];
             }
-            return ['status' => 'info', 'message' => 'Book is already in your Reading list.'];
         }
 
-        // Check book exists and is not deleted or archived
         $stmt = $this->pdo->prepare("SELECT id FROM books WHERE id = ? AND is_deleted = 0 AND status != 'archived'");
         $stmt->execute([$bookId]);
         if (!$stmt->fetch()) {
             return ['status' => 'error', 'message' => 'Book not found or no longer available.'];
         }
 
-        $insert = $this->pdo->prepare("
+        $stmt = $this->pdo->prepare("
             INSERT INTO borrows (book_id, user_id, borrow_date, status) 
             VALUES (?, ?, NOW(), 'reading')
         ");
-        $insert->execute([$bookId, $userId]);
+        $stmt->execute([$bookId, $userId]);
+
+        $this->bookModel->syncBookAvailability($bookId);
+
         return ['status' => 'success', 'message' => 'Book added to your Reading list!'];
     }
 
