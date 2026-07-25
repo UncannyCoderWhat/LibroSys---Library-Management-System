@@ -1,5 +1,5 @@
 /**
- * clientBG.js - Fully Adaptive Library Animated Background
+ * clientBG.js - Fully Adaptive Library Animated Background (Optimized)
  * Static bookshelf background with smooth floating books, dust, and dynamic light.
  */
 
@@ -22,7 +22,7 @@ class ClientBG {
     this.height = 0;
     this.particles = [];
     this.books = [];
-    this.staticShelfBooks = []; // Fixed pre-rendered shelf books
+    this.staticShelfBooks = [];
     this.animationFrameId = null;
 
     this.mouse = {
@@ -34,7 +34,6 @@ class ClientBG {
       down: false,
     };
 
-    // Color Schemas
     this.themes = {
       dark: {
         bgInner: '#1a100a',
@@ -43,7 +42,7 @@ class ClientBG {
         leather: ['#3e1f17', '#2b170e', '#4a2511', '#1f0d07', '#5c2d18', '#1c2217', '#151f28'],
         gold: 'rgba(212, 163, 89, 0.8)',
         paper: '#e8d8b8',
-        dust: 'rgba(230, 200, 150, ',
+        dust: 'rgba(230, 200, 150, 1)',
         lightGlowInner: 'rgba(255, 215, 130, 0.35)',
         lightGlowMid: 'rgba(212, 163, 89, 0.15)',
         overlayHeading: 'rgba(240, 230, 210, 0.85)',
@@ -57,7 +56,7 @@ class ClientBG {
         leather: ['#a64b2a', '#7a3118', '#c07842', '#8d5b36', '#4a6b52', '#3b5266', '#d19045'],
         gold: 'rgba(168, 115, 30, 0.9)',
         paper: '#fffdfa',
-        dust: 'rgba(140, 90, 40, ',
+        dust: 'rgba(140, 90, 40, 1)',
         lightGlowInner: 'rgba(255, 230, 150, 0.55)',
         lightGlowMid: 'rgba(230, 180, 100, 0.25)',
         overlayHeading: '#3b2314',
@@ -68,7 +67,7 @@ class ClientBG {
 
     this.isLightMode = false;
     this.themeProgress = 0; 
-
+    this.activeColors = {}; // Cached frame colors
     this.runes = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZαβγδεζηθικλμνξοπρστυφχψω0123456789';
 
     this.init();
@@ -181,6 +180,15 @@ class ClientBG {
     window.addEventListener('mousedown', () => (this.mouse.down = true));
     window.addEventListener('mouseup', () => (this.mouse.down = false));
 
+    // Pause animation loop when tab is unfocused/hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+      } else {
+        this.animate();
+      }
+    });
+
     if (window.matchMedia) {
       window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
         this.detectTheme();
@@ -190,8 +198,6 @@ class ClientBG {
     const observer = new MutationObserver(() => this.detectTheme());
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-theme'] });
-
-    setInterval(() => this.detectTheme(), 500);
   }
 
   handleResize() {
@@ -204,13 +210,12 @@ class ClientBG {
   }
 
   initElements() {
-    const pCount = this.options.particleCount || Math.floor((this.width * this.height) / 8000);
-    const bCount = this.options.bookCount || Math.floor(this.width / 90);
+    const pCount = this.options.particleCount || Math.floor((this.width * this.height) / 10000);
+    const bCount = this.options.bookCount || Math.floor(this.width / 110);
 
     this.particles = Array.from({ length: pCount }, () => new DustParticle(this));
     this.books = Array.from({ length: bCount }, () => new FloatingBook(this));
 
-    // Pre-generate FIXED shelf book layout so they never re-render or flicker
     this.generateStaticShelves();
   }
 
@@ -245,7 +250,7 @@ class ClientBG {
         if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
         const num = parseInt(hex, 16);
         return [num >> 16, (num >> 8) & 255, num & 255, 1];
-      } else if (c.startsWith('rgba')) {
+      } else if (c.startsWith('rgba') || c.startsWith('rgb')) {
         return c.match(/\d+(\.\d+)?/g).map(Number);
       }
       return [0, 0, 0, 1];
@@ -262,35 +267,49 @@ class ClientBG {
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
 
-  getActiveColor(key) {
-    return this.lerpColor(this.themes.dark[key], this.themes.light[key], this.themeProgress);
+  // Caches colors once per frame instead of recalculating during renders
+  updateFrameColors() {
+    const p = this.themeProgress;
+    const dark = this.themes.dark;
+    const light = this.themes.light;
+
+    this.activeColors = {
+      bgInner: this.lerpColor(dark.bgInner, light.bgInner, p),
+      bgOuter: this.lerpColor(dark.bgOuter, light.bgOuter, p),
+      shelf: this.lerpColor(dark.shelf, light.shelf, p),
+      gold: this.lerpColor(dark.gold, light.gold, p),
+      paper: this.lerpColor(dark.paper, light.paper, p),
+      dust: this.lerpColor(dark.dust, light.dust, p),
+      lightGlowInner: this.lerpColor(dark.lightGlowInner, light.lightGlowInner, p),
+      lightGlowMid: this.lerpColor(dark.lightGlowMid, light.lightGlowMid, p),
+      overlayHeading: this.lerpColor(dark.overlayHeading, light.overlayHeading, p),
+      overlaySub: this.lerpColor(dark.overlaySub, light.overlaySub, p),
+      shadow: this.lerpColor(dark.shadow, light.shadow, p),
+      leather: dark.leather.map((c, i) => this.lerpColor(c, light.leather[i], p))
+    };
   }
 
   drawBackgroundShelves() {
     const ctx = this.ctx;
     ctx.save();
-    ctx.fillStyle = this.getActiveColor('shelf');
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = this.getActiveColor('shadow');
+    ctx.fillStyle = this.activeColors.shelf;
 
     const shelfHeights = [this.height * 0.25, this.height * 0.55, this.height * 0.85];
 
-    // Draw planks
     shelfHeights.forEach((sy) => {
       ctx.fillRect(0, sy, this.width, 14);
     });
 
-    // Draw static pre-computed books
     this.staticShelfBooks.forEach((b) => {
-      ctx.save();
       if (b.isLeaning) {
+        ctx.save();
         ctx.translate(b.x, b.sy);
         ctx.rotate(0.15);
         ctx.fillRect(0, -b.height, b.width, b.height);
+        ctx.restore();
       } else {
         ctx.fillRect(b.x, b.sy - b.height, b.width, b.height);
       }
-      ctx.restore();
     });
 
     ctx.restore();
@@ -303,17 +322,20 @@ class ClientBG {
     this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.08;
     this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.08;
 
+    // Cache colors for this frame
+    this.updateFrameColors();
+
     const ctx = this.ctx;
 
     if (this.overlay) {
       const h1 = this.overlay.querySelector('h1');
       const p = this.overlay.querySelector('p');
-      if (h1) h1.style.color = this.getActiveColor('overlayHeading');
-      if (p) p.style.color = this.getActiveColor('overlaySub');
+      if (h1) h1.style.color = this.activeColors.overlayHeading;
+      if (p) p.style.color = this.activeColors.overlaySub;
     }
 
     // Outer Background
-    ctx.fillStyle = this.getActiveColor('bgOuter');
+    ctx.fillStyle = this.activeColors.bgOuter;
     ctx.fillRect(0, 0, this.width, this.height);
 
     // Vignette
@@ -325,15 +347,15 @@ class ClientBG {
       this.height / 2,
       Math.max(this.width, this.height) * 0.8
     );
-    bgGlow.addColorStop(0, this.getActiveColor('bgInner'));
-    bgGlow.addColorStop(1, this.getActiveColor('bgOuter'));
+    bgGlow.addColorStop(0, this.activeColors.bgInner);
+    bgGlow.addColorStop(1, this.activeColors.bgOuter);
     ctx.fillStyle = bgGlow;
     ctx.fillRect(0, 0, this.width, this.height);
 
     // Static Shelves
     this.drawBackgroundShelves();
 
-    // Smooth Floating Books
+    // Floating Books
     this.books.forEach((book) => {
       book.update();
       book.draw();
@@ -359,8 +381,8 @@ class ClientBG {
       lightRadius
     );
 
-    lanternGlow.addColorStop(0, this.getActiveColor('lightGlowInner'));
-    lanternGlow.addColorStop(0.4, this.getActiveColor('lightGlowMid'));
+    lanternGlow.addColorStop(0, this.activeColors.lightGlowInner);
+    lanternGlow.addColorStop(0.4, this.activeColors.lightGlowMid);
     lanternGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
     ctx.fillStyle = lanternGlow;
@@ -440,18 +462,16 @@ class DustParticle {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
 
-    const particleColor = this.app.getActiveColor('dust');
-
     if (this.char) {
       ctx.font = `${Math.floor(this.size * 5)}px serif`;
-      ctx.fillStyle = `${particleColor}${this.alpha * 0.8})`;
+      ctx.fillStyle = this.app.activeColors.dust;
+      ctx.globalAlpha = this.alpha * 0.8;
       ctx.fillText(this.char, 0, 0);
     } else {
       ctx.beginPath();
       ctx.arc(0, 0, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = `${particleColor}${this.alpha})`;
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = this.app.getActiveColor('gold');
+      ctx.fillStyle = this.app.activeColors.dust;
+      ctx.globalAlpha = this.alpha;
       ctx.fill();
     }
 
@@ -491,12 +511,6 @@ class FloatingBook {
     this.hasGoldDetails = Math.random() > 0.4;
   }
 
-  getCoverColor() {
-    const darkLeather = this.app.themes.dark.leather[this.colorIndex];
-    const lightLeather = this.app.themes.light.leather[this.colorIndex];
-    return this.app.lerpColor(darkLeather, lightLeather, this.app.themeProgress);
-  }
-
   update() {
     this.x += this.vx;
     this.y += this.vy;
@@ -533,21 +547,23 @@ class FloatingBook {
     ctx.rotate(this.rotZ);
 
     const effW = this.w * Math.abs(cosY);
-    const coverColor = this.getCoverColor();
+    const coverColor = this.app.activeColors.leather[this.colorIndex];
 
-    // Shadow
+    // Shadow via radial gradient (Optimized substitute for ctx.filter = 'blur()')
     ctx.save();
     ctx.translate(0, 40 * this.z);
     ctx.scale(1, 0.3);
+    const shadowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, this.w * 0.8);
+    shadowGrad.addColorStop(0, this.app.activeColors.shadow);
+    shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = shadowGrad;
     ctx.beginPath();
     ctx.arc(0, 0, this.w * 0.8, 0, Math.PI * 2);
-    ctx.fillStyle = this.app.getActiveColor('shadow');
-    ctx.filter = 'blur(10px)';
     ctx.fill();
     ctx.restore();
 
     // Pages Block
-    ctx.fillStyle = this.app.getActiveColor('paper');
+    ctx.fillStyle = this.app.activeColors.paper;
     ctx.beginPath();
     ctx.rect(-effW / 2 + 2, -this.h / 2 + 2, effW - 4, this.h);
     ctx.fill();
@@ -563,11 +579,15 @@ class FloatingBook {
     ctx.transform(cosY, tilt, 0, 1, 0, 0);
     ctx.fillStyle = coverColor;
     ctx.beginPath();
-    ctx.roundRect(-this.w / 2, -this.h / 2, this.w, this.h, [2]);
+    if (ctx.roundRect) {
+      ctx.roundRect(-this.w / 2, -this.h / 2, this.w, this.h, [2]);
+    } else {
+      ctx.rect(-this.w / 2, -this.h / 2, this.w, this.h);
+    }
     ctx.fill();
 
     if (this.hasGoldDetails && Math.abs(cosY) > 0.3) {
-      ctx.strokeStyle = this.app.getActiveColor('gold');
+      ctx.strokeStyle = this.app.activeColors.gold;
       ctx.lineWidth = 1.5 * this.z;
       ctx.strokeRect(-this.w / 2 + 4, -this.h / 2 + 4, this.w - 8, this.h - 8);
       ctx.beginPath();
@@ -578,7 +598,7 @@ class FloatingBook {
 
     // Animated Pages
     const flapOffset = Math.sin(this.pageFlap) * 15 * this.z;
-    ctx.strokeStyle = this.app.getActiveColor('paper');
+    ctx.strokeStyle = this.app.activeColors.paper;
     ctx.lineWidth = 1 * this.z;
     ctx.beginPath();
     ctx.moveTo(0, -this.h / 2);
