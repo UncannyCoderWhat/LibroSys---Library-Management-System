@@ -172,19 +172,17 @@ class AjaxController extends ClientController
 
         try {
             if ($chapterId > 0) {
-                $stmt = $this->pdo->prepare("
-                    INSERT INTO reading_progress (user_id, book_id, chapter_id, page_number, updated_at)
-                    VALUES (?, ?, ?, ?, NOW())
-                    ON DUPLICATE KEY UPDATE chapter_id = ?, page_number = ?, updated_at = NOW()
-                ");
-                $stmt->execute([$userId, $bookId, $chapterId, $pageNumber, $chapterId, $pageNumber]);
+                // Delete previous progress for this chapter first, then insert fresh
+                $stmt = $this->pdo->prepare("DELETE FROM reading_progress WHERE user_id = ? AND book_id = ? AND chapter_id = ?");
+                $stmt->execute([$userId, $bookId, $chapterId]);
+                $stmt = $this->pdo->prepare("INSERT INTO reading_progress (user_id, book_id, chapter_id, page_number, updated_at) VALUES (?, ?, ?, ?, NOW())");
+                $stmt->execute([$userId, $bookId, $chapterId, $pageNumber]);
             } else {
-                $stmt = $this->pdo->prepare("
-                    INSERT INTO reading_progress (user_id, book_id, page_number, updated_at)
-                    VALUES (?, ?, ?, NOW())
-                    ON DUPLICATE KEY UPDATE page_number = ?, updated_at = NOW()
-                ");
-                $stmt->execute([$userId, $bookId, $pageNumber, $pageNumber]);
+                // Delete previous progress for this book (no chapter), then insert fresh
+                $stmt = $this->pdo->prepare("DELETE FROM reading_progress WHERE user_id = ? AND book_id = ? AND chapter_id IS NULL");
+                $stmt->execute([$userId, $bookId]);
+                $stmt = $this->pdo->prepare("INSERT INTO reading_progress (user_id, book_id, page_number, updated_at) VALUES (?, ?, ?, NOW())");
+                $stmt->execute([$userId, $bookId, $pageNumber]);
             }
             echo json_encode(['status' => 'success']);
         } catch (PDOException $e) {
@@ -210,7 +208,7 @@ class AjaxController extends ClientController
         }
 
         try {
-            $stmt = $this->pdo->prepare("SELECT page_number FROM reading_progress WHERE user_id = ? AND book_id = ?");
+            $stmt = $this->pdo->prepare("SELECT page_number FROM reading_progress WHERE user_id = ? AND book_id = ? AND chapter_id IS NULL");
             $stmt->execute([$userId, $bookId]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $pageNumber = $row ? (int)$row['page_number'] : 1;

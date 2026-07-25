@@ -1122,7 +1122,6 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
         }
     });
     </script>
-<script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
 <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
 </body>
 </html>

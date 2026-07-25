@@ -102,7 +102,7 @@ class BookDetailController extends ClientController
         $stmt = $this->pdo->prepare("
             SELECT b.*, 
                    COALESCE(a.name, b.author) as author_name,
-                   (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status IN ('borrowed', 'reading')) as borrowed_count,
+                   (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as borrowed_count,
                    (SELECT COUNT(*) FROM book_copies WHERE book_id = b.id) as actual_copies
             FROM books b
             LEFT JOIN authors a ON b.author_id = a.id
@@ -193,7 +193,7 @@ class BookDetailController extends ClientController
     {
         $stmt = $this->pdo->prepare("
             SELECT page_number FROM reading_progress 
-            WHERE user_id = ? AND book_id = ?
+            WHERE user_id = ? AND book_id = ? AND chapter_id IS NULL
         ");
         $stmt->execute([$userId, $bookId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

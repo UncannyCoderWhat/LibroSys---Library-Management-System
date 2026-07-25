@@ -279,19 +279,19 @@ class ClientModel
                 if ($userExisting['status'] === 'borrowed') {
                     return ['status' => 'error', 'message' => 'You have already borrowed this book.'];
                 }
-                if ($userExisting['status'] === 'reading') {
-                    return ['status' => 'error', 'message' => 'You are already reading this book. Please finish reading before borrowing.'];
-                }
+                // If 'reading' (digital), allow borrowing physical copy — they coexist
                 // If bookmarked, remove the bookmark record before proceeding with borrow
-                $deleteStmt = $this->pdo->prepare("DELETE FROM borrows WHERE id = ? AND user_id = ? AND status = 'bookmarked'");
-                $deleteStmt->execute([$userExisting['id'], $userId]);
+                if ($userExisting['status'] === 'bookmarked') {
+                    $deleteStmt = $this->pdo->prepare("DELETE FROM borrows WHERE id = ? AND user_id = ? AND status = 'bookmarked'");
+                    $deleteStmt->execute([$userExisting['id'], $userId]);
+                }
             }
 
             $stmt = $this->pdo->prepare("SELECT copies FROM books WHERE id = ?");
             $stmt->execute([$bookId]);
             $totalCopies = (int)($stmt->fetchColumn() ?? 1);
 
-            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reading')");
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
             $stmt->execute([$bookId]);
             if ((int)$stmt->fetchColumn() >= $totalCopies) {
                 return ['status' => 'error', 'message' => 'This book is currently out on loan.'];
@@ -374,7 +374,7 @@ class ClientModel
             // Allow reservation even if no copies exist yet, so users can queue up
             // When a copy is added later, the first user in the queue will be notified
 
-            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved', 'reading')");
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved')");
             $stmt->execute([$bookId]);
             $activeBorrows = (int)$stmt->fetchColumn();
 
@@ -404,7 +404,7 @@ class ClientModel
             $successCount = 0;
 
             foreach ($session['borrow_cart'] as $key => $id) {
-                $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reading')");
+                $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status = 'borrowed'");
                 $stmt->execute([$id]);
                 $isBorrowed = (int)$stmt->fetchColumn() > 0;
 
@@ -532,13 +532,13 @@ class ClientModel
                     ->execute([$borrow['id'], $userId]);
             }
 
-            // Delete reading progress to reset it (always, even if only borrowed without reading record)
-            $this->pdo->prepare("DELETE FROM reading_progress WHERE book_id = ? AND user_id = ?")
-                ->execute([$bookId, $userId]);
+            // Delete reading progress so it starts from page 1 next time
+            $this->pdo->prepare("DELETE FROM reading_progress WHERE user_id = ? AND book_id = ?")
+                ->execute([$userId, $bookId]);
 
             $this->bookModel->syncBookAvailability($bookId);
 
-            return ['status' => 'success', 'message' => 'Reading cancelled. Your progress has been reset.'];
+            return ['status' => 'success', 'message' => 'Reading session cancelled. You will start from the beginning next time.'];
         }
 
         return ['status' => 'error', 'message' => 'Unsupported action.'];
