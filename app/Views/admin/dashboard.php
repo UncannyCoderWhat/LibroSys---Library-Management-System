@@ -175,7 +175,8 @@ if (!isset($base_url)) {
                                     <td>
                                         <?php
                                             $isFirst = ($res['res_id'] == $res['next_in_line_res_id']);
-                                            $isAvailable = ($res['is_currently_borrowed'] == 0);
+                                            $hasCopies = ((int)($res['total_copies'] ?? 0) > 0);
+                                            $isAvailable = ($hasCopies && (int)($res['is_currently_borrowed'] ?? 0) === 0);
                                         ?>
                                         <?php if ($isAvailable && $isFirst): ?>
                                             <span class="status-badge available">Available for Pickup</span>

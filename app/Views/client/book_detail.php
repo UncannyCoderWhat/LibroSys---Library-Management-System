@@ -123,6 +123,15 @@ $userBorrow = $data['userBorrow'] ?? null;
                             <button class="bd-btn bd-btn-bookmarked" onclick="toggleBookmark(<?php echo (int)$book['id']; ?>)">
                                 <i class='bx bx-bookmark'></i> Bookmark
                             </button>
+                            <?php if (($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
+                            <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-shopping-bag'></i> Borrow
+                            </button>
+                            <?php elseif (($book['available_copies'] ?? 0) <= 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
+                            <button class="bd-btn bd-btn-reserve" onclick="reserveBook(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-time'></i> Reserve
+                            </button>
+                            <?php endif; ?>
                         <?php elseif ($userStatus === 'bookmarked'): ?>
                             <button class="bd-btn bd-btn-bookmarked" onclick="toggleBookmark(<?php echo (int)$book['id']; ?>)">
                                 <i class='bx bx-bookmark'></i> Bookmarked
@@ -130,6 +139,10 @@ $userBorrow = $data['userBorrow'] ?? null;
                             <?php if (($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
                             <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
                                 <i class='bx bx-shopping-bag'></i> Borrow
+                            </button>
+                            <?php elseif (($book['available_copies'] ?? 0) <= 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
+                            <button class="bd-btn bd-btn-reserve" onclick="reserveBook(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-time'></i> Reserve
                             </button>
                             <?php endif; ?>
                             <?php if ($isManga): ?>

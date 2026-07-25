@@ -356,6 +356,14 @@ class BookModel
         $stmt->execute([$bookId]);
         $activeBorrows = (int)$stmt->fetchColumn();
 
+        // If no copies exist, always mark as unavailable
+        if ($totalCopies === 0) {
+            if (($book['status'] ?? '') !== 'unavailable') {
+                $this->pdo->prepare("UPDATE books SET status = 'unavailable', copies = 0 WHERE id = ?")->execute([$bookId]);
+            }
+            return;
+        }
+
         if ($activeBorrows >= $totalCopies) {
             if (($book['status'] ?? '') !== 'unavailable') {
                 $this->pdo->prepare("UPDATE books SET status = 'unavailable' WHERE id = ?")->execute([$bookId]);
@@ -609,6 +617,24 @@ class BookModel
             // Also increment the copies count in the books table
             $this->pdo->prepare("UPDATE books SET copies = copies + 1 WHERE id = ?")->execute([$bookId]);
             $this->syncBookAvailability($bookId);
+
+            // Notify the first user in the reservation queue that a copy is now available
+            $resStmt = $this->pdo->prepare("
+                SELECT br.user_id, b.title 
+                FROM borrows br 
+                JOIN books b ON br.book_id = b.id 
+                WHERE br.book_id = ? AND br.status = 'reserved' 
+                ORDER BY br.borrow_date ASC 
+                LIMIT 1
+            ");
+            $resStmt->execute([$bookId]);
+            $reservation = $resStmt->fetch(PDO::FETCH_ASSOC);
+            if ($reservation) {
+                $notifStmt = $this->pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+                $msg = "The book '" . $reservation['title'] . "' you reserved is now available!";
+                $notifStmt->execute([$reservation['user_id'], $msg]);
+            }
+
             return ['success' => true, 'message' => 'Copy added successfully.'];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Error adding copy: ' . $e->getMessage()];
@@ -639,7 +665,7 @@ class BookModel
             
             // Decrement the copies count in the books table
             if ($bookId > 0) {
-                $this->pdo->prepare("UPDATE books SET copies = GREATEST(1, copies - 1) WHERE id = ?")->execute([$bookId]);
+                $this->pdo->prepare("UPDATE books SET copies = copies - 1 WHERE id = ?")->execute([$bookId]);
                 $this->syncBookAvailability($bookId);
             }
             

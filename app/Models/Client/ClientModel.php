@@ -371,17 +371,14 @@ class ClientModel
             $copiesStmt->execute([$bookId]);
             $totalCopies = (int)$copiesStmt->fetchColumn();
 
-            if ($totalCopies === 0) {
-                return ['status' => 'error', 'message' => 'No copies of this book are available for reservation.'];
-            }
+            // Allow reservation even if no copies exist yet, so users can queue up
+            // When a copy is added later, the first user in the queue will be notified
 
             $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved')");
             $stmt->execute([$bookId]);
             $activeBorrows = (int)$stmt->fetchColumn();
 
-            if ($activeBorrows >= $totalCopies) {
-                // All copies are borrowed, reservation is valid - proceed below
-            } else {
+            if ($totalCopies > 0 && $activeBorrows < $totalCopies) {
                 return ['status' => 'error', 'message' => 'This book is available on the shelves. You should rent it instead!'];
             }
 
@@ -608,7 +605,7 @@ class ClientModel
 
     public function getProfileMetrics(int $userId): array
     {
-        $stmtTotal = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ?");
+        $stmtTotal = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status NOT IN ('reserved', 'bookmarked')");
         $stmtTotal->execute([$userId]);
         $totalBorrowed = (int)$stmtTotal->fetchColumn();
 
@@ -616,7 +613,7 @@ class ClientModel
         $stmtReturned->execute([$userId]);
         $totalReturned = (int)$stmtReturned->fetchColumn();
 
-        $stmtPending = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status = 'borrowed'");
+        $stmtPending = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status IN ('borrowed', 'reading')");
         $stmtPending->execute([$userId]);
         $totalPending = (int)$stmtPending->fetchColumn();
 
@@ -646,6 +643,7 @@ class ClientModel
         $stmt = $this->pdo->prepare("
             SELECT br.id as res_id, b.id as book_id, b.title, b.author, br.borrow_date as reservation_date,
                    (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status = 'borrowed') as is_currently_borrowed,
+                   (SELECT COUNT(*) FROM book_copies WHERE book_id = b.id) as total_copies,
                    (SELECT id FROM borrows WHERE book_id = b.id AND status = 'reserved' ORDER BY borrow_date ASC LIMIT 1) as next_in_line_res_id
             FROM borrows br
             JOIN books b ON br.book_id = b.id
