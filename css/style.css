@@ -444,6 +444,10 @@ body.auth-page {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .toggle-panel button:hover {
