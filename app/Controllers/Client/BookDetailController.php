@@ -23,11 +23,11 @@ class BookDetailController extends ClientController
         $action = $_GET['action'] ?? '';
         if ($action === 'read_now' && $bookId > 0) {
             $this->handleReadNow($userId, $bookId);
-            return ['redirect' => 'index.php?page=library'];
+            return ['redirect' => 'index.php?page=book_detail&id=' . $bookId];
         }
         if ($action === 'bookmark' && $bookId > 0) {
             $this->handleBookmark($userId, $bookId);
-            return ['redirect' => 'index.php?page=library'];
+            return ['redirect' => 'index.php?page=book_detail&id=' . $bookId];
         }
 
         if ($bookId <= 0) {
@@ -39,16 +39,31 @@ class BookDetailController extends ClientController
             return ['redirect' => 'index.php?page=home'];
         }
 
-        $userStatus = $this->getUserBookStatus($userId, $bookId);
         $ebook = $this->getBookEbook($bookId);
         $savedPage = 1;
         $savedChapterId = 0;
         $userBorrow = null;
 
-        if ($userStatus === 'borrowed' || $userStatus === 'reading') {
+        // Determine each independent status the user has for this book
+        $userStatuses = $this->getUserBookStatuses($userId, $bookId);
+        $isReading = $userStatuses['reading'];
+        $isBookmarked = $userStatuses['bookmarked'];
+        $isBorrowed = $userStatuses['borrowed'];
+        $isReserved = $userStatuses['reserved'];
+
+        // Prefer borrow record if both exist (for extend/return actions)
+        if ($isBorrowed) {
             $stmt = $this->pdo->prepare("
                 SELECT id, status, due_date, extension_used FROM borrows 
-                WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'reading')
+                WHERE user_id = ? AND book_id = ? AND status = 'borrowed'
+                LIMIT 1
+            ");
+            $stmt->execute([$userId, $bookId]);
+            $userBorrow = $stmt->fetch(PDO::FETCH_ASSOC);
+        } elseif ($isReading) {
+            $stmt = $this->pdo->prepare("
+                SELECT id, status, due_date, extension_used FROM borrows 
+                WHERE user_id = ? AND book_id = ? AND status = 'reading'
                 LIMIT 1
             ");
             $stmt->execute([$userId, $bookId]);
@@ -69,7 +84,11 @@ class BookDetailController extends ClientController
 
         return [
             'book' => $book,
-            'userStatus' => $userStatus,
+            'userStatus' => $userStatuses,  // now an array of booleans
+            'isReading' => $isReading,
+            'isBookmarked' => $isBookmarked,
+            'isBorrowed' => $isBorrowed,
+            'isReserved' => $isReserved,
             'ebook' => $ebook,
             'cartCount' => $this->getCartCount($session),
             'savedPage' => $savedPage,
@@ -107,17 +126,21 @@ class BookDetailController extends ClientController
         return $book;
     }
 
-    private function getUserBookStatus(int $userId, int $bookId): ?string
+    private function getUserBookStatuses(int $userId, int $bookId): array
     {
         $stmt = $this->pdo->prepare("
             SELECT status FROM borrows 
             WHERE user_id = ? AND book_id = ? 
             AND status IN ('reading', 'bookmarked', 'borrowed', 'reserved')
-            ORDER BY borrow_date DESC LIMIT 1
         ");
         $stmt->execute([$userId, $bookId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? $row['status'] : null;
+        $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        return [
+            'reading' => in_array('reading', $rows, true),
+            'bookmarked' => in_array('bookmarked', $rows, true),
+            'borrowed' => in_array('borrowed', $rows, true),
+            'reserved' => in_array('reserved', $rows, true),
+        ];
     }
 
     private function getBookEbook(int $bookId): ?array
@@ -179,24 +202,33 @@ class BookDetailController extends ClientController
 
     public function handleReadNow(int $userId, int $bookId): array
     {
+        // Check if user already has a 'reading' record for this book
         $stmt = $this->pdo->prepare("
-            SELECT id, status FROM borrows 
-            WHERE user_id = ? AND book_id = ? 
-            AND status IN ('reading', 'bookmarked', 'borrowed')
+            SELECT id FROM borrows 
+            WHERE user_id = ? AND book_id = ? AND status = 'reading'
+            LIMIT 1
         ");
         $stmt->execute([$userId, $bookId]);
-        $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+        $existingReading = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($existing) {
-            if ($existing['status'] === 'borrowed' || $existing['status'] === 'reading') {
-                return ['status' => 'info', 'message' => 'You are already reading this book.'];
-            }
+        if ($existingReading) {
+            return ['status' => 'info', 'message' => 'You are already reading this book.'];
+        }
 
-            if ($existing['status'] === 'bookmarked') {
-                $update = $this->pdo->prepare("UPDATE borrows SET status = 'reading', borrow_date = NOW() WHERE id = ?");
-                $update->execute([$existing['id']]);
-                return ['status' => 'success', 'message' => 'Book moved to Reading!'];
-            }
+        // Check if user has a 'bookmarked' record to upgrade
+        $stmt = $this->pdo->prepare("
+            SELECT id FROM borrows 
+            WHERE user_id = ? AND book_id = ? AND status = 'bookmarked'
+            LIMIT 1
+        ");
+        $stmt->execute([$userId, $bookId]);
+        $existingBookmark = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($existingBookmark) {
+            $update = $this->pdo->prepare("UPDATE borrows SET status = 'reading', borrow_date = NOW() WHERE id = ?");
+            $update->execute([$existingBookmark['id']]);
+            $this->bookModel->syncBookAvailability($bookId);
+            return ['status' => 'success', 'message' => 'Book moved to Reading!'];
         }
 
         $stmt = $this->pdo->prepare("SELECT id FROM books WHERE id = ? AND is_deleted = 0 AND status != 'archived'");

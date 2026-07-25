@@ -374,7 +374,7 @@ class ClientModel
             // Allow reservation even if no copies exist yet, so users can queue up
             // When a copy is added later, the first user in the queue will be notified
 
-            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved')");
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reserved', 'reading')");
             $stmt->execute([$bookId]);
             $activeBorrows = (int)$stmt->fetchColumn();
 
@@ -520,6 +520,27 @@ class ClientModel
             return ['status' => 'success', 'message' => 'Reservation cancelled successfully!'];
         }
 
+        if ($action === 'cancel_reading') {
+            // Find and delete the reading borrow record if it exists
+            $stmt = $this->pdo->prepare("SELECT id FROM borrows WHERE book_id = ? AND user_id = ? AND status = 'reading' LIMIT 1");
+            $stmt->execute([$bookId, $userId]);
+            $borrow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($borrow) {
+                // Delete the borrow record (reading status)
+                $this->pdo->prepare("DELETE FROM borrows WHERE id = ? AND user_id = ? AND status = 'reading'")
+                    ->execute([$borrow['id'], $userId]);
+            }
+
+            // Delete reading progress to reset it (always, even if only borrowed without reading record)
+            $this->pdo->prepare("DELETE FROM reading_progress WHERE book_id = ? AND user_id = ?")
+                ->execute([$bookId, $userId]);
+
+            $this->bookModel->syncBookAvailability($bookId);
+
+            return ['status' => 'success', 'message' => 'Reading cancelled. Your progress has been reset.'];
+        }
+
         return ['status' => 'error', 'message' => 'Unsupported action.'];
     }
 
@@ -550,7 +571,7 @@ class ClientModel
             else $fine = $daysLate * 150;
         }
 
-        $update = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE user_id = ? AND book_id = ? AND status IN ('borrowed', 'reading')");
+            $update = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE user_id = ? AND book_id = ? AND status = 'borrowed'");
         $update->execute([$now, $fine, $userId, $borrow['book_id']]);
 
         $this->bookModel->syncBookAvailability($borrow['book_id']);
@@ -605,7 +626,7 @@ class ClientModel
 
     public function getProfileMetrics(int $userId): array
     {
-        $stmtTotal = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status NOT IN ('reserved', 'bookmarked')");
+        $stmtTotal = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status NOT IN ('reserved', 'bookmarked', 'reading')");
         $stmtTotal->execute([$userId]);
         $totalBorrowed = (int)$stmtTotal->fetchColumn();
 
@@ -613,7 +634,7 @@ class ClientModel
         $stmtReturned->execute([$userId]);
         $totalReturned = (int)$stmtReturned->fetchColumn();
 
-        $stmtPending = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status IN ('borrowed', 'reading')");
+        $stmtPending = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE user_id = ? AND status = 'borrowed'");
         $stmtPending->execute([$userId]);
         $totalPending = (int)$stmtPending->fetchColumn();
 
@@ -631,7 +652,7 @@ class ClientModel
                    br.status, br.fine_amount, br.is_fine_paid
             FROM borrows br
             JOIN books b ON br.book_id = b.id
-            WHERE br.user_id = ? AND br.status != 'reserved'
+            WHERE br.user_id = ? AND br.status NOT IN ('reserved', 'bookmarked', 'reading')
             ORDER BY br.borrow_date DESC
         ");
         $stmt->execute([$userId]);

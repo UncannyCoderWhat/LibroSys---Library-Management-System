@@ -63,7 +63,6 @@ if (!isset($base_url)) {
                 <button onclick='openCopiesModal(<?php echo (int)$book['id'];?>,"<?php echo htmlspecialchars(addslashes($book['title']));?>")'><i class="fa-solid fa-copy"></i> Copies</button>
                 <?php $st=$book['status']??'available';if($st==='available'):?>
                 <div class="dropdown-divider"></div>
-                <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"archive_book")'><i class="fa-solid fa-box-archive"></i> Archive</button>
                 <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"unavailable_book")'><i class="fa-solid fa-ban"></i> Mark Unavailable</button>
                 <?php elseif($st==='archived'):?>
                 <div class="dropdown-divider"></div>
@@ -72,6 +71,8 @@ if (!isset($base_url)) {
                 <div class="dropdown-divider"></div>
                 <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"restore_book")'><i class="fa-solid fa-check"></i> Make Available</button>
                 <?php endif;?>
+                <div class="dropdown-divider"></div>
+                <button onclick='confirmAction(<?php echo (int)$book['id'];?>,"archive_book")'><i class="fa-solid fa-box-archive"></i> Archive</button>
                 <div class="dropdown-divider"></div>
                 <button onclick='confirmDelete(<?php echo (int)$book['id'];?>)' style="color:#dc3545"><i class="fa-solid fa-trash-can"></i> Delete</button>
             </div>

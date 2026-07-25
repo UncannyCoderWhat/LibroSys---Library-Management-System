@@ -3836,6 +3836,52 @@ html[data-theme="light"] .bd-btn-primary {
     font-weight: 500;
 }
 
+.lib-book-quick-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.lib-quick-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.lib-quick-read {
+    background: var(--main-color);
+    color: #000000;
+}
+
+html[data-theme="light"] .lib-quick-read {
+    color: #ffffff;
+}
+
+.lib-quick-read:hover {
+    background: var(--main-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(255, 210, 0, 0.3);
+}
+
+.lib-quick-detail {
+    background: var(--surface-color-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.lib-quick-detail:hover {
+    background: var(--border-color);
+    transform: translateY(-1px);
+}
+
 .lib-book-actions {
     display: inline-flex;
     align-items: center;

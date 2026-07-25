@@ -139,6 +139,14 @@ if ($debug_mode):
                         <div class="lib-book-meta">
                             <span class="lib-status-reading"><i class='bx bx-book-reader'></i> Reading</span>
                         </div>
+                        <div class="lib-book-quick-actions" onclick="event.stopPropagation();">
+                            <a href="index.php?page=read&id=<?php echo (int)$book['id']; ?>" class="lib-quick-btn lib-quick-read">
+                                <i class='bx bx-book-reader'></i> Read
+                            </a>
+                            <a href="index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>" class="lib-quick-btn lib-quick-detail">
+                                <i class='bx bx-detail'></i> Details
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -174,6 +182,14 @@ if ($debug_mode):
                         <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
                         <div class="lib-book-meta">
                             <span class="lib-status-bookmarked"><i class='bx bx-bookmark'></i> Bookmarked</span>
+                        </div>
+                        <div class="lib-book-quick-actions" onclick="event.stopPropagation();">
+                            <a href="index.php?page=read&id=<?php echo (int)$book['id']; ?>" class="lib-quick-btn lib-quick-read">
+                                <i class='bx bx-book-reader'></i> Read
+                            </a>
+                            <a href="index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>" class="lib-quick-btn lib-quick-detail">
+                                <i class='bx bx-detail'></i> Details
+                            </a>
                         </div>
                     </div>
                 </div>

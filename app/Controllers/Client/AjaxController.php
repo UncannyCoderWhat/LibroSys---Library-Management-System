@@ -29,7 +29,7 @@ class AjaxController extends ClientController
         }
 
         $userId = (int)$session['user_id'];
-        $bookId = isset($post['book_id']) ? (int)$post['book_id'] : null;
+        $bookId = isset($post['book_id']) ? (int)$post['book_id'] : (isset($post['borrow_id']) ? (int)$post['borrow_id'] : null);
         $action = $post['action'] ?? '';
 
         try {
