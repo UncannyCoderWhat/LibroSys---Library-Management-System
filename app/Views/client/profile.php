@@ -43,7 +43,6 @@ $browse_error     = $data['browse_error'] ?? null;
 
 </head>
 <body class="profile-page">
-    <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
     <header>
         <div class="client-top-bar">
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" onclick="window.scrollTo({top:0,behavior:'smooth'})" alt="LibroSys Logo" class="logo">
@@ -485,6 +484,7 @@ $browse_error     = $data['browse_error'] ?? null;
 
     <script src="public/js/profile.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
+<<<<<<< HEAD
 
     <!-- Borrow Modal -->
     <div id="borrowModal" class="ls-modal-overlay" style="display: none;">
@@ -507,6 +507,9 @@ $browse_error     = $data['browse_error'] ?? null;
             </form>
         </div>
     </div>
+=======
+    <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
+>>>>>>> c665b2c69ab45458ce118ce45d2fde2758539aa4
     
 </body>
 </html>

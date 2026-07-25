@@ -24,8 +24,6 @@ $userBorrow = $data['userBorrow'] ?? null;
     </script>
 </head>
 <body class="book-detail-page">
-    <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
-
     <header>
         <div class="client-top-bar">
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
@@ -433,6 +431,7 @@ $userBorrow = $data['userBorrow'] ?? null;
         </div>
     </div>
 
+    <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
     <script>
     function openBorrowModal(bookId) {
         document.getElementById('borrowBookId').value = bookId;

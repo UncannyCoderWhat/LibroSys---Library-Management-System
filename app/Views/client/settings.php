@@ -26,7 +26,6 @@ $message_type    = $data['message_type'] ?? ''; // success|error
 
 </head>
 <body class="profile-page">
-    <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
     <header>
         <div class="client-top-bar">
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" onclick="window.scrollTo({top:0,behavior:'smooth'})" alt="LibroSys Logo" class="logo">
@@ -139,6 +138,7 @@ $message_type    = $data['message_type'] ?? ''; // success|error
     </div>
     
     <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
     
 </body>
 </html>
