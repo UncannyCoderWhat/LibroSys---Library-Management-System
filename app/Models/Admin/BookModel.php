@@ -19,7 +19,8 @@ class BookModel
             SELECT b.*, 
                    c.name AS category_name, 
                    a.name AS author_name,
-                   p.name AS publisher_name
+                   p.name AS publisher_name,
+                   (SELECT COUNT(*) FROM book_copies WHERE book_id = b.id) AS actual_copies
             FROM books b
             LEFT JOIN categories c ON b.category_id = c.id
             LEFT JOIN authors a ON b.author_id = a.id
@@ -27,7 +28,13 @@ class BookModel
             WHERE b.is_deleted = 0
             ORDER BY b.created_at DESC
         ");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($books as &$book) {
+            // Use book_copies table as the sole source of truth
+            $book['copies'] = (int)($book['actual_copies'] ?? 0);
+        }
+        unset($book);
+        return $books;
     }
 
     public function getBookById(int $id): ?array
@@ -36,7 +43,8 @@ class BookModel
             SELECT b.*, 
                    c.name AS category_name, 
                    a.name AS author_name,
-                   p.name AS publisher_name
+                   p.name AS publisher_name,
+                   (SELECT COUNT(*) FROM book_copies WHERE book_id = b.id) AS actual_copies
             FROM books b
             LEFT JOIN categories c ON b.category_id = c.id
             LEFT JOIN authors a ON b.author_id = a.id
@@ -44,7 +52,12 @@ class BookModel
             WHERE b.id = ? AND b.is_deleted = 0
         ");
         $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        $book = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($book) {
+            // Use book_copies table as the sole source of truth
+            $book['copies'] = (int)($book['actual_copies'] ?? 0);
+        }
+        return $book ?: null;
     }
 
     public function getAllBookTypes(): array
@@ -246,7 +259,7 @@ class BookModel
                 $category_id, $author_id, $publisher_id, $cover_path, $id
             ]);
 
-            // Sync copies: ensure at least $copies copies exist
+            // Sync copies: ensure exactly $copies copies exist in book_copies
             $existingCopies = $this->getBookCopies($id);
             $currentCount = count($existingCopies);
             if ($copies > $currentCount) {
@@ -254,6 +267,23 @@ class BookModel
                     $label = "Copy #{$i}";
                     $this->pdo->prepare("INSERT INTO book_copies (book_id, copy_label, status) VALUES (?, ?, 'available')")
                               ->execute([$id, $label]);
+                }
+            } elseif ($copies < $currentCount) {
+                // Remove excess copies (delete from the end, skipping borrowed copies)
+                $excess = $currentCount - $copies;
+                $deleted = 0;
+                foreach ($existingCopies as $copy) {
+                    if ($deleted >= $excess) break;
+                    if ($copy['status'] === 'available') {
+                        $this->pdo->prepare("DELETE FROM book_copies WHERE id = ?")->execute([$copy['id']]);
+                        $deleted++;
+                    }
+                }
+                // If we still need to remove more (all remaining copies are borrowed), 
+                // keep the books.copies in sync with the actual remaining count
+                $remainingCount = count($this->getBookCopies($id));
+                if ($remainingCount !== $copies) {
+                    $this->pdo->prepare("UPDATE books SET copies = ? WHERE id = ?")->execute([$remainingCount, $id]);
                 }
             }
 
@@ -316,7 +346,10 @@ class BookModel
             return;
         }
 
-        $totalCopies = (int)($book['copies'] ?? 1);
+        // Use the actual count of book_copies records as the authoritative total
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM book_copies WHERE book_id = ?");
+        $stmt->execute([$bookId]);
+        $totalCopies = (int)$stmt->fetchColumn();
 
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*) FROM borrows 

@@ -83,7 +83,8 @@ class BookDetailController extends ClientController
         $stmt = $this->pdo->prepare("
             SELECT b.*, 
                    COALESCE(a.name, b.author) as author_name,
-                   (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status IN ('borrowed', 'reading')) as borrowed_count
+                   (SELECT COUNT(*) FROM borrows WHERE book_id = b.id AND status IN ('borrowed', 'reading')) as borrowed_count,
+                   (SELECT COUNT(*) FROM book_copies WHERE book_id = b.id) as actual_copies
             FROM books b
             LEFT JOIN authors a ON b.author_id = a.id
             WHERE b.id = ? AND b.is_deleted = 0 AND b.status != 'archived'
@@ -95,8 +96,9 @@ class BookDetailController extends ClientController
             return null;
         }
 
-        // Get available copies count
-        $totalCopies = (int)($book['copies'] ?? 1);
+        // Use book_copies table as the sole source of truth
+        $totalCopies = (int)($book['actual_copies'] ?? 0);
+
         $borrowedCount = (int)($book['borrowed_count'] ?? 0);
         $book['available_copies'] = max(0, $totalCopies - $borrowedCount);
 
@@ -214,7 +216,6 @@ class BookDetailController extends ClientController
 
     public function handleBookmark(int $userId, int $bookId): array
     {
-        // Check if already reading or bookmarked
         $stmt = $this->pdo->prepare("
             SELECT id, status FROM borrows 
             WHERE user_id = ? AND book_id = ? 
@@ -227,10 +228,15 @@ class BookDetailController extends ClientController
             if ($existing['status'] === 'reading') {
                 return ['status' => 'info', 'message' => 'You are currently reading this book!'];
             }
-            return ['status' => 'info', 'message' => 'Book is already bookmarked.'];
+
+            if ($existing['status'] === 'bookmarked') {
+                $this->pdo->prepare("DELETE FROM borrows WHERE id = ? AND user_id = ? AND book_id = ? AND status = 'bookmarked'")
+                    ->execute([$existing['id'], $userId, $bookId]);
+                $this->bookModel->syncBookAvailability($bookId);
+                return ['status' => 'success', 'message' => 'Bookmark removed.'];
+            }
         }
 
-        // Check book exists and is not deleted or archived
         $stmt = $this->pdo->prepare("SELECT id FROM books WHERE id = ? AND is_deleted = 0 AND status != 'archived'");
         $stmt->execute([$bookId]);
         if (!$stmt->fetch()) {

@@ -877,6 +877,10 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
             <button class="read-action-btn" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>&action=read_now'">
                 <i class='bx bx-book-reader'></i> Start Reading
             </button>
+            <?php elseif ($userStatus === 'borrowed' || $userStatus === 'reading'): ?>
+            <button class="read-action-btn" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'">
+                <i class='bx bx-arrow-back'></i> Back to Details
+            </button>
             <?php endif; ?>
         </div>
     </main>

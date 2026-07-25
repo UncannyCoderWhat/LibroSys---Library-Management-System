@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../Models/Admin/BookModel.php';
 
 class ReadController extends ClientController
 {
-    private BookModel $bookModel;
+    protected BookModel $bookModel;
 
     public function __construct(?PDO $pdo = null)
     {
@@ -32,6 +32,10 @@ class ReadController extends ClientController
             return ['redirect' => 'index.php?page=library'];
         }
 
+        $bookType = strtolower($book['book_type'] ?? '');
+        $genre = strtolower($book['genre'] ?? '');
+        $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
+
         $stmt = $this->pdo->prepare("
             SELECT id, status FROM borrows 
             WHERE user_id = ? AND book_id = ? 
@@ -40,14 +44,21 @@ class ReadController extends ClientController
         ");
         $stmt->execute([$userId, $bookId]);
         $userBorrow = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userStatus = $userBorrow['status'] ?? null;
 
+        // If no borrow record exists, auto-create one with status 'reading'
         if (!$userBorrow) {
-            return ['redirect' => 'index.php?page=book_detail&id=' . $bookId];
+            $insert = $this->pdo->prepare("INSERT INTO borrows (book_id, user_id, borrow_date, status) VALUES (?, ?, NOW(), 'reading')");
+            $insert->execute([$bookId, $userId]);
+            $userStatus = 'reading';
+            $userBorrow = ['id' => (int)$this->pdo->lastInsertId(), 'status' => 'reading'];
+        } elseif ($userStatus === 'bookmarked') {
+            // If the user is bookmarked, automatically transition to 'reading' when they open the read page
+            $update = $this->pdo->prepare("UPDATE borrows SET status = 'reading', borrow_date = NOW() WHERE id = ?");
+            $update->execute([$userBorrow['id']]);
+            $userStatus = 'reading';
+            $userBorrow['status'] = 'reading';
         }
-
-        $bookType = strtolower($book['book_type'] ?? '');
-        $genre = strtolower($book['genre'] ?? '');
-        $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
 
         if ($isManga) {
             $chapterId = isset($_GET['chapter_id']) ? (int)$_GET['chapter_id'] : 0;
@@ -58,7 +69,7 @@ class ReadController extends ClientController
             $chapterData = $this->getMangaReadingData($bookId, $userId, $chapterId);
             return array_merge($chapterData, [
                 'book' => $book,
-                'userStatus' => $userBorrow['status'],
+                'userStatus' => $userStatus,
                 'cartCount' => $this->getCartCount($session),
                 'isManga' => true,
             ]);
@@ -73,7 +84,7 @@ class ReadController extends ClientController
             'content' => $content,
             'ebook' => $ebook,
             'savedPage' => $savedPage,
-            'userStatus' => $userBorrow['status'],
+            'userStatus' => $userStatus,
             'cartCount' => $this->getCartCount($session),
             'isManga' => false,
         ];

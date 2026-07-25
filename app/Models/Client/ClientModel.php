@@ -5,7 +5,7 @@ require_once __DIR__ . '/../Admin/BookModel.php';
 class ClientModel
 {
     protected PDO $pdo;
-    private BookModel $bookModel;
+    protected BookModel $bookModel;
 
     public function __construct(PDO $pdo)
     {
@@ -270,7 +270,8 @@ class ClientModel
         }
 
         if ($action === 'borrow') {
-            $userStmt = $this->pdo->prepare("SELECT id, status FROM borrows WHERE book_id = ? AND user_id = ? AND status IN ('reading', 'borrowed') LIMIT 1");
+            // Check for existing active records including bookmarked
+            $userStmt = $this->pdo->prepare("SELECT id, status FROM borrows WHERE book_id = ? AND user_id = ? AND status IN ('reading', 'borrowed', 'bookmarked') LIMIT 1");
             $userStmt->execute([$bookId, $userId]);
             $userExisting = $userStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -278,12 +279,21 @@ class ClientModel
                 if ($userExisting['status'] === 'borrowed') {
                     return ['status' => 'error', 'message' => 'You have already borrowed this book.'];
                 }
-                return ['status' => 'error', 'message' => 'You are already reading this book. Please finish reading before borrowing.'];
+                if ($userExisting['status'] === 'reading') {
+                    return ['status' => 'error', 'message' => 'You are already reading this book. Please finish reading before borrowing.'];
+                }
+                // If bookmarked, remove the bookmark record before proceeding with borrow
+                $deleteStmt = $this->pdo->prepare("DELETE FROM borrows WHERE id = ? AND user_id = ? AND status = 'bookmarked'");
+                $deleteStmt->execute([$userExisting['id'], $userId]);
             }
+
+            $stmt = $this->pdo->prepare("SELECT copies FROM books WHERE id = ?");
+            $stmt->execute([$bookId]);
+            $totalCopies = (int)($stmt->fetchColumn() ?? 1);
 
             $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM borrows WHERE book_id = ? AND status IN ('borrowed', 'reading')");
             $stmt->execute([$bookId]);
-            if ((int)$stmt->fetchColumn() > 0) {
+            if ((int)$stmt->fetchColumn() >= $totalCopies) {
                 return ['status' => 'error', 'message' => 'This book is currently out on loan.'];
             }
 

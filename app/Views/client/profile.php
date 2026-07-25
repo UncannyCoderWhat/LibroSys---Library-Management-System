@@ -485,6 +485,28 @@ $browse_error     = $data['browse_error'] ?? null;
 
     <script src="public/js/profile.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
+
+    <!-- Borrow Modal -->
+    <div id="borrowModal" class="ls-modal-overlay" style="display: none;">
+        <div class="ls-modal-container" style="max-width: 500px;">
+            <span class="ls-modal-close" onclick="closeBorrowModal()">&times;</span>
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="ls-modal-logo">
+            <h3 class="ls-modal-title">Borrow Physical Copy</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px; text-align: center;">
+                Please enter your delivery address. Borrowing period is 7 days. Extensions incur a ₱50 fee per 7 days.
+            </p>
+            <form id="borrowForm" onsubmit="submitBorrow(event)">
+                <input type="hidden" id="borrowBookId" value="">
+                <div class="form-group">
+                    <label for="delivery_address" style="display: block; margin-bottom: 8px; font-weight: 600;">Delivery Address</label>
+                    <textarea id="delivery_address" name="delivery_address" rows="3" required placeholder="Enter your full address" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--surface-color); color: var(--text-primary); resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="ls-btn ls-btn-primary" style="width: 100%; margin-top: 20px; justify-content: center;">
+                    <i class='bx bx-shopping-bag'></i> Confirm Borrow
+                </button>
+            </form>
+        </div>
+    </div>
     
 </body>
 </html>

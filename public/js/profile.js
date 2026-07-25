@@ -57,11 +57,35 @@ function confirmPayment() {
 }
 
 function processAction(actionType, bookId) {
-    if(!confirm("Are you sure you want to borrow this book?")) return;
+    if (actionType === 'borrow') {
+        openBorrowModal(bookId);
+    }
+}
+
+function openBorrowModal(bookId) {
+    document.getElementById('borrowBookId').value = bookId;
+    document.getElementById('borrowModal').style.display = 'flex';
+    document.getElementById('delivery_address').value = '';
+}
+
+function closeBorrowModal() {
+    document.getElementById('borrowModal').style.display = 'none';
+}
+
+function submitBorrow(e) {
+    e.preventDefault();
+    const bookId = document.getElementById('borrowBookId').value;
+    const address = document.getElementById('delivery_address').value.trim();
+
+    if (!address) {
+        alert('Please provide a delivery address.');
+        return;
+    }
 
     const formData = new FormData();
-    formData.append('action', 'borrow');
     formData.append('book_id', bookId);
+    formData.append('action', 'borrow');
+    formData.append('delivery_address', address);
 
     fetch('index.php?page=ajax&action=borrow_handler', {
         method: 'POST',
@@ -71,9 +95,11 @@ function processAction(actionType, bookId) {
     .then(data => {
         alert(data.message);
         if (data.status === 'success') {
+            closeBorrowModal();
             window.location.reload();
         }
-    });
+    })
+    .catch(err => alert('An error occurred. Please check your connection.'));
 }
 
 function cancelReservation(resId) {

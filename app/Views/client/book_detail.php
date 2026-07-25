@@ -112,64 +112,76 @@ $userBorrow = $data['userBorrow'] ?? null;
 
                     <!-- Action Buttons -->
                     <div class="bd-actions">
-                        <?php if ($userStatus === 'reading' || $userStatus === 'bookmarked'): 
-                            $bookType = strtolower($book['book_type'] ?? '');
-                            $genre = strtolower($book['genre'] ?? '');
-                            $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
-                            $continueUrl = 'index.php?page=read&id=' . (int)$book['id'];
-                            if ($isManga && $savedChapterId > 0) {
-                                $continueUrl .= '&chapter_id=' . $savedChapterId;
-                            }
+                        <?php
+                        $bookType = strtolower($book['book_type'] ?? '');
+                        $genre = strtolower($book['genre'] ?? '');
+                        $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
+                        $canExtend = !empty($userBorrow) && empty($userBorrow['extension_used']);
                         ?>
-                        <button class="bd-btn bd-btn-primary" onclick="continueReading(<?php echo (int)$book['id']; ?>, <?php echo $userStatus === 'bookmarked' ? 'true' : 'false'; ?>)">
-                            <i class='bx bx-book-reader'></i> Continue Reading
-                        </button>
-                        <?php if ($userStatus === 'bookmarked'): ?>
-                        <button class="bd-btn bd-btn-bookmarked" disabled>
-                            <i class='bx bx-bookmark'></i> Bookmarked
-                        </button>
-                        <?php endif; ?>
-                        <?php elseif ($userStatus === 'borrowed'): 
-                            $canExtend = !empty($userBorrow) && empty($userBorrow['extension_used']);
-                            $bookType = strtolower($book['book_type'] ?? '');
-                            $genre = strtolower($book['genre'] ?? '');
-                            $isManga = str_contains($bookType, 'manga') || str_contains($bookType, 'manhwa') || str_contains($bookType, 'manhua') || str_contains($genre, 'manga') || str_contains($genre, 'manhua') || str_contains($genre, 'webtoon');
-                        ?>
-                        <button class="bd-btn bd-btn-return" onclick="returnBook(<?php echo (int)$book['id']; ?>)">
-                            <i class='bx bx-arrow-back'></i> Return Book
-                        </button>
-                        <?php if ($canExtend): ?>
-                        <button class="bd-btn bd-btn-extend" onclick="extendLoan(<?php echo (int)$book['id']; ?>)">
-                            <i class='bx bx-time'></i> Extend Loan
-                        </button>
+                        <?php if ($userStatus === 'reading'): ?>
+                            <button class="bd-btn bd-btn-primary" onclick="continueReading(<?php echo (int)$book['id']; ?>, false)">
+                                <i class='bx bx-book-reader'></i> Continue Reading
+                            </button>
+                            <button class="bd-btn bd-btn-bookmarked" onclick="toggleBookmark(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-bookmark'></i> Bookmark
+                            </button>
+                        <?php elseif ($userStatus === 'bookmarked'): ?>
+                            <button class="bd-btn bd-btn-bookmarked" onclick="toggleBookmark(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-bookmark'></i> Bookmarked
+                            </button>
+                            <?php if (($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
+                            <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-shopping-bag'></i> Borrow
+                            </button>
+                            <?php endif; ?>
+                            <?php if ($isManga): ?>
+                            <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
+                                <i class='bx bx-book-reader'></i> Read Manga
+                            </button>
+                            <?php elseif ($ebook && !empty($ebook['file_path'])): ?>
+                            <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
+                                <i class='bx bx-file-pdf'></i> Read eBook
+                            </button>
+                            <?php endif; ?>
+                        <?php elseif ($userStatus === 'borrowed'): ?>
+                            <button class="bd-btn bd-btn-return" onclick="returnBook(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-arrow-back'></i> Return Book
+                            </button>
+                            <?php if ($canExtend): ?>
+                            <button class="bd-btn bd-btn-extend" onclick="extendLoan(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-time'></i> Extend Loan
+                            </button>
+                            <?php else: ?>
+                            <button class="bd-btn bd-btn-extend" disabled>
+                                <i class='bx bx-time'></i> Extension Used
+                            </button>
+                            <?php endif; ?>
+                        <?php elseif ($userStatus === 'reserved'): ?>
+                            <button class="bd-btn bd-btn-reserve" disabled>
+                                <i class='bx bx-time'></i> Reserved
+                            </button>
                         <?php else: ?>
-                        <button class="bd-btn bd-btn-extend" disabled>
-                            <i class='bx bx-time'></i> Extension Used
-                        </button>
-                        <?php endif; ?>
-                        <?php if ($isManga): ?>
-                        <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
-                            <i class='bx bx-book-reader'></i> Read Manga
-                        </button>
-                        <?php endif; ?>
-                        <?php else: ?>
-                        <?php if (($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
-                        <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
-                            <i class='bx bx-shopping-bag'></i> Borrow
-                        </button>
-                        <button class="bd-btn bd-btn-secondary" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>&action=bookmark'">
-                            <i class='bx bx-bookmark'></i> Bookmark
-                        </button>
-                        <?php else: ?>
-                        <button class="bd-btn bd-btn-reserve" onclick="reserveBook(<?php echo (int)$book['id']; ?>)">
-                            <i class='bx bx-time'></i> Reserve
-                        </button>
-                        <?php endif; ?>
-                        <?php endif; ?>
-                        <?php if ($ebook && !empty($ebook['file_path'])): ?>
-                        <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
-                            <i class='bx bx-file-pdf'></i> Read eBook
-                        </button>
+                            <?php if (($book['available_copies'] ?? 0) > 0 && ($book['status'] ?? 'available') !== 'archived'): ?>
+                            <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-shopping-bag'></i> Borrow
+                            </button>
+                            <?php else: ?>
+                            <button class="bd-btn bd-btn-reserve" onclick="reserveBook(<?php echo (int)$book['id']; ?>)">
+                                <i class='bx bx-time'></i> Reserve
+                            </button>
+                            <?php endif; ?>
+                            <button class="bd-btn bd-btn-secondary" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>&action=bookmark'">
+                                <i class='bx bx-bookmark'></i> Bookmark
+                            </button>
+                            <?php if ($isManga): ?>
+                            <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
+                                <i class='bx bx-book-reader'></i> Read Manga
+                            </button>
+                            <?php elseif ($ebook && !empty($ebook['file_path'])): ?>
+                            <button class="bd-btn bd-btn-primary" onclick="window.location.href='index.php?page=read&id=<?php echo (int)$book['id']; ?>'">
+                                <i class='bx bx-file-pdf'></i> Read eBook
+                            </button>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
 
@@ -508,6 +520,24 @@ $userBorrow = $data['userBorrow'] ?? null;
         formData.append('book_id', bookId);
         formData.append('action', 'cancel_reservation');
         fetch('index.php?page=ajax&action=borrow_handler', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                window.location.reload();
+            }
+        })
+        .catch(err => alert('An error occurred. Please check your connection.'));
+    }
+
+    function toggleBookmark(bookId) {
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+        formData.append('action', 'bookmark');
+        fetch('index.php?page=ajax&action=bookmark', {
             method: 'POST',
             body: formData
         })
