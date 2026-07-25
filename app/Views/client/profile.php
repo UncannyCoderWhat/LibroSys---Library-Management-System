@@ -46,10 +46,10 @@ $browse_error     = $data['browse_error'] ?? null;
     <img src="<?php echo $base_url; ?>/images/library-background.png" alt="Library Background" class="bg-image">
     <header>
         <div class="client-top-bar">
-            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" onclick="window.scrollTo({top:0,behavior:'smooth'})" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
-                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
+                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade Premium</button>
                     <a href="index.php?page=home" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'home' ? 'active' : ''; ?>"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=library" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'library' ? 'active' : ''; ?>"><i class='bx bx-book'></i>Library</a>
                     <div class="dpContainer">
