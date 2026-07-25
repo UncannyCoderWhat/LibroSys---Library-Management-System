@@ -34,10 +34,10 @@ $book_type_groups = $data['book_type_groups'] ?? [];
 
     <header>
         <div class="client-top-bar">
-            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="logo">
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" onclick="window.scrollTo({top:0,behavior:'smooth'})" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
-                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade premium</button>
+                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade Premium</button>
                     <a href="index.php?page=home" class="active"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=library"><i class='bx bx-book'></i>Library</a>
                     <div class="dpContainer">
@@ -94,7 +94,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                     <h1 class="ls-hero-title">Discover Your Next Chapter</h1>
                     <p class="ls-hero-subtitle">Your all-in-one digital library for browsing books</p>
                     <div class="ls-hero-actions">
-                        <button class="ls-btn ls-btn-primary" onclick="window.location.href='index.php?page=browse'">
+                        <button class="ls-btn ls-btn-primary" onclick="window.location.href='index.php?page=home'">
                             <i class='bx bx-book-open'></i> Start Browsing
                         </button>
                         <button class="ls-btn ls-btn-secondary" onclick="document.querySelector('.ls-shelf-section').scrollIntoView({behavior:'smooth'})">
