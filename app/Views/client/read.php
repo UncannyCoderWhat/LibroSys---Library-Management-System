@@ -46,132 +46,6 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
         position: relative;
     }
 
-    .flipbook-wrapper {
-        flex: 1;
-        overflow: visible;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #0f0f0f;
-        position: relative;
-    }
-
-    .flipbook {
-        width: 800px;
-        height: 1000px;
-        background: #2a2a2a;
-        border: 2px solid var(--main-color);
-        border-radius: 8px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        overflow: visible;
-        position: relative;
-    }
-
-    .flipbook-page {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #e5e5e5;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-
-    .flipbook-page img {
-        max-width: 100%;
-        max-height: calc(100% - 40px);
-        object-fit: contain;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        border-radius: 4px;
-    }
-
-    .flipbook-loading {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 40px;
-        text-align: center;
-        color: var(--text-muted);
-        font-size: 0.95rem;
-    }
-
-    .flipbook-page-indicator {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        background: var(--surface-color-secondary);
-        padding: 6px 16px;
-        border-radius: 20px;
-        border: 1px solid var(--border-color);
-    }
-
-    .flipbook-progress-bar {
-        width: 100%;
-        height: 4px;
-        background: var(--surface-color-secondary);
-        border-radius: 2px;
-        overflow: hidden;
-        position: relative;
-        flex-shrink: 0;
-    }
-
-    .flipbook-progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--main-color), var(--main-hover));
-        border-radius: 2px;
-        transition: width 0.3s ease;
-    }
-
-    .flipbook-nav-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 28px;
-        border: 1px solid var(--border-color);
-        border-radius: 50px;
-        background: var(--surface-color);
-        color: var(--text-primary);
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        margin: 0 8px;
-    }
-
-    .flipbook-nav-btn:hover:not(:disabled) {
-        background: var(--main-color);
-        color: #000;
-        border-color: var(--main-color);
-        transform: translateY(-2px);
-    }
-
-    .flipbook-nav-btn:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-    }
-
-    @media (max-width: 768px) {
-        .flipbook {
-            width: 95vw;
-            height: 80vh;
-            max-height: 90vh;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .flipbook {
-            width: 90vw;
-            height: 70vh;
-            max-height: 80vh;
-        }
-        .flipbook-nav-btn {
-            padding: 8px 16px;
-            font-size: 0.8rem;
-        }
-    }
-
     .read-header {
         display: flex;
         align-items: center;
@@ -705,23 +579,27 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
 
     .flipbook-wrapper {
         flex: 1;
-        overflow: visible;
-        display: flex;
-        justify-content: center;
+        overflow: auto; /* Allows scrolling when zoomed */
+        display: flex; /* Changed back to flex for perfect centering */
         align-items: center;
+        justify-content: center;
         background: #0f0f0f;
         position: relative;
+        padding: 20px; /* Reduced padding to remove unnecessary extra space */
     }
 
     .flipbook {
-        width: 800px;
-        height: 1000px;
+        width: 100%;
+        max-width: 1000px; /* Reduced from 1200px to tighten the space beside the book */
+        height: 75vh;
+        margin: auto; /* CRITICAL: This allows you to scroll to the top/left when zoomed from the center */
         background: #2a2a2a;
         border: 2px solid var(--main-color);
         border-radius: 8px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        overflow: visible;
         position: relative;
+        transition: transform 0.25s ease;
+        transform-origin: center center; /* Forces the zoom to happen from the exact middle */
     }
 
     .flipbook-page {
@@ -730,15 +608,25 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
         display: flex;
         justify-content: center;
         align-items: center;
-        background: #e5e5e5;
-        padding: 20px;
-        box-sizing: border-box;
+        background: #ffffff; /* Changed to white to blend better with PDF margins */
+        box-sizing: border-box; 
+        overflow: hidden; /* CRITICAL: This hides the margins that we push out of bounds */
     }
 
-    .flipbook-page img {
-        max-width: 100%;
-        max-height: calc(100% - 40px);
-        object-fit: contain;
+    .flipbook-page img, 
+    .flipbook-page canvas {
+        width: 100%;
+        height: 100%;
+        
+        /* 1. Protects the edges from being chopped off completely */
+        object-fit: contain; 
+        
+        /* 2. Lowered the zoom slightly so it crops margins without eating the text */
+        transform: scale(1); 
+        
+        /* 3. Ensures the zoom happens evenly from the center of the page */
+        transform-origin: center center;
+        
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         border-radius: 4px;
     }
@@ -754,14 +642,15 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
         font-size: 0.95rem;
     }
 
-    .flipbook-bottom-bar {
+   .flipbook-bottom-bar {
         display: flex;
-        flex-direction: column;
+        flex-direction: row; /* Changed from column to row */
+        justify-content: center; /* Centers the buttons horizontally */
         align-items: center;
-        gap: 10px;
-        padding: 10px 16px;
-        background: #1a1a1a;
-        border-top: 1px solid #333;
+        gap: 20px;
+        padding: 16px;
+        background: var(--surface-color); /* Matches the site theme */
+        border-top: 1px solid var(--border-color);
         flex-shrink: 0;
         z-index: 10;
     }
@@ -1078,29 +967,33 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
                 </div>
             </div>
             <div class="read-header-right">
-                <span class="read-page-indicator" id="pageIndicator">Page 1 of <?php echo $hasPdf ? 'PDF' : $totalPages; ?></span>
+                <?php if ($hasPdf): ?>
+                    <!-- Zoom Controls moved to main header for PDFs -->
+                    <button class="read-back-btn" onclick="zoomOutBook()" title="Zoom Out">
+                        <i class='bx bx-zoom-out'></i>
+                    </button>
+                    <button class="read-back-btn" onclick="zoomInBook()" title="Zoom In">
+                        <i class='bx bx-zoom-in'></i>
+                    </button>
+                <?php else: ?>
+                    <span class="read-page-indicator" id="pageIndicator">Page 1 of <?php echo $totalPages; ?></span>
+                <?php endif; ?>
             </div>
         </div>
 
-        <!-- Progress Bar -->
+        <?php if (!$hasPdf): ?>
+        <!-- Standard Progress Bar (Hidden for PDFs) -->
         <div class="read-progress-bar">
             <div class="read-progress-fill" id="progressFill"></div>
         </div>
+        <?php endif; ?>
 
         <!-- Reading Content -->
         <div class="read-content" id="readContent">
             <?php if ($hasPdf): ?>
                 <!-- Flipbook PDF Reader -->
                 <div class="flipbook-reader-container">
-                    <div class="flipbook-top-bar">
-                        <div class="flipbook-top-left">
-                            <a href="index.php?page=library" class="flipbook-back-btn">
-                                <i class='bx bx-arrow-back'></i>
-                            </a>
-                            <div class="flipbook-title"><?php echo htmlspecialchars($book['title'] ?? ''); ?></div>
-                        </div>
-                    </div>
-
+                    
                     <div class="flipbook-content">
                         <div class="flipbook-wrapper" id="flipbookWrapper">
                             <div id="flipbookContainer" class="flipbook"></div>
@@ -1108,30 +1001,22 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
                         </div>
                     </div>
 
-                    <div class="flipbook-bottom-bar">
-                        <button class="flipbook-nav-btn" id="flipbookPrevBtn" disabled>
-                            <i class='bx bx-chevron-left'></i> Prev
-                        </button>
-                        <span class="flipbook-page-indicator" id="flipbookPageInfo">Page 1 / PDF</span>
-                        <button class="flipbook-nav-btn" id="flipbookNextBtn">
-                            Next <i class='bx bx-chevron-right'></i>
-                        </button>
-                    </div>
                     <div class="flipbook-progress-bar">
                         <div class="flipbook-progress-fill" id="flipbookProgressFill"></div>
                     </div>
 
                     <div class="flipbook-bottom-bar">
                         <button class="flipbook-nav-btn" id="flipbookPrevBtn" onclick="goPrev()" disabled>
-                            <i class='bx bx-chevron-left'></i> Prev
+                            <i class='bx bx-chevron-left'></i> Previous
                         </button>
-                    <span class="flipbook-page-indicator" id="flipbookPageInfo">Page 1 / PDF</span>
-                    <button class="flipbook-nav-btn" id="flipbookNextBtn" onclick="goNext()">
-                        Next <i class='bx bx-chevron-right'></i>
-                    </button>
+                        <span class="flipbook-page-indicator" id="flipbookPageInfo">Page 1 / PDF</span>
+                        <button class="flipbook-nav-btn" id="flipbookNextBtn" onclick="goNext()">
+                            Next <i class='bx bx-chevron-right'></i>
+                        </button>
                     </div>
                 </div>
             <?php elseif ($totalPages > 0): ?>
+                <!-- Standard Text Pages -->
                 <?php foreach ($content as $index => $page): ?>
                 <div class="read-page <?php echo $index === 0 ? 'read-page-active' : ''; ?>" data-page="<?php echo $page['page_number']; ?>">
                     <span class="read-page-number">Page <?php echo $page['page_number']; ?></span>
@@ -1150,16 +1035,18 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
             <?php endif; ?>
         </div>
 
-        <!-- Navigation -->
+        <?php if (!$hasPdf): ?>
+        <!-- Standard Navigation (Hidden for PDFs to prevent ghost buttons) -->
         <div class="read-navigation">
             <button class="read-nav-btn" id="prevPageBtn" disabled>
                 <i class='bx bx-chevron-left'></i> Previous
             </button>
-            <span class="read-nav-info" id="pageInfo">Page 1 / <?php echo $hasPdf ? 'PDF' : $totalPages; ?></span>
-            <button class="read-nav-btn" id="nextPageBtn" <?php echo $hasPdf ? '' : ($totalPages <= 1 ? 'disabled' : ''); ?>>
+            <span class="read-nav-info" id="pageInfo">Page 1 / <?php echo $totalPages; ?></span>
+            <button class="read-nav-btn" id="nextPageBtn" <?php echo $totalPages <= 1 ? 'disabled' : ''; ?>>
                 Next <i class='bx bx-chevron-right'></i>
             </button>
         </div>
+        <?php endif; ?>
 
         <!-- Footer Actions -->
         <div class="read-actions">

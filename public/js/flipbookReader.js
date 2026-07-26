@@ -40,14 +40,17 @@ function initFlipbookReader(pdfUrl, startPage, bookIdParam) {
 
     try {
         pageFlip = new St.PageFlip(container, {
-            width: 800,
-            height: 1000,
-            size: 'fixed',
-            showCover: false,
+            width: 450,         // Base width of ONE page
+            height: 650,        // Base height of ONE page
+            size: 'stretch',    // Allows the book to stretch and fit the container CSS
+            minWidth: 300,
+            maxWidth: 600,
+            minHeight: 400,
+            maxHeight: 900,
+            showCover: true,    // Sets the first page as a single cover page on the right
             flippingTime: 800,
-            usePortrait: true,
-            autoSize: true,
-            maxShadowOpacity: 0.8,
+            usePortrait: false, // CRITICAL: Setting this to false enables the 2-page spread
+            maxShadowOpacity: 0.5,
             mobileScrollSupport: true,
             drawShadow: true,
             swipeDistance: 30
@@ -249,4 +252,31 @@ function destroyFlipbook() {
     pdfDoc = null;
     pageDOMs = [];
     pageStatus = [];
+}
+
+// --- Zoom Functionality ---
+let currentZoom = 0.9; // Starts slightly zoomed out to prevent initial cut-off
+
+window.addEventListener('DOMContentLoaded', () => {
+    // Apply the initial default zoom once the DOM is ready
+    applyBookZoom(); 
+});
+
+window.zoomInBook = function() {
+    currentZoom += 0.1;
+    applyBookZoom();
+};
+
+window.zoomOutBook = function() {
+    if (currentZoom > 0.4) { // Prevents zooming out so far it disappears
+        currentZoom -= 0.1;
+        applyBookZoom();
+    }
+};
+
+function applyBookZoom() {
+    const flipbook = document.getElementById('flipbookContainer');
+    if (flipbook) {
+        flipbook.style.transform = `scale(${currentZoom})`;
+    }
 }
