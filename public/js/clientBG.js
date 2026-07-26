@@ -50,18 +50,18 @@ class ClientBG {
         shadow: 'rgba(0, 0, 0, 0.4)'
       },
       light: {
-        bgInner: '#fdf8ef',
-        bgOuter: '#ebdccb',
-        shelf: '#8c5a3c',
-        leather: ['#a64b2a', '#7a3118', '#c07842', '#8d5b36', '#4a6b52', '#3b5266', '#d19045'],
-        gold: 'rgba(168, 115, 30, 0.9)',
-        paper: '#fffdfa',
-        dust: 'rgba(140, 90, 40, 1)',
-        lightGlowInner: 'rgba(255, 230, 150, 0.55)',
-        lightGlowMid: 'rgba(230, 180, 100, 0.25)',
-        overlayHeading: '#3b2314',
-        overlaySub: '#7a5132',
-        shadow: 'rgba(80, 40, 10, 0.15)'
+        bgInner: '#e8decb',
+        bgOuter: '#cca178',
+        shelf: '#f0a573',
+        leather: ['#7c371d', '#572210', '#94582f', '#613e23', '#334837', '#283845', '#99632f'],
+        gold: 'rgba(120, 80, 20, 0.95)',
+        paper: '#f3ece0',
+        dust: 'rgba(50, 30, 15, 0.95)', // Dark chocolate brown with higher opacity for sharp visibility
+        lightGlowInner: 'rgba(230, 190, 120, 0.45)',
+        lightGlowMid: 'rgba(200, 150, 80, 0.2)',
+        overlayHeading: '#1e1109',
+        overlaySub: '#422817',
+        shadow: 'rgba(40, 20, 5, 0.2)'
       }
     };
 

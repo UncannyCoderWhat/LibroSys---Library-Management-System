@@ -2335,13 +2335,11 @@ html[data-theme="light"] .save-changes-btn {
 }
 
 html[data-theme="light"] .dpwrapper a.active {
-    background: #000000;
-    color: #ffffff;
+    color: #ffb84c;
     font-weight: 600;
 }
 
 html[data-theme="dark"] .dpwrapper a.active {
-    /* background: #ffffff; */
     color: #ffb84c;
     font-weight: 600;
 }
