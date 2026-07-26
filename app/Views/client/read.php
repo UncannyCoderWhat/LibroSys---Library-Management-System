@@ -840,12 +840,17 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
                 const img = document.getElementById('mangaPageImg');
                 if (img) img.src = pages[currentPage];
                 document.getElementById('mangaPageInfo').textContent = 'Page ' + (currentPage + 1) + ' / ' + pages.length;
-                localStorage.setItem('manga_progress_' + bookId + '_' + chapterId, currentPage + 1);
-                fetch('index.php?page=ajax&action=save_reading_progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'book_id=' + encodeURIComponent(bookId) + '&chapter_id=' + encodeURIComponent(chapterId) + '&page_number=' + encodeURIComponent(currentPage + 1)
-                }).catch(() => {});
+                const pageNum = currentPage + 1;
+                localStorage.setItem('manga_progress_' + bookId + '_' + chapterId, pageNum);
+                // Save progress immediately with keepalive to ensure it completes even during page unload
+                try {
+                    fetch('index.php?page=ajax&action=save_reading_progress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'book_id=' + encodeURIComponent(bookId) + '&chapter_id=' + encodeURIComponent(chapterId) + '&page_number=' + encodeURIComponent(pageNum),
+                        keepalive: true
+                    }).catch(function() {});
+                } catch (e) {}
             }
 
             window.mangaNextPage = function() {
@@ -949,6 +954,17 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
                     if (diff > 0) mangaNextPage();
                     else mangaPrevPage();
                 }
+            });
+
+            // Save manga progress synchronously when leaving the page
+            window.addEventListener('beforeunload', function() {
+                try {
+                    const savedPage = parseInt(localStorage.getItem('manga_progress_' + bookId + '_' + chapterId)) || 1;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'index.php?page=ajax&action=save_reading_progress', false);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.send('book_id=' + encodeURIComponent(bookId) + '&chapter_id=' + encodeURIComponent(chapterId) + '&page_number=' + encodeURIComponent(savedPage));
+                } catch (e) {}
             });
 
             updateMangaUI();
@@ -1173,27 +1189,42 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
             }
 
             updatePage();
-        }
 
-        let saveTimeout = null;
-        function saveProgress(pageNum) {
-            try {
-                localStorage.setItem('reading_progress_' + bookId, pageNum);
-            } catch (e) {}
+            let saveTimeout = null;
+            function saveProgress(pageNum) {
+                try {
+                    localStorage.setItem('reading_progress_' + bookId, pageNum);
+                } catch (e) {}
 
-            if (saveTimeout) clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(function() {
-                fetch('index.php?page=ajax&action=save_reading_progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum)
-                }).catch(function(err) {
-                    console.error('Failed to save reading progress:', err);
-                });
-            }, 800);
+                if (saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(function() {
+                    fetch('index.php?page=ajax&action=save_reading_progress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum)
+                    }).catch(function(err) {
+                        console.error('Failed to save reading progress:', err);
+                    });
+                }, 800);
+            }
+
+            // Save progress immediately when leaving the page
+            window.addEventListener('beforeunload', function() {
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = null;
+                }
+                try {
+                    const pageNum = parseInt(localStorage.getItem('reading_progress_' + bookId)) || startPage;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'index.php?page=ajax&action=save_reading_progress', false);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.send('book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum));
+                } catch (e) {}
+            });
         }
     });
-    </script>
+</script>
 <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
 </body>
 </html>

@@ -213,14 +213,24 @@ function updateIndicators(pageNum) {
 
 function saveProgress(pageNum) {
     try { localStorage.setItem('reading_progress_' + bookId, pageNum); } catch (e) {}
-    if (renderTimeout) clearTimeout(renderTimeout);
-    renderTimeout = setTimeout(function() {
-        fetch('index.php?page=ajax&action=save_reading_progress', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum)
-        }).catch(function(err) { console.error('Failed to save progress:', err); });
-    }, 800);
+
+    const body = 'book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum);
+
+    try {
+        if (navigator.sendBeacon) {
+            const blob = new Blob([body], { type: 'application/x-www-form-urlencoded' });
+            navigator.sendBeacon('index.php?page=ajax&action=save_reading_progress', blob);
+        } else {
+            fetch('index.php?page=ajax&action=save_reading_progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body,
+                keepalive: true
+            }).catch(function(err) { console.error('Failed to save progress:', err); });
+        }
+    } catch (err) {
+        console.error('Failed to save progress:', err);
+    }
 }
 
 function goNext() {
@@ -253,6 +263,30 @@ function destroyFlipbook() {
     pageDOMs = [];
     pageStatus = [];
 }
+
+// Save progress when leaving the page
+function scheduleLeaveSave() {
+    if (!pdfDoc) return;
+
+    const pageNum = currentPage > 0 ? currentPage : (parseInt(localStorage.getItem('reading_progress_' + bookId)) || 1);
+    if (!bookId || pageNum <= 0) return;
+
+    try {
+        const body = 'book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum);
+        if (navigator.sendBeacon) {
+            const blob = new Blob([body], { type: 'application/x-www-form-urlencoded' });
+            navigator.sendBeacon('index.php?page=ajax&action=save_reading_progress', blob);
+        } else {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'index.php?page=ajax&action=save_reading_progress', false);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send(body);
+        }
+    } catch (e) {}
+}
+
+window.addEventListener('beforeunload', scheduleLeaveSave);
+window.addEventListener('pagehide', scheduleLeaveSave);
 
 // --- Zoom Functionality ---
 let currentZoom = 0.9; // Starts slightly zoomed out to prevent initial cut-off

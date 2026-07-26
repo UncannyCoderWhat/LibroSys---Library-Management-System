@@ -163,7 +163,7 @@ if (!isset($base_url)) {
                     <thead>
                         <tr>
                             <th>Book Title</th>
-                            <th>Borrowed By</th>
+                            <th>Action By</th>
                             <th>Date</th>
                             <th>Status</th>
                         </tr>

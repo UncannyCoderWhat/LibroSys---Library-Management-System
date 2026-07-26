@@ -161,6 +161,7 @@ class BookDetailController extends ClientController
             $stmt = $this->pdo->prepare("
                 SELECT chapter_id, page_number FROM reading_progress 
                 WHERE user_id = ? AND book_id = ? AND chapter_id IS NOT NULL
+                ORDER BY updated_at DESC
                 LIMIT 1
             ");
             $stmt->execute([$userId, $bookId]);
@@ -178,6 +179,7 @@ class BookDetailController extends ClientController
         $stmt = $this->pdo->prepare("
             SELECT page_number FROM reading_progress 
             WHERE user_id = ? AND book_id = ?
+            ORDER BY updated_at DESC
             LIMIT 1
         ");
         $stmt->execute([$userId, $bookId]);
