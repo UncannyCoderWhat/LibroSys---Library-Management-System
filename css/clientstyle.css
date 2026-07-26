@@ -4406,6 +4406,7 @@ html[data-theme="light"] .ls-section-title-forLight {
 }
 
 .special-book-card[data-title*="thrones"]:hover {
+    cursor: none; /* Add it here */
     border-color: #ff2200 !important;
     box-shadow: 0 0 30px rgba(255, 34, 0, 0.7), inset 0 0 20px rgba(139, 0, 0, 0.8) !important;
     animation: battlefieldVibrate 0.15s infinite alternate;
@@ -4457,6 +4458,7 @@ html[data-theme="light"] .ls-section-title-forLight {
 }
 
 .special-book-card[data-title*="jujutsu"]:hover {
+    cursor: none;
     border-color: #ff0055 !important;
     animation: cursedEnergy 0.15s infinite alternate;
 }
@@ -4488,6 +4490,7 @@ html[data-theme="light"] .ls-section-title-forLight {
 }
 
 .special-book-card[data-title*="sherlock"]:hover {
+    cursor: none;
     border-color: #d4af37 !important; /* Vintage Gold */
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.8) !important;
 }
@@ -4512,6 +4515,7 @@ html[data-theme="light"] .ls-section-title-forLight {
 
 .special-book-card[data-title*="harry potter"]:hover,
 .special-book-card[data-title*="cursed child"]:hover {
+    cursor: none;
     border-color: #ffd700 !important;
     box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), 0 0 40px rgba(138, 43, 226, 0.4) !important; /* Magic Purple + Gold */
     animation: magicPulse 1.8s infinite alternate;
