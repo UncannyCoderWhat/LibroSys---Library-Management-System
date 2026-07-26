@@ -71,7 +71,7 @@ if (!isset($base_url)) {
             <div class="metric-card card-exclusive">
                 <i class="fa-solid fa-award card-icon"></i>
                 <div class="card-info">
-                    <span class="card-label">EXCLUSIVE BOOKS</span>
+                    <span class="card-label">SPECIAL BOOKS</span>
                     <span class="card-value"><?php echo htmlspecialchars($exclusiveBooks ?? 0); ?></span>
                     <span class="card-subtext">Special Collection</span>
                 </div>
@@ -111,7 +111,7 @@ if (!isset($base_url)) {
             </div>
         </section>
 
-        <!-- Activity Ledger Section -->
+        <!-- RECENT BORROW ACTIVITY -->
         <section class="activity-section">
             <h2 class="section-title">RECENT BORROW ACTIVITY</h2>
             <div class="table-wrapper">
@@ -127,9 +127,12 @@ if (!isset($base_url)) {
                     <tbody>
                         <?php if (!empty($activities)): ?>
                             <?php foreach ($activities as $row): ?>
-                                <?php
+                                <?php 
+                                    $statusClass = strtolower($row['status'] ?? '');
+                                    if (!in_array($statusClass, ['borrowed', 'returned'])) {
+                                        continue;
+                                    }
                                     $formattedDate = date("F d, Y", strtotime($row['borrow_date']));
-                                    $statusClass   = strtolower($row['status']);
                                 ?>
                                 <tr class="activity-row">
                                     <td><?php echo htmlspecialchars($row['book_title']); ?></td>
@@ -145,6 +148,50 @@ if (!isset($base_url)) {
                         <?php else: ?>
                             <tr>
                                 <td colspan="4" class="no-data-cell">No recent borrow activity found.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- RECENT READING AND BOOKMARK ACTIVITY -->
+        <section class="activity-section">
+            <h2 class="section-title">RECENT READING AND BOOKMARK ACTIVITY</h2>
+            <div class="table-wrapper">
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Borrowed By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($activities)): ?>
+                            <?php foreach ($activities as $row): ?>
+                                <?php 
+                                    $statusClass = strtolower($row['status'] ?? '');
+                                    if (!in_array($statusClass, ['bookmarked', 'reading'])) {
+                                        continue;
+                                    }
+                                    $formattedDate = date("F d, Y", strtotime($row['borrow_date']));
+                                ?>
+                                <tr class="activity-row">
+                                    <td><?php echo htmlspecialchars($row['book_title']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['user_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($formattedDate); ?></td>
+                                    <td>
+                                        <span class="status-badge <?php echo htmlspecialchars($statusClass); ?>">
+                                            <?php echo htmlspecialchars(ucfirst($row['status'])); ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" class="no-data-cell">No recent activity found.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
