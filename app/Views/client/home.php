@@ -139,6 +139,45 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             </div>
         </section>
 
+        <!-- Special Row -->
+        <?php if (!empty($new_releases)): ?>
+        <section class="special-shelf-section">
+            <div class="special-section-header">
+                <h2 class="special-section-title"><i class='bx bx-trophy'></i> Special</h2>
+                <a href="index.php?page=browse" class="special-view-all">View All <i class='bx bx-chevron-right'></i></a>
+            </div>
+            <div class="special-horizontal-scroll">
+                <button class="special-scroll-arrow special-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
+                <div class="special-scroll-track">
+                    <?php foreach ($new_releases as $book): ?>
+                    <div class="special-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                        <div class="special-book-cover-wrap">
+                            <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="special-book-cover" loading="lazy">
+                            <div class="special-book-overlay">
+                                <i class='bx bx-plus-circle'></i>
+                            </div>
+                            <?php if (!empty($book['is_exclusive'])): ?>
+                            <span class="special-exclusive-badge">Exclusive</span>
+                            <?php endif; ?>
+                            <?php if ($book['is_borrowed'] ?? false): ?>
+                            <span class="special-borrowed-badge">Borrowed</span>
+                            <?php endif; ?>
+                            <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                            <span class="special-unavailable-badge">Not Available</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="special-book-info">
+                            <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                            <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <button class="special-scroll-arrow special-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
+            </div>
+        </section>
+        <?php endif; ?>
+
         <!-- New Releases Row -->
         <?php if (!empty($new_releases)): ?>
         <section class="ls-shelf-section">
@@ -551,7 +590,9 @@ $book_type_groups = $data['book_type_groups'] ?? [];
     <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/dropdown.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/browse.js"></script>
-    <script src="<?php echo $base_url; ?>/public/js/home.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/specialHorizontalScroll.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/horizontalScroll.js"></script>  
+    <script src="<?php echo $base_url; ?>/public/js/specialBookAnimation.js"></script>  
 </body>
 </html>

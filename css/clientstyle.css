@@ -2776,10 +2776,12 @@ html[data-theme="light"] .ls-shelf-type-other {
 
 .ls-scroll-left {
     left: -18px;
+    top: 100px;
 }
 
 .ls-scroll-right {
     right: -18px;
+    top: 100px;
 }
 
 .ls-scroll-arrow:hover {
@@ -3055,6 +3057,7 @@ html[data-theme="light"] .ls-exclusive-badge {
     margin-bottom: 32px;
     background: var(--surface-color);
     box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    margin-top: 55px;
 }
 
 /* Background Image Blur */
@@ -4011,7 +4014,7 @@ html[data-theme="light"] .bd-btn-primary {
     }
 }
 
-.ls-hero, .ls-stats-strip, .ls-shelf-section, .ls-shelf-section, .ls-modal-overlay, .ls-footer {
+.ls-hero, .ls-stats-strip, .special-shelf-section, .ls-shelf-section, .ls-shelf-section, .ls-modal-overlay, .ls-footer {
     animation: fadeUp linear;
     animation-timeline:view();
     animation-range: entry 0% cover 40%;
@@ -4048,4 +4051,369 @@ html[data-theme="light"] .ls-section-title-forLight {
 }
 /* ========================
     FOR LIGHT MODE (MORE IN OTHER PART) - END
+=========================== */
+
+
+
+
+/* ========================
+    SPECIAL BOOKS (HOME) - START
+=========================== */
+/* Shelf Sections */
+.special-shelf-section {
+    margin-bottom: 40px;
+    margin-top: 80px;
+}
+
+.special-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.special-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.special-section-title i {
+    color: var(--main-color, #f5b041);
+    font-size: 1.4rem;
+}
+
+.special-view-all {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted, #a0a0a0);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.special-view-all:hover {
+    color: var(--main-color, #f5b041);
+}
+
+/* Horizontal Scroll Container */
+.special-horizontal-scroll {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.special-scroll-track {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 10px 4px;
+    width: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.special-scroll-track::-webkit-scrollbar {
+    display: none;
+}
+
+/* Scroll Arrows */
+.special-scroll-arrow {
+    position: absolute;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-color, #1f1f23);
+    border: 1px solid var(--border-color, #2a2a30);
+    color: var(--text-primary, #ffffff);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.4));
+    transition: all 0.2s;
+    opacity: 0;
+    pointer-events: none;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.special-horizontal-scroll:hover .special-scroll-arrow {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.special-scroll-left {
+    left: -18px;
+}
+
+.special-scroll-right {
+    right: -18px;
+}
+
+.special-scroll-arrow:hover {
+    background: var(--surface-color-secondary, #2a2a30);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Horizontal Book Card Layout */
+.special-scroll-track .special-book-card {
+    flex: 0 0 420px !important;
+    width: 420px !important;
+    min-width: 420px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    background: var(--surface-color, #18181c);
+    border: 1px solid var(--border-color, #2a2a30);
+    border-radius: 16px;
+    padding: 18px;
+    gap: 18px;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.special-scroll-track .special-book-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--main-color, #f5b041);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Book Cover Styling */
+.special-scroll-track .special-book-cover-wrap {
+    flex: 0 0 120px !important;
+    width: 120px !important;
+    height: 175px !important;
+    aspect-ratio: auto !important;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface-color-secondary, #222);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.special-scroll-track .special-book-cover {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.special-book-card:hover .special-book-cover {
+    transform: scale(1.05);
+}
+
+/* Cover Hover Overlay */
+.special-book-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+    z-index: 2;
+}
+
+.special-book-overlay i {
+    font-size: 2.2rem;
+    color: #ffffff;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.special-book-card:hover .special-book-overlay {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.special-book-card:hover .special-book-overlay i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Book Details inside Card */
+.special-book-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+}
+
+.special-book-info h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    margin-bottom: 8px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.special-book-info p {
+    font-size: 0.88rem;
+    color: var(--main-color, #f5b041);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ========================
+    SPECIAL BOOKS (HOME) - END
+=========================== */
+
+
+
+/* ========================
+    SPECIAL BOOKS ANIMATION (HOME) - START
+=========================== */
+/* --- Game of Thrones: War & Battle Animation --- */
+.special-book-card[data-title*="thrones"] {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.special-book-card[data-title*="thrones"]:hover {
+    border-color: #ff2200 !important;
+    box-shadow: 0 0 30px rgba(255, 34, 0, 0.7), inset 0 0 20px rgba(139, 0, 0, 0.8) !important;
+    animation: battlefieldVibrate 0.15s infinite alternate;
+}
+
+/* Violent screen shake / rumble effect */
+@keyframes battlefieldVibrate {
+    0% { transform: translateY(-4px) translateX(-1px) rotate(0deg); }
+    50% { transform: translateY(-5px) translateX(1px) rotate(-0.5deg); }
+    100% { transform: translateY(-3px) translateX(-1px) rotate(0.5deg); }
+}
+
+/* Crossed Swords Clashing Flash */
+@keyframes swordClash {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5) rotate(-15deg);
+    }
+    30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
+        filter: drop-shadow(0 0 15px #ff2200);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5) rotate(15deg);
+    }
+}
+
+/* Charging War Horse Silhouette */
+@keyframes horseCharge {
+    0% {
+        transform: translateY(-50%) translateX(-120px) scale(0.7);
+        opacity: 0;
+    }
+    20% { opacity: 0.4; }
+    80% { opacity: 0.4; }
+    100% {
+        transform: translateY(-50%) translateX(480px) scale(1.1);
+        opacity: 0;
+    }
+}
+
+/* --- Jujutsu Kaisen Theme (Cursed Energy Aura) --- */
+.special-book-card[data-title*="jujutsu"] {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.special-book-card[data-title*="jujutsu"]:hover {
+    border-color: #ff0055 !important;
+    animation: cursedEnergy 0.15s infinite alternate;
+}
+
+.special-book-card[data-title*="jujutsu"] .special-book-cover-wrap {
+    transition: filter 0.3s ease;
+}
+
+.special-book-card[data-title*="jujutsu"]:hover .special-book-cover-wrap {
+    filter: drop-shadow(0 0 10px #ff0055) drop-shadow(0 0 20px #8000ff);
+}
+
+@keyframes cursedEnergy {
+    0% {
+        box-shadow: -3px 0 15px rgba(255, 0, 85, 0.8), 3px 0 25px rgba(128, 0, 255, 0.6);
+        transform: translateY(-4px) translate(-1px, 0);
+    }
+    100% {
+        box-shadow: 3px 0 25px rgba(255, 0, 85, 0.6), -3px 0 15px rgba(128, 0, 255, 0.8);
+        transform: translateY(-4px) translate(1px, 0);
+    }
+}
+
+/* --- Sherlock Holmes Theme (Detective Magnifying Glass & Mystery Glow) --- */
+.special-book-card[data-title*="sherlock"] {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.special-book-card[data-title*="sherlock"]:hover {
+    border-color: #d4af37 !important; /* Vintage Gold */
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.8) !important;
+}
+
+.special-book-card[data-title*="sherlock"] .special-book-cover-wrap {
+    transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+/* Subtle magnifying glass lens zoom effect on hover */
+.special-book-card[data-title*="sherlock"]:hover .special-book-cover-wrap {
+    transform: scale(1.08);
+    filter: sepia(0.3) contrast(1.1);
+}
+
+/* --- Harry Potter & The Cursed Child Theme (Golden Snitch & Spell Sparkle) --- */
+.special-book-card[data-title*="harry potter"],
+.special-book-card[data-title*="cursed child"] {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.special-book-card[data-title*="harry potter"]:hover,
+.special-book-card[data-title*="cursed child"]:hover {
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), 0 0 40px rgba(138, 43, 226, 0.4) !important; /* Magic Purple + Gold */
+    animation: magicPulse 1.8s infinite alternate;
+}
+
+@keyframes magicPulse {
+    0% {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), 0 0 25px rgba(138, 43, 226, 0.3);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 50px rgba(138, 43, 226, 0.6);
+    }
+}
+/* ========================
+    SPECIAL BOOKS ANIMATION (HOME) - END
 =========================== */
