@@ -177,27 +177,28 @@ class BookModel
         }
     }
 
+    // UPDATE BOOK
     public function updateBook(array $post, array $files): array
     {
         $id               = (int)($post['book_id'] ?? 0);
-        $title            = $post['title'] ?? '';
-        $author           = $post['author'] ?? '';
-        $isbn             = $post['isbn'] ?? '';
-        $genre            = $post['genre'] ?? '';
-        $book_type        = $post['book_type'] ?? '';
-        $publisher        = $post['publisher'] ?? '';
+        $title            = trim($post['title'] ?? '');
+        $author           = trim($post['author'] ?? '');
+        $isbn             = trim($post['isbn'] ?? '');
+        $genre            = trim($post['genre'] ?? '');
+        $book_type        = trim($post['book_type'] ?? '');
+        $publisher        = trim($post['publisher'] ?? '');
         $publication_year = !empty($post['publication_year']) ? (int)$post['publication_year'] : null;
-        $language         = $post['language'] ?? 'English';
+        $language         = trim($post['language'] ?? 'English');
         $copies           = max(1, (int)($post['copies'] ?? 1));
-        $description      = $post['description'] ?? '';
+        $description      = trim($post['description'] ?? '');
         $is_exclusive     = isset($post['is_exclusive']) ? 1 : 0;
         $status           = $post['status'] ?? 'available';
         $category_id      = !empty($post['category_id']) ? (int)$post['category_id'] : null;
         $author_id        = !empty($post['author_id']) ? (int)$post['author_id'] : null;
         $publisher_id     = !empty($post['publisher_id']) ? (int)$post['publisher_id'] : null;
         $cover_path       = $post['current_cover'] ?? 'images/book-icon.png';
+        $full_cover_path  = $post['current_full_cover'] ?? null;
 
-        // Auto-create author if not selected but name is provided
         if (empty($author_id) && !empty($author)) {
             $stmt = $this->pdo->prepare("SELECT id FROM authors WHERE LOWER(name) = LOWER(?)");
             $stmt->execute([$author]);
@@ -212,7 +213,6 @@ class BookModel
             }
         }
 
-        // Auto-create publisher if not selected but name is provided
         if (empty($publisher_id) && !empty($publisher)) {
             $stmt = $this->pdo->prepare("SELECT id FROM publishers WHERE LOWER(name) = LOWER(?)");
             $stmt->execute([$publisher]);
@@ -227,17 +227,34 @@ class BookModel
             }
         }
 
-        // Handle cover image upload
+        $upload_dir = __DIR__ . '/../../../uploads/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        // Handle Cover Image
         if (isset($files['cover_image']) && ($files['cover_image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
-            $upload_dir = __DIR__ . '/../../../uploads/';
-            $file_name = time() . '_' . basename($files['cover_image']['name']);
+            $file_name = time() . '_cover_' . basename($files['cover_image']['name']);
             $target_file = $upload_dir . $file_name;
             $image_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
             if (in_array($image_file_type, $allowed_extensions, true)) {
                 if (move_uploaded_file($files['cover_image']['tmp_name'], $target_file)) {
                     $cover_path = 'uploads/' . $file_name;
+                }
+            }
+        }
+
+        // Handle Full Cover Image
+        if (isset($files['full_cover_image']) && ($files['full_cover_image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+            $file_name = time() . '_full_cover_' . basename($files['full_cover_image']['name']);
+            $target_file = $upload_dir . $file_name;
+            $image_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+            if (in_array($image_file_type, $allowed_extensions, true)) {
+                if (move_uploaded_file($files['full_cover_image']['tmp_name'], $target_file)) {
+                    $full_cover_path = 'uploads/' . $file_name;
                 }
             }
         }
@@ -248,37 +265,34 @@ class BookModel
                     title = ?, author = ?, isbn = ?, genre = ?, book_type = ?, publisher = ?, 
                     publication_year = ?, language = ?, 
                     copies = ?, description = ?, is_exclusive = ?, status = ?,
-                    category_id = ?, author_id = ?, publisher_id = ?, cover_path = ?
+                    category_id = ?, author_id = ?, publisher_id = ?, cover_path = ?, full_cover_path = ?
                 WHERE id = ?
             ");
             $stmt->execute([
                 $title, $author, $isbn, $genre, $book_type, $publisher, $publication_year, $language,
                 $copies, $description, $is_exclusive, $status,
-                $category_id, $author_id, $publisher_id, $cover_path, $id
+                $category_id, $author_id, $publisher_id, $cover_path, $full_cover_path, $id
             ]);
 
-            // Sync copies: ensure exactly $copies copies exist in book_copies
             $existingCopies = $this->getBookCopies($id);
             $currentCount = count($existingCopies);
+
             if ($copies > $currentCount) {
                 for ($i = $currentCount + 1; $i <= $copies; $i++) {
                     $label = "Copy #{$i}";
                     $this->pdo->prepare("INSERT INTO book_copies (book_id, copy_label, status) VALUES (?, ?, 'available')")
-                              ->execute([$id, $label]);
+                            ->execute([$id, $label]);
                 }
             } elseif ($copies < $currentCount) {
-                // Remove excess copies (delete from the end, skipping borrowed copies)
                 $excess = $currentCount - $copies;
                 $deleted = 0;
-                foreach ($existingCopies as $copy) {
+                foreach (array_reverse($existingCopies) as $copy) {
                     if ($deleted >= $excess) break;
                     if ($copy['status'] === 'available') {
                         $this->pdo->prepare("DELETE FROM book_copies WHERE id = ?")->execute([$copy['id']]);
                         $deleted++;
                     }
                 }
-                // If we still need to remove more (all remaining copies are borrowed), 
-                // keep the books.copies in sync with the actual remaining count
                 $remainingCount = count($this->getBookCopies($id));
                 if ($remainingCount !== $copies) {
                     $this->pdo->prepare("UPDATE books SET copies = ? WHERE id = ?")->execute([$remainingCount, $id]);

@@ -268,6 +268,7 @@ function openEditModal(book) {
     setVal('edit_author', book.author);
     setVal('edit_isbn', book.isbn);
     setVal('edit_current_cover', book.cover_path);
+    setVal('edit_current_full_cover', book.full_cover_path);
     setVal('edit_publisher', book.publisher);
     setVal('edit_publication_year', book.publication_year);
     setVal('edit_language', book.language || 'English');

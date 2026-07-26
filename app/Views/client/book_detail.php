@@ -87,7 +87,13 @@ $userBorrow = $data['userBorrow'] ?? null;
             <div class="bd-hero-content">
                 <div class="bd-cover-section">
                     <div class="bd-cover-wrap">
-                        <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="<?php echo htmlspecialchars($book['title'] ?? ''); ?>" class="bd-cover" loading="lazy">
+                        <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" 
+                            data-full-cover="<?php echo htmlspecialchars($book['full_cover_path'] ?? $book['cover_path'] ?? 'images/book-icon.png'); ?>" 
+                            alt="<?php echo htmlspecialchars($book['title'] ?? ''); ?>" 
+                            class="bd-cover" 
+                            id="mainBookCover" 
+                            style="cursor: pointer;" 
+                            loading="lazy">
                         <?php if (!empty($book['is_exclusive'])): ?>
                         <span class="bd-exclusive-tag">Exclusive</span>
                         <?php endif; ?>
@@ -395,7 +401,13 @@ $userBorrow = $data['userBorrow'] ?? null;
         </div>
     </div>
 
+    <div id="imageModal" class="lightbox-modal">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="imgFull">
+    </div>
+
     <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/bookLightBox.js"></script>
     <script>
     function openBorrowModal(bookId) {
         document.getElementById('borrowBookId').value = bookId;

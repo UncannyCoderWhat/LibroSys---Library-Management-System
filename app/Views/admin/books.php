@@ -113,7 +113,7 @@ if (!isset($base_url)) {
 
     <!-- EDIT BOOK MODAL -->
     <div id="editBookModal" class="modal modal-large" style="display:none"><div class="modal-content"><span class="close" onclick="closeModal('editBookModal')">&times;</span><h2 class="section-title"><i class="fa-solid fa-pen"></i> Edit Book Details</h2>
-    <form action="index.php?page=admin_books" method="POST" enctype="multipart/form-data"><input type="hidden" name="book_id" id="edit_book_id"><input type="hidden" name="current_cover" id="edit_current_cover"><div class="form-grid">
+    <form action="index.php?page=admin_books" method="POST" enctype="multipart/form-data"><input type="hidden" name="book_id" id="edit_book_id"><input type="hidden" name="current_cover" id="edit_current_cover"><input type="hidden" name="current_full_cover" id="edit_current_full_cover"><div class="form-grid">
     <div><label>Title *</label><input type="text" name="title" id="edit_title" required></div>
     <div><label>Author *</label><input type="text" name="author" id="edit_author" required></div>
     <div><label>ISBN *</label><input type="text" name="isbn" id="edit_isbn" required></div>
@@ -129,6 +129,7 @@ if (!isset($base_url)) {
     <div><label>Author (list)</label><select name="author_id" id="edit_author_id"><option value="">-- Select Author --</option><?php foreach($all_authors??[] as $auth):?><option value="<?php echo $auth['id'];?>"><?php echo htmlspecialchars($auth['name']);?></option><?php endforeach;?></select></div>
     <div><label>Publisher (list)</label><select name="publisher_id" id="edit_publisher_id"><option value="">-- Select Publisher --</option><?php foreach($all_publishers??[] as $pub):?><option value="<?php echo $pub['id'];?>"><?php echo htmlspecialchars($pub['name']);?></option><?php endforeach;?></select></div>
     <div><label>Change Cover</label><input type="file" name="cover_image" accept="image/*"></div>
+    <div><label>Upload Full Cover</label><input type="file" name="full_cover_image" accept="image/*"></div>
     <div class="full-width"><label><input type="checkbox" name="is_exclusive" id="edit_is_exclusive" value="1"> Special Perk</label></div>
     <div class="full-width"><label>Description</label><textarea name="description" id="edit_description" placeholder="Book description..."></textarea></div>
     </div><div class="modal-footer-actions"><button type="button" class="btn btn-danger" onclick="confirmDelete(document.getElementById('edit_book_id').value)">DELETE</button><button type="submit" name="update_book" class="submit-btn"><i class="fa-solid fa-save"></i> Save Changes</button></div></form></div></div>

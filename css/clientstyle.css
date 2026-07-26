@@ -3564,6 +3564,71 @@ html[data-theme="light"] .bd-btn-primary {
     }
 }
 
+
+
+
+
+
+/* ==========================================
+   LIGHT BOX & 3D - START
+   ========================================== */
+/* Enable 3D perspective on the lightbox container */
+.lightbox-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px; /* Crucial for 3D depth */
+}
+
+/* 3D styling for the image */
+.lightbox-content {
+  max-width: 80%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: -15px 20px 30px rgba(0, 0, 0, 0.6);
+  transition: none; /* <-- REMOVE or set to NONE to fix the movement delay */
+  transform-style: preserve-3d;
+  user-select: none; /* Prevents native image ghost dragging */
+  -webkit-user-drag: none;
+}
+
+/* Interactive hover effect: Straightens image slightly on hover */
+.lightbox-content:hover {
+  transform: rotateY(-5deg) rotateX(2deg) scale(0.95);
+  box-shadow: -20px 25px 35px rgba(0, 0, 0, 0.7);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  z-index: 10000;
+}
+/* ==========================================
+   LIGHT BOX & 3D - END
+   ========================================== */
+
+
+
+
+
+
+
 /* ==========================================
    LIBRARY PAGE STYLES
    ========================================== */
