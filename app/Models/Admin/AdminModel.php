@@ -433,7 +433,7 @@ class AdminModel
                 }
             }
 
-            $log['type'] = $log['type'] ? 'Exclusive' : 'Regular';
+            $log['type'] = $log['type'] ? 'Special' : 'Regular';
             $log['days_late'] = $daysLate;
             $log['total_fine'] = number_format($fine, 2);
 

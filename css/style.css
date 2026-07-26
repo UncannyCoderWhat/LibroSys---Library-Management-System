@@ -1284,20 +1284,24 @@ body {
 }
 
 .status-badge.borrowed,
-.status-badge.available {
+.status-badge.available, 
+.status-badge.reading {
     background: rgba(0, 230, 118, 0.1);
     color: var(--accent-emerald);
     border-color: rgba(0, 230, 118, 0.25);
 }
 .status-badge.borrowed::before,
-.status-badge.available::before { background: var(--accent-emerald); box-shadow: 0 0 6px var(--accent-emerald); }
+.status-badge.available::before,
+.status-badge.reading::before { background: var(--accent-emerald); box-shadow: 0 0 6px var(--accent-emerald); }
 
-.status-badge.returned {
+.status-badge.returned,
+.status-badge.bookmarked {
     background: rgba(160, 166, 177, 0.1);
     color: var(--text-secondary);
     border-color: rgba(160, 166, 177, 0.2);
 }
-.status-badge.returned::before { background: var(--text-secondary); }
+.status-badge.returned::before,
+.status-badge.bookmarked::before { background: var(--text-secondary); }
 
 .status-badge.reserved {
     background: rgba(0, 229, 255, 0.1);
