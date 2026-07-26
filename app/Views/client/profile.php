@@ -48,7 +48,6 @@ $browse_error     = $data['browse_error'] ?? null;
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" onclick="window.scrollTo({top:0,behavior:'smooth'})" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
-                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade Premium</button>
                     <a href="index.php?page=home" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'home' ? 'active' : ''; ?>"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=library" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'library' ? 'active' : ''; ?>"><i class='bx bx-book'></i>Library</a>
                     <div class="dpContainer">
@@ -411,6 +410,28 @@ $browse_error     = $data['browse_error'] ?? null;
         </main>
     </div>
 
+    <!-- Borrow Modal -->
+    <div id="borrowModal" class="ls-modal-overlay" style="display: none;">
+        <div class="ls-modal-container" style="max-width: 500px;">
+            <span class="ls-modal-close" onclick="closeBorrowModal()">&times;</span>
+            <img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="ls-modal-logo">
+            <h3 class="ls-modal-title">Borrow Physical Copy</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px; text-align: center;">
+                Please enter your delivery address. Borrowing period is 7 days. Extensions incur a ₱50 fee per 7 days.
+            </p>
+            <form id="borrowForm" onsubmit="submitBorrow(event)">
+                <input type="hidden" id="borrowBookId" value="">
+                <div class="form-group">
+                    <label for="delivery_address" style="display: block; margin-bottom: 8px; font-weight: 600;">Delivery Address</label>
+                    <textarea id="delivery_address" name="delivery_address" rows="3" required placeholder="Enter your full address" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--surface-color); color: var(--text-primary); resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="ls-btn ls-btn-primary" style="width: 100%; margin-top: 20px; justify-content: center;">
+                    <i class='bx bx-shopping-bag'></i> Confirm Borrow
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div id="receiptModal" class="modal" style="display: none;">
         <div class="modal-content receipt-card">
             <div class="receipt-header">
@@ -443,45 +464,7 @@ $browse_error     = $data['browse_error'] ?? null;
         </div>
     </div>
 
-    <!-- Upgrade Premium Modal -->
-    <div id="premiumModal" class="ls-modal-overlay">
-        <div class="ls-modal-container">
-            <span class="ls-modal-close" onclick="closePremiumModal()">&times;</span>
-            <img src="/images/librosys_client.png" alt="LibroSys Logo" class="ls-modal-logo">
-            <h3 class="ls-modal-title">Level-up your LibroSys Experience!</h3>
 
-            <table class="ls-modal-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Regular</th>
-                        <th>Premium</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>(Perks to)</td>
-                        <td>X</td>
-                        <td>/</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <p class="ls-modal-trial">Start your 7 day free trial</p>
-
-            <div class="ls-modal-prices">
-                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=home'">
-                    <span class="ls-price-main">P100 /month</span>
-                    <span class="ls-price-sub">1 MONTH</span>
-                </button>
-                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=home'">
-                    <span class="ls-price-main">P90 /month</span>
-                    <span class="ls-price-sub">P1080 annually</span>
-                    <span class="ls-price-sub">1 YEAR</span>
-                </button>
-            </div>
-        </div>
-    </div>
 
     <script src="public/js/profile.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>

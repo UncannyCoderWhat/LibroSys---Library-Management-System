@@ -36,7 +36,6 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" onclick="window.scrollTo({top:0,behavior:'smooth'})" alt="LibroSys Logo" class="logo">
             <nav class="navigation">
                 <div class="nav-links">
-                    <button class="upgrade-btn" onclick="openPremiumModal()">Upgrade Premium</button>
                     <a href="index.php?page=home" class="active"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=library"><i class='bx bx-book'></i>Library</a>
                     <div class="dpContainer">
@@ -471,45 +470,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
         <?php endif; ?>
     </main>
 
-    <!-- Upgrade Premium Modal -->
-    <div id="premiumModal" class="ls-modal-overlay">
-        <div class="ls-modal-container">
-            <span class="ls-modal-close" onclick="closePremiumModal()">&times;</span>
-<img src="<?php echo $base_url; ?>/images/librosys_client.png" alt="LibroSys Logo" class="ls-modal-logo">
-            <h3 class="ls-modal-title">Level-up your LibroSys Experience!</h3>
 
-            <table class="ls-modal-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Regular</th>
-                        <th>Premium</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>(Perks to)</td>
-                        <td>X</td>
-                        <td>/</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <p class="ls-modal-trial">Start your 7 day free trial</p>
-
-            <div class="ls-modal-prices">
-                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=home'">
-                    <span class="ls-price-main">P100 /month</span>
-                    <span class="ls-price-sub">1 MONTH</span>
-                </button>
-                <button type="button" class="ls-price-card" onclick="window.location.href='index.php?page=home'">
-                    <span class="ls-price-main">P90 /month</span>
-                    <span class="ls-price-sub">P1080 annually</span>
-                    <span class="ls-price-sub">1 YEAR</span>
-                </button>
-            </div>
-        </div>
-    </div>
 
     <footer class="ls-footer">
         <!-- Decorative top divider with layered wave animation -->
@@ -587,7 +548,6 @@ $book_type_groups = $data['book_type_groups'] ?? [];
         </div>
     </footer>
 
-    <script src="<?php echo $base_url; ?>/public/js/upgradePremium.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/dropdown.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/browse.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>

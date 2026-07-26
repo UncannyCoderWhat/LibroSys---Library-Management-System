@@ -119,7 +119,7 @@ class ReadController extends ClientController
     {
         $stmt = $this->pdo->prepare("
             SELECT page_number FROM reading_progress 
-            WHERE user_id = ? AND book_id = ?
+            WHERE user_id = ? AND book_id = ? AND chapter_id IS NULL
         ");
         $stmt->execute([$userId, $bookId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

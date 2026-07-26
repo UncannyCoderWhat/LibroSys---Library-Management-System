@@ -349,27 +349,11 @@ class BookModel
         $stmt->execute([$bookId]);
         $totalCopies = (int)$stmt->fetchColumn();
 
-        $stmt = $this->pdo->prepare("
-            SELECT COUNT(*) FROM borrows 
-            WHERE book_id = ? AND status IN ('borrowed', 'reading', 'reserved')
-        ");
-        $stmt->execute([$bookId]);
-        $activeBorrows = (int)$stmt->fetchColumn();
-
-        // If no copies exist, always mark as unavailable
-        if ($totalCopies === 0) {
-            if (($book['status'] ?? '') !== 'unavailable') {
-                $this->pdo->prepare("UPDATE books SET status = 'unavailable', copies = 0 WHERE id = ?")->execute([$bookId]);
-            }
-            return;
-        }
-
-        if ($activeBorrows >= $totalCopies) {
-            if (($book['status'] ?? '') !== 'unavailable') {
-                $this->pdo->prepare("UPDATE books SET status = 'unavailable' WHERE id = ?")->execute([$bookId]);
-            }
-        } elseif ($activeBorrows < $totalCopies && ($book['status'] ?? '') === 'unavailable') {
-            $this->pdo->prepare("UPDATE books SET status = 'available' WHERE id = ?")->execute([$bookId]);
+        // Auto-set status based on copies count
+        if ($totalCopies > 0) {
+            $this->pdo->prepare("UPDATE books SET status = 'available', copies = ? WHERE id = ?")->execute([$totalCopies, $bookId]);
+        } else {
+            $this->pdo->prepare("UPDATE books SET status = 'unavailable', copies = 0 WHERE id = ?")->execute([$bookId]);
         }
     }
 
