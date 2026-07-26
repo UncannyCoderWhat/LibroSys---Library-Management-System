@@ -107,7 +107,7 @@ if (!isset($base_url)) {
     <div><label>Author (list)</label><select name="author_id"><option value="">-- Select Author --</option><?php foreach($all_authors??[] as $auth):?><option value="<?php echo $auth['id'];?>"><?php echo htmlspecialchars($auth['name']);?></option><?php endforeach;?></select></div>
     <div><label>Publisher (list)</label><select name="publisher_id"><option value="">-- Select Publisher --</option><?php foreach($all_publishers??[] as $pub):?><option value="<?php echo $pub['id'];?>"><?php echo htmlspecialchars($pub['name']);?></option><?php endforeach;?></select></div>
     <div><label>Cover Image</label><input type="file" name="cover_image" accept="image/*"></div>
-    <div class="full-width"><label><input type="checkbox" name="is_exclusive" value="1"> Exclusive Perk</label></div>
+    <div class="full-width"><label><input type="checkbox" name="is_exclusive" value="1"> Special Perk</label></div>
     <div class="full-width"><label>Description</label><textarea name="description" placeholder="Book description..."></textarea></div>
     </div><div class="modal-footer-actions"><button type="button" class="delete-btn-modal" onclick="closeModal('addBookModal')">Cancel</button><button type="submit" name="add_book" class="submit-btn"><i class="fa-solid fa-save"></i> Add Book</button></div></form></div></div>
 
@@ -129,7 +129,7 @@ if (!isset($base_url)) {
     <div><label>Author (list)</label><select name="author_id" id="edit_author_id"><option value="">-- Select Author --</option><?php foreach($all_authors??[] as $auth):?><option value="<?php echo $auth['id'];?>"><?php echo htmlspecialchars($auth['name']);?></option><?php endforeach;?></select></div>
     <div><label>Publisher (list)</label><select name="publisher_id" id="edit_publisher_id"><option value="">-- Select Publisher --</option><?php foreach($all_publishers??[] as $pub):?><option value="<?php echo $pub['id'];?>"><?php echo htmlspecialchars($pub['name']);?></option><?php endforeach;?></select></div>
     <div><label>Change Cover</label><input type="file" name="cover_image" accept="image/*"></div>
-    <div class="full-width"><label><input type="checkbox" name="is_exclusive" id="edit_is_exclusive" value="1"> Exclusive Perk</label></div>
+    <div class="full-width"><label><input type="checkbox" name="is_exclusive" id="edit_is_exclusive" value="1"> Special Perk</label></div>
     <div class="full-width"><label>Description</label><textarea name="description" id="edit_description" placeholder="Book description..."></textarea></div>
     </div><div class="modal-footer-actions"><button type="button" class="btn btn-danger" onclick="confirmDelete(document.getElementById('edit_book_id').value)">DELETE</button><button type="submit" name="update_book" class="submit-btn"><i class="fa-solid fa-save"></i> Save Changes</button></div></form></div></div>
 

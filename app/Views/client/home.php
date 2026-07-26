@@ -124,7 +124,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <div class="ls-stat-divider"></div>
             <div class="ls-stat-item">
                 <span class="ls-stat-number"><?php echo count($exclusive_books); ?></span>
-                <span class="ls-stat-label">Exclusive</span>
+                <span class="ls-stat-label">Special</span>
             </div>
             <div class="ls-stat-divider"></div>
             <div class="ls-stat-item">
@@ -139,7 +139,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
         </section>
 
         <!-- Special Row -->
-        <?php if (!empty($new_releases)): ?>
+        <?php if (!empty($exclusive_books)): ?>
         <section class="special-shelf-section">
             <div class="special-section-header">
                 <h2 class="special-section-title"><i class='bx bx-trophy'></i> Special</h2>
@@ -148,21 +148,19 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <div class="special-horizontal-scroll">
                 <button class="special-scroll-arrow special-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                 <div class="special-scroll-track">
-                    <?php foreach ($new_releases as $book): ?>
+                    <?php foreach ($exclusive_books as $book): ?>
                     <div class="special-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                         <div class="special-book-cover-wrap">
                             <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="special-book-cover" loading="lazy">
                             <div class="special-book-overlay">
                                 <i class='bx bx-plus-circle'></i>
                             </div>
-                            <?php if (!empty($book['is_exclusive'])): ?>
-                            <span class="special-exclusive-badge">Exclusive</span>
-                            <?php endif; ?>
+                            <span class="ls-exclusive-badge">Special</span>
                             <?php if ($book['is_borrowed'] ?? false): ?>
-                            <span class="special-borrowed-badge">Borrowed</span>
+                            <span class="ls-borrowed-badge">Borrowed</span>
                             <?php endif; ?>
                             <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
-                            <span class="special-unavailable-badge">Not Available</span>
+                            <span class="ls-unavailable-badge">Not Available</span>
                             <?php endif; ?>
                         </div>
                         <div class="special-book-info">
@@ -195,7 +193,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                 <i class='bx bx-plus-circle'></i>
                             </div>
                              <?php if (!empty($book['is_exclusive'])): ?>
-                             <span class="ls-exclusive-badge">Exclusive</span>
+                             <span class="ls-exclusive-badge">Special</span>
                              <?php endif; ?>
                              <?php if ($book['is_borrowed'] ?? false): ?>
                              <span class="ls-borrowed-badge">Borrowed</span>
@@ -215,43 +213,6 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             </div>
         </section>
         <?php endif; ?>
-
-        <!-- Exclusive Row -->
-        <?php if (!empty($exclusive_books)): ?>
-        <section class="ls-shelf-section">
-            <div class="ls-section-header">
-                <h2 class="ls-section-title"><i class='bx bx-award'></i> Exclusive Collection</h2>
-                <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
-            </div>
-            <div class="ls-horizontal-scroll">
-                <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
-                <div class="ls-scroll-track">
-                    <?php foreach ($exclusive_books as $book): ?>
-                    <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
-                        <div class="ls-book-cover-wrap">
-                            <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
-                            <div class="ls-book-overlay">
-                                <i class='bx bx-plus-circle'></i>
-                            </div>
-                            <span class="ls-exclusive-badge">Exclusive</span>
-                            <?php if ($book['is_borrowed'] ?? false): ?>
-                            <span class="ls-borrowed-badge">Borrowed</span>
-                            <?php endif; ?>
-                            <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
-                            <span class="ls-unavailable-badge">Not Available</span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="ls-book-info">
-                            <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
-                            <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                <button class="ls-scroll-arrow ls-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
-            </div>
-        </section>
-    <?php endif; ?>
 
         <!-- Regular Books Grid -->
         <section class="ls-shelf-section">
@@ -309,7 +270,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                 <i class='bx bx-plus-circle'></i>
                             </div>
                             <?php if (!empty($book['is_exclusive'])): ?>
-                            <span class="ls-exclusive-badge">Exclusive</span>
+                            <span class="ls-exclusive-badge">Special</span>
                             <?php endif; ?>
                         </div>
                         <div class="ls-book-info">
@@ -366,7 +327,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                         <i class='bx bx-plus-circle'></i>
                                     </div>
                                     <?php if (!empty($book['is_exclusive'])): ?>
-                                    <span class="ls-exclusive-badge">Exclusive</span>
+                                    <span class="ls-exclusive-badge">Special</span>
                                     <?php endif; ?>
                                     <?php if ($book['is_borrowed'] ?? false): ?>
                                     <span class="ls-borrowed-badge">Borrowed</span>
@@ -445,7 +406,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                             <i class='bx bx-plus-circle'></i>
                                         </div>
                                         <?php if (!empty($book['is_exclusive'])): ?>
-                                        <span class="ls-exclusive-badge">Exclusive</span>
+                                        <span class="ls-exclusive-badge">Special</span>
                                         <?php endif; ?>
                                         <?php if ($book['is_borrowed'] ?? false): ?>
                                         <span class="ls-borrowed-badge">Borrowed</span>
@@ -502,7 +463,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <ul class="ls-footer-links">
                     <li><a href="index.php?page=library"><i class='bx bx-book'></i> Library</a></li>
                     <li><a href="index.php?page=browse"><i class='bx bx-star'></i> New Arrivals</a></li>
-                    <li><a href="index.php?page=browse"><i class='bx bx-award'></i> Exclusive</a></li>
+                    <li><a href="index.php?page=browse"><i class='bx bx-award'></i> Special</a></li>
                     <li><a href="index.php?page=browse"><i class='bx bx-category'></i> Categories</a></li>
                 </ul>
             </div>
