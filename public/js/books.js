@@ -390,43 +390,174 @@ function openPublisherBooksModal(publisherId) {
         });
 }
 
+// Helper function to apply dark theme styles to forms, inputs, buttons, and tables dynamically loaded via AJAX
+function styleDynamicElements(container) {
+    if (!container) return;
+
+    // Style Forms
+    container.querySelectorAll('form').forEach(form => {
+        form.style.display = form.style.display || 'flex';
+        form.style.gap = '8px';
+        form.style.alignItems = 'center';
+        form.style.flexWrap = 'wrap';
+    });
+
+    // Style Text/Number/File/Select/Textarea Inputs
+    container.querySelectorAll('input, select, textarea').forEach(input => {
+        input.style.padding = '8px 12px';
+        input.style.background = '#1f232a';
+        input.style.border = '1px solid #2e3440';
+        input.style.borderRadius = '8px';
+        input.style.color = '#ffffff';
+        input.style.fontSize = '13px';
+        input.style.outline = 'none';
+        input.style.boxSizing = 'border-box';
+        input.style.transition = 'all 0.25s ease';
+
+        input.addEventListener('focus', () => {
+            input.style.borderColor = '#ffd200';
+            input.style.boxShadow = '0 0 10px rgba(255, 210, 0, 0.2)';
+        });
+
+        input.addEventListener('blur', () => {
+            input.style.borderColor = '#2e3440';
+            input.style.boxShadow = 'none';
+        });
+    });
+
+    // Style Buttons
+    container.querySelectorAll('button, .submit-btn').forEach(btn => {
+        btn.style.padding = '8px 16px';
+        btn.style.borderRadius = '8px';
+        btn.style.fontSize = '12px';
+        btn.style.fontWeight = '700';
+        btn.style.cursor = 'pointer';
+        btn.style.transition = 'all 0.25s ease';
+        btn.style.display = 'inline-flex';
+        btn.style.alignItems = 'center';
+        btn.style.gap = '6px';
+        btn.style.border = '1px solid transparent';
+
+        // Custom styling based on button class
+        if (btn.classList.contains('btn-primary') || btn.classList.contains('submit-btn')) {
+            btn.style.background = 'linear-gradient(135deg, #ffd200 0%, #e6bd00 100%)';
+            btn.style.color = '#0d0e11';
+            btn.style.borderColor = '#ffd200';
+        } else if (btn.classList.contains('btn-info')) {
+            btn.style.background = 'rgba(0, 229, 255, 0.15)';
+            btn.style.color = '#00e5ff';
+            btn.style.borderColor = 'rgba(0, 229, 255, 0.4)';
+        } else if (btn.classList.contains('btn-danger')) {
+            btn.style.background = 'rgba(255, 23, 68, 0.15)';
+            btn.style.color = '#ff1744';
+            btn.style.borderColor = 'rgba(255, 23, 68, 0.4)';
+        } else if (btn.classList.contains('btn-success')) {
+            btn.style.background = 'rgba(0, 230, 118, 0.15)';
+            btn.style.color = '#00e676';
+            btn.style.borderColor = 'rgba(0, 230, 118, 0.4)';
+        } else {
+            btn.style.background = '#2e3440';
+            btn.style.color = '#a0a6b1';
+        }
+    });
+
+    // Style Tables
+    container.querySelectorAll('table').forEach(table => {
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.fontSize = '13px';
+        table.style.marginTop = '10px';
+
+        table.querySelectorAll('th').forEach(th => {
+            th.style.background = '#14171d';
+            th.style.color = '#ffd200';
+            th.style.fontWeight = '800';
+            th.style.padding = '12px 16px';
+            th.style.textAlign = 'left';
+            th.style.borderBottom = '2px solid #2e3440';
+            th.style.fontSize = '11px';
+            th.style.textTransform = 'uppercase';
+            th.style.letterSpacing = '1px';
+        });
+
+        table.querySelectorAll('td').forEach(td => {
+            td.style.padding = '12px 16px';
+            td.style.borderBottom = '1px solid #2e3440';
+            td.style.color = '#a0a6b1';
+            td.style.verticalAlign = 'middle';
+        });
+
+        table.querySelectorAll('tbody tr').forEach(tr => {
+            tr.style.transition = 'background 0.2s ease';
+            tr.addEventListener('mouseenter', () => tr.style.background = 'rgba(255, 210, 0, 0.04)');
+            tr.addEventListener('mouseleave', () => tr.style.background = 'transparent');
+        });
+    });
+}
+
 // ==================== EBOOK MODAL ====================
 function openEbookModal(bookId, bookTitle) {
-    // Load via AJAX
     const container = document.getElementById('ebookModalContent');
-    container.innerHTML = '<p style="text-align:center;padding:20px;">Loading eBook data...</p>';
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #ffd200; margin-bottom: 12px;"></i>
+            <p style="margin: 0; color: #a0a6b1; font-weight: 600; font-size: 13px; letter-spacing: 0.5px;">LOADING EBOOK DATA...</p>
+        </div>
+    `;
     openModal('ebookModal');
 
     fetch('index.php?page=admin_books&ajax=get_ebooks&book_id=' + bookId)
         .then(r => r.text())
         .then(html => {
             container.innerHTML = html;
+            styleDynamicElements(container);
         })
         .catch(() => {
-            container.innerHTML = '<p style="text-align:center;padding:20px;color:red;">Failed to load eBook data.</p>';
+            container.innerHTML = `
+                <div style="text-align: center; padding: 30px 20px; background: rgba(255, 23, 68, 0.08); border: 1px solid rgba(255, 23, 68, 0.3); border-radius: 10px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 22px; color: #ff1744; margin-bottom: 8px;"></i>
+                    <p style="margin: 0; color: #ff1744; font-weight: 700; font-size: 13px;">FAILED TO LOAD EBOOK DATA</p>
+                </div>
+            `;
         });
 }
 
 // ==================== COPIES MODAL ====================
 function openCopiesModal(bookId, bookTitle) {
     const container = document.getElementById('copiesModalContent');
-    container.innerHTML = '<p style="text-align:center;padding:20px;">Loading copies data...</p>';
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #ffd200; margin-bottom: 12px;"></i>
+            <p style="margin: 0; color: #a0a6b1; font-weight: 600; font-size: 13px; letter-spacing: 0.5px;">LOADING COPIES DATA...</p>
+        </div>
+    `;
     openModal('copiesModal');
 
     fetch('index.php?page=admin_books&ajax=get_copies&book_id=' + bookId)
         .then(r => r.text())
         .then(html => {
             container.innerHTML = html;
+            styleDynamicElements(container);
         })
         .catch(() => {
-            container.innerHTML = '<p style="text-align:center;padding:20px;color:red;">Failed to load copies data.</p>';
+            container.innerHTML = `
+                <div style="text-align: center; padding: 30px 20px; background: rgba(255, 23, 68, 0.08); border: 1px solid rgba(255, 23, 68, 0.3); border-radius: 10px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 22px; color: #ff1744; margin-bottom: 8px;"></i>
+                    <p style="margin: 0; color: #ff1744; font-weight: 700; font-size: 13px;">FAILED TO LOAD COPIES DATA</p>
+                </div>
+            `;
         });
 }
 
 // ==================== MANGA CHAPTERS MODAL ====================
 function openMangaChaptersModal(bookId, bookTitle) {
     const container = document.getElementById('mangaChaptersModalContent');
-    container.innerHTML = '<p style="text-align:center;padding:20px;">Loading chapters...</p>';
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #ffd200; margin-bottom: 12px;"></i>
+            <p style="margin: 0; color: #a0a6b1; font-weight: 600; font-size: 13px; letter-spacing: 0.5px;">LOADING CHAPTERS...</p>
+        </div>
+    `;
     openModal('mangaChaptersModal');
     window._mangaBookId = bookId;
 
@@ -439,65 +570,81 @@ function loadMangaChapters(bookId) {
         .then(r => r.json())
         .then(data => {
             if (data.status !== 'success' && !data.success) {
-                container.innerHTML = '<p style="text-align:center;padding:20px;color:red;">Failed to load chapters.</p>';
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px 20px; background: rgba(255, 23, 68, 0.08); border: 1px solid rgba(255, 23, 68, 0.3); border-radius: 10px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 22px; color: #ff1744; margin-bottom: 8px;"></i>
+                        <p style="margin: 0; color: #ff1744; font-weight: 700; font-size: 13px;">FAILED TO LOAD CHAPTERS</p>
+                    </div>
+                `;
                 return;
             }
             renderMangaChapters(data.chapters || []);
         })
         .catch(() => {
-            container.innerHTML = '<p style="text-align:center;padding:20px;color:red;">Failed to load chapters.</p>';
+            container.innerHTML = `
+                <div style="text-align: center; padding: 30px 20px; background: rgba(255, 23, 68, 0.08); border: 1px solid rgba(255, 23, 68, 0.3); border-radius: 10px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 22px; color: #ff1744; margin-bottom: 8px;"></i>
+                    <p style="margin: 0; color: #ff1744; font-weight: 700; font-size: 13px;">FAILED TO LOAD CHAPTERS</p>
+                </div>
+            `;
         });
 }
 
 function renderMangaChapters(chapters) {
     const container = document.getElementById('mangaChaptersModalContent');
-    let html = '<h3 style="margin-bottom:12px;">Manga Chapters</h3>';
+    let html = '<h3 style="margin-bottom:16px; color:#ffd200; font-size:16px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Manga Chapters</h3>';
 
     if (!chapters.length) {
-        html += '<p style="text-align:center;padding:15px;color:#888;">No chapters yet. Add your first chapter below.</p>';
+        html += '<p style="text-align:center; padding:20px; color:#a0a6b1; font-size:13px;">No chapters yet. Add your first chapter below.</p>';
     } else {
-        html += '<div style="max-height:50vh;overflow-y:auto;margin-bottom:15px;">';
+        html += '<div style="max-height:50vh; overflow-y:auto; margin-bottom:20px; padding-right:4px;">';
         chapters.forEach(function(ch) {
             const totalPages = ch.total_pages || 0;
-            const statusBadge = ch.status === 'ready' ? '#d4edda' : (ch.status === 'error' ? '#f8d7da' : '#fff3cd');
+            const statusBg = ch.status === 'ready' ? 'rgba(0, 230, 118, 0.12)' : (ch.status === 'error' ? 'rgba(255, 23, 68, 0.12)' : 'rgba(255, 210, 0, 0.12)');
+            const statusColor = ch.status === 'ready' ? '#00e676' : (ch.status === 'error' ? '#ff1744' : '#ffd200');
+            const statusBorder = ch.status === 'ready' ? 'rgba(0, 230, 118, 0.25)' : (ch.status === 'error' ? 'rgba(255, 23, 68, 0.25)' : 'rgba(255, 210, 0, 0.25)');
             const statusText = ch.status === 'ready' ? 'Ready' : (ch.status === 'error' ? 'Error' : 'Draft');
-            html += '<div class="chapter-item" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f7fafc;border-radius:8px;margin-bottom:8px;">';
-            html += '<div style="flex:1;min-width:0;">';
-            html += '<strong>Ch. ' + escapeHtml(ch.chapter_number) + '</strong>';
-            if (ch.title) html += ' - ' + escapeHtml(ch.title);
-            html += '<br><span style="font-size:11px;color:#888;">' + totalPages + ' pages</span>';
-            html += '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:' + statusBadge + ';margin-left:8px;">' + statusText + '</span>';
+            
+            html += '<div class="chapter-item" style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#1f232a; border:1px solid #2e3440; border-radius:10px; margin-bottom:10px;">';
+            html += '<div style="flex:1; min-width:0;">';
+            html += '<strong style="color:#ffffff; font-size:14px;">Ch. ' + escapeHtml(ch.chapter_number) + '</strong>';
+            if (ch.title) html += ' <span style="color:#a0a6b1;">- ' + escapeHtml(ch.title) + '</span>';
+            html += '<br><span style="font-size:11px; color:#626875;">' + totalPages + ' pages</span>';
+            html += '<span style="display:inline-block; padding:3px 10px; border-radius:8px; font-size:10px; font-weight:700; text-transform:uppercase; background:' + statusBg + '; color:' + statusColor + '; border:1px solid ' + statusBorder + '; margin-left:10px;">' + statusText + '</span>';
             html += '</div>';
-            html += '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:10px;">';
-            html += '<button class="btn-sm btn-info" onclick="editChapter(' + ch.id + ', \'' + escapeHtml(ch.chapter_number) + '\', \'' + escapeHtml(ch.title || '') + '\')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#3498db;cursor:pointer;">Edit</button>';
-            html += '<button class="btn-sm btn-primary" onclick="showUploadSection(' + ch.id + ')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#28a745;cursor:pointer;">Upload</button>';
-            html += '<button class="btn-sm btn-danger" onclick="deleteChapter(' + ch.id + ')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#e74c3c;cursor:pointer;">Delete</button>';
+            html += '<div style="display:flex; gap:8px; align-items:center; flex-shrink:0; margin-left:10px;">';
+            html += '<button class="btn-sm btn-info" onclick="editChapter(' + ch.id + ', \'' + escapeHtml(ch.chapter_number) + '\', \'' + escapeHtml(ch.title || '') + '\')">Edit</button>';
+            html += '<button class="btn-sm btn-primary" onclick="showUploadSection(' + ch.id + ')">Upload</button>';
+            html += '<button class="btn-sm btn-danger" onclick="deleteChapter(' + ch.id + ')">Delete</button>';
             html += '</div></div>';
-            html += '<div id="upload-section-' + ch.id + '" style="display:none;padding:10px 14px;background:#eef2f7;border-radius:8px;margin-bottom:8px;">';
-            html += '<p style="font-size:12px;color:#555;margin-bottom:8px;">Upload individual images or a ZIP/CBZ archive for this chapter.</p>';
-            html += '<form onsubmit="uploadChapterZip(event, ' + ch.id + ')" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
-            html += '<input type="file" name="zip_file" accept=".zip,.cbz" required style="font-size:12px;flex:1;min-width:150px;">';
-            html += '<button type="submit" class="btn-sm btn-primary" style="padding:6px 14px;font-size:12px;border:none;border-radius:4px;color:#fff;background:#28a745;cursor:pointer;">Upload ZIP</button>';
+            
+            html += '<div id="upload-section-' + ch.id + '" style="display:none; padding:16px; background:#14171d; border:1px solid #2e3440; border-radius:10px; margin-bottom:10px;">';
+            html += '<p style="font-size:12px; color:#a0a6b1; margin-bottom:12px;">Upload individual images or a ZIP/CBZ archive for this chapter.</p>';
+            html += '<form onsubmit="uploadChapterZip(event, ' + ch.id + ')" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">';
+            html += '<input type="file" name="zip_file" accept=".zip,.cbz" required style="font-size:12px; flex:1; min-width:180px;">';
+            html += '<button type="submit" class="btn-sm btn-primary">Upload ZIP</button>';
             html += '</form>';
-            html += '<div style="margin-top:10px;border-top:1px solid #ddd;padding-top:10px;">';
-            html += '<p style="font-size:12px;color:#555;margin-bottom:6px;">Or upload images individually:</p>';
-            html += '<input type="file" id="single-page-' + ch.id + '" accept="image/*" style="font-size:12px;margin-bottom:6px;">';
-            html += '<button onclick="uploadSinglePage(' + ch.id + ')" style="padding:4px 10px;font-size:11px;border:none;border-radius:4px;color:#fff;background:#3498db;cursor:pointer;">Upload Image</button>';
-            html += '<span id="upload-status-' + ch.id + '" style="margin-left:8px;font-size:11px;color:#888;"></span>';
-            html += '</div></div>';
+            html += '<div style="margin-top:14px; border-top:1px solid #2e3440; padding-top:12px;">';
+            html += '<p style="font-size:12px; color:#a0a6b1; margin-bottom:8px;">Or upload images individually:</p>';
+            html += '<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">';
+            html += '<input type="file" id="single-page-' + ch.id + '" accept="image/*" style="font-size:12px;">';
+            html += '<button class="btn-sm btn-info" onclick="uploadSinglePage(' + ch.id + ')">Upload Image</button>';
+            html += '<span id="upload-status-' + ch.id + '" style="font-size:12px; color:#ffd200; font-weight:600;"></span>';
+            html += '</div></div></div>';
         });
         html += '</div>';
     }
 
-    html += '<div style="border-top:1px solid #ddd;padding-top:12px;">';
-    html += '<h4 style="font-size:14px;margin-bottom:8px;">Add New Chapter</h4>';
-    html += '<form onsubmit="addChapter(event)" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
-    html += '<input type="text" name="chapter_number" placeholder="Chapter number (e.g. 1, 2, 3)" required style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;width:180px;">';
-    html += '<input type="text" name="chapter_title" placeholder="Title (optional)" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;flex:1;min-width:120px;">';
-    html += '<button type="submit" class="submit-btn" style="padding:8px 18px;font-size:13px;">Add Chapter</button>';
+    html += '<div style="border-top:1px solid #2e3440; padding-top:16px; margin-top:10px;">';
+    html += '<h4 style="font-size:13px; color:#ffd200; margin-bottom:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Add New Chapter</h4>';
+    html += '<form onsubmit="addChapter(event)" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">';
+    html += '<input type="text" name="chapter_number" placeholder="Chapter number (e.g. 1, 2, 3)" required style="width:180px;">';
+    html += '<input type="text" name="chapter_title" placeholder="Title (optional)" style="flex:1; min-width:150px;">';
+    html += '<button type="submit" class="submit-btn btn-primary">Add Chapter</button>';
     html += '</form></div>';
 
     container.innerHTML = html;
+    styleDynamicElements(container);
 }
 
 function escapeHtml(text) {

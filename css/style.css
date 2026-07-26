@@ -2993,46 +2993,85 @@ body {
 
 
    
-/* Form grid for modals */
+/* ==========================================================================
+   Form Grid & Inputs (Dark Theme Adaptation)
+   ========================================================================== */
+
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin: 15px 0;
+    gap: 16px;
+    margin: 16px 0;
 }
+
 .form-grid .full-width {
     grid-column: 1 / -1;
 }
+
 .form-grid label {
     display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #a0a6b1;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
+
 .form-grid input[type="text"],
 .form-grid input[type="number"],
 .form-grid input[type="url"],
 .form-grid select,
 .form-grid textarea {
     width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    padding: 10px 14px;
+    border: 1px solid #2e3440;
+    border-radius: 10px;
     font-size: 13px;
-    background: #fff;
+    font-weight: 500;
+    background: #1f232a;
+    color: #ffffff;
     box-sizing: border-box;
-    transition: border-color 0.2s;
+    outline: none;
+    transition: all 0.25s ease;
 }
+
+.form-grid input[type="text"]::placeholder,
+.form-grid input[type="number"]::placeholder,
+.form-grid input[type="url"]::placeholder,
+.form-grid textarea::placeholder {
+    color: #626875;
+}
+
 .form-grid input:focus,
 .form-grid select:focus,
 .form-grid textarea:focus {
-    border-color: #fca311;
-    outline: none;
+    border-color: #ffd200;
+    box-shadow: 0 0 12px rgba(255, 210, 0, 0.2);
 }
+
 .form-grid textarea {
     min-height: 80px;
     resize: vertical;
+}
+
+/* Custom Webkit Scrollbar for Textarea */
+.form-grid textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.form-grid textarea::-webkit-scrollbar-track {
+    background: #14171d;
+    border-radius: 4px;
+}
+
+.form-grid textarea::-webkit-scrollbar-thumb {
+    background: #2e3440;
+    border-radius: 3px;
+}
+
+.form-grid textarea::-webkit-scrollbar-thumb:hover {
+    background: #ffd200;
 }
 
 /* Modal footer actions */
@@ -3058,90 +3097,114 @@ body {
     background-color: #c82333;
 }
 
+/* ==========================================================================
+   Management Section (Dark Theme Adaptation)
+   ========================================================================== */
+
 /* ---- Management Tabs ---- */
 .mgmt-tabs {
     display: flex;
-    gap: 4px;
-    border-bottom: 2px solid #dee2e6;
-    margin-bottom: 16px;
+    gap: 8px;
+    border-bottom: 2px solid #2e3440;
+    margin-bottom: 20px;
 }
+
 .mgmt-tabs .tab {
-    padding: 8px 18px;
+    padding: 10px 18px;
     border: none;
     background: none;
     cursor: pointer;
     font-size: 13px;
-    font-weight: 600;
-    color: #666;
+    font-weight: 700;
+    color: #a0a6b1;
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    letter-spacing: 0.3px;
 }
-.mgmt-tabs .tab:hover { color: #fca311; }
+
+.mgmt-tabs .tab:hover { 
+    color: #ffd200; 
+}
+
 .mgmt-tabs .tab.active {
-    color: #fca311;
-    border-bottom-color: #fca311;
+    color: #ffd200;
+    border-bottom-color: #ffd200;
+    text-shadow: 0 0 10px rgba(255, 210, 0, 0.3);
 }
 
 .mgmt-panel {
     display: none;
 }
+
 .mgmt-panel.active {
     display: block;
 }
 
-/* Compact grid for management cards */
+/* ---- Compact Grid & Cards ---- */
 .compact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
-    margin-top: 10px;
+    gap: 16px;
+    margin-top: 14px;
 }
+
 .compact-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    background: #1f232a;
+    border: 1px solid #2e3440;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .compact-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    border-color: rgba(255, 210, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 210, 0, 0.1);
 }
+
 .compact-card .card-header {
-    padding: 10px 14px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 16px;
+    background: #14171d;
+    border-bottom: 1px solid #2e3440;
 }
+
 .compact-card .card-header h4 {
     margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: #333;
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffd200;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
+
 .compact-card .card-body {
-    padding: 10px 14px;
-    font-size: 12px;
-    color: #666;
-    min-height: 40px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #a0a6b1;
+    min-height: 48px;
 }
+
 .compact-card .card-body p {
     margin: 4px 0;
 }
+
 .compact-card .card-actions {
-    padding: 8px 14px;
-    border-top: 1px solid #e2e8f0;
+    padding: 10px 16px;
+    border-top: 1px solid #2e3440;
+    background: #191c22;
     display: flex;
-    gap: 6px;
+    gap: 8px;
     justify-content: flex-end;
 }
+
 .compact-card .card-actions .btn-sm {
     font-size: 11px;
-    padding: 3px 10px;
+    padding: 5px 12px;
 }
 
 /* ---- API Import Box ---- */
@@ -3185,61 +3248,77 @@ body {
     }
 }
 
-/* ==================== GENRE CHIP SELECTOR ==================== */
+/* ==========================================================================
+   Genre Chip Selector (Dark Theme Adaptation)
+   ========================================================================== */
+
 .genre-selector-wrapper {
     grid-column: 1 / -1;
 }
+
 .genre-chip-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
+    gap: 8px;
+    margin-top: 6px;
 }
+
 .genre-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
+
+/* Interactive Chips */
 .genre-chip {
     display: inline-flex;
     align-items: center;
-    padding: 5px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    border: 1.5px solid #d0d5dd;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 1px solid #2e3440;
     border-radius: 20px;
-    background: #f9fafb;
-    color: #344054;
+    background: #1f232a;
+    color: #a0a6b1;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.25s ease;
     user-select: none;
 }
+
 .genre-chip:hover {
-    border-color: #fca311;
-    background: #fef6e7;
-    color: #e67e00;
-}
-.genre-chip.selected {
-    border-color: #fca311;
-    background: #fca311;
-    color: #ffffff;
-    box-shadow: 0 2px 4px rgba(252, 163, 17, 0.3);
-}
-.genre-chip.selected:hover {
-    background: #e8920a;
-    border-color: #e8920a;
+    border-color: rgba(255, 210, 0, 0.4);
+    background: rgba(255, 210, 0, 0.1);
+    color: #ffd200;
 }
 
+.genre-chip.selected {
+    border-color: #ffd200;
+    background: #ffd200;
+    color: #0d0e11;
+    box-shadow: 0 0 15px rgba(255, 210, 0, 0.3);
+}
+
+.genre-chip.selected:hover {
+    background: #e6bd00;
+    border-color: #e6bd00;
+    color: #000000;
+}
+
+/* Static Display Badges */
 .genre-chip-static {
     display: inline-block;
-    padding: 2px 8px;
-    margin: 1px 2px;
+    padding: 3px 10px;
+    margin: 2px 3px 2px 0;
     font-size: 11px;
-    font-weight: 600;
-    border: 1px solid #d0d5dd;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 210, 0, 0.25);
     border-radius: 12px;
-    background: #f0f0f0;
-    color: #344054;
+    background: rgba(255, 210, 0, 0.1);
+    color: #ffd200;
     white-space: nowrap;
 }
 
