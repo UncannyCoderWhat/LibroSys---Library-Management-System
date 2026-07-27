@@ -26,6 +26,8 @@ $userBorrow = $data['userBorrow'] ?? null;
         document.documentElement.setAttribute('data-theme', savedTheme);
     })();
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body class="book-detail-page">
     <header>
@@ -357,9 +359,6 @@ $userBorrow = $data['userBorrow'] ?? null;
         </div>
     </footer>
 
-    <script src="<?php echo $base_url; ?>/public/js/dropdown.js"></script>
-    <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
-
     <!-- Borrow Modal -->
     <div id="borrowModal" class="ls-modal-overlay" style="display: none;">
         <div class="ls-modal-container" style="max-width: 500px;">
@@ -384,9 +383,11 @@ $userBorrow = $data['userBorrow'] ?? null;
 
     <div id="imageModal" class="lightbox-modal">
         <span class="lightbox-close">&times;</span>
-        <img class="lightbox-content" id="imgFull">
+        <div id="imgFull" class="lightbox-content"></div>
     </div>
 
+    <script src="<?php echo $base_url; ?>/public/js/dropdown.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/theme.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/bookLightBox.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/insideSpecialBookAnimation.js"></script>

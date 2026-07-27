@@ -3436,26 +3436,22 @@ html[data-theme="light"] .bd-btn-primary {
   -webkit-backdrop-filter: blur(8px);
   justify-content: center;
   align-items: center;
-  perspective: 1000px; /* Crucial for 3D depth */
 }
 
-/* 3D styling for the image */
+/* Container for Three.js 3D Canvas */
 .lightbox-content {
-  max-width: 80%;
-  max-height: 80vh;
-  object-fit: contain;
-  border-radius: 8px;
-  box-shadow: -15px 20px 30px rgba(0, 0, 0, 0.6);
-  transition: none; /* <-- REMOVE or set to NONE to fix the movement delay */
-  transform-style: preserve-3d;
-  user-select: none; /* Prevents native image ghost dragging */
-  -webkit-user-drag: none;
+  width: 80vw;
+  height: 80vh;
+  position: relative;
+  user-select: none;
+  touch-action: none; /* Prevents mobile scroll while dragging the 3D book */
 }
 
-/* Interactive hover effect: Straightens image slightly on hover */
-.lightbox-content:hover {
-  transform: rotateY(-5deg) rotateX(2deg) scale(0.95);
-  box-shadow: -20px 25px 35px rgba(0, 0, 0, 0.7);
+/* Ensure canvas stretches to fill the container */
+.lightbox-content canvas {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
 }
 
 .lightbox-close {

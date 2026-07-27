@@ -231,7 +231,7 @@ class BookModel
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'zip'];
 
         // Handle Cover Image
         if (isset($files['cover_image']) && ($files['cover_image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
