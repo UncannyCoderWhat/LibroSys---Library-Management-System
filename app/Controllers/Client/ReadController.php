@@ -27,9 +27,19 @@ class ReadController extends ClientController
             return ['redirect' => 'index.php?page=library'];
         }
 
-        $book = $this->getBook($bookId);
+$book = $this->getBook($bookId);
         if (!$book) {
             return ['redirect' => 'index.php?page=library'];
+        }
+
+        // Check if exclusive book and user has insufficient credit score
+        $userStmt = $this->pdo->prepare("SELECT credit_score FROM users WHERE id = ?");
+        $userStmt->execute([$userId]);
+        $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+        $userCreditScore = (int)($userData['credit_score'] ?? 0);
+        
+        if (!empty($book['is_exclusive']) && $userCreditScore <= 5) {
+            return ['redirect' => 'index.php?page=book_detail&id=' . $bookId];
         }
 
         $bookType = strtolower($book['book_type'] ?? '');

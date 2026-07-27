@@ -106,7 +106,7 @@ class AjaxController extends ClientController
             exit();
         }
 
-        $userId = (int)$session['user_id'];
+$userId = (int)$session['user_id'];
         $bookId = isset($post['book_id']) ? (int)$post['book_id'] : 0;
 
         if ($bookId <= 0) {
@@ -114,8 +114,14 @@ class AjaxController extends ClientController
             exit();
         }
 
+        // Get user's credit score
+        $stmt = $this->pdo->prepare("SELECT credit_score FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userCreditScore = (int)($userData['credit_score'] ?? 0);
+
         try {
-            $result = $this->bookDetail->handleReadNow($userId, $bookId);
+            $result = $this->bookDetail->handleReadNow($userId, $bookId, $userCreditScore);
             echo json_encode($result);
         } catch (PDOException $e) {
             echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);

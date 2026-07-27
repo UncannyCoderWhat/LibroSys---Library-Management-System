@@ -11,6 +11,8 @@ $cartCount = $data['cartCount'] ?? 0;
 $savedPage = isset($data['savedPage']) ? (int)$data['savedPage'] : 1;
 $savedChapterId = isset($data['savedChapterId']) ? (int)$data['savedChapterId'] : 0;
 $userBorrow = $data['userBorrow'] ?? null;
+$userCreditScore = (int)($data['userCreditScore'] ?? 0);
+$isExclusiveRestricted = !empty($book['is_exclusive']) && $userCreditScore <= 5;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,6 +119,11 @@ $userBorrow = $data['userBorrow'] ?? null;
                             $readLabel = 'Read eBook';
                         }
                         ?>
+<?php if ($isExclusiveRestricted && !$isReading && !$isBorrowed && !$isBookmarked): ?>
+                            <div class="bd-exclusive-restricted">
+                                <i class='bx bx-lock-alt'></i> Special Book — Requires Credit Score above 5 to read or borrow. You can bookmark it instead.
+                            </div>
+                        <?php endif; ?>
                         <?php if ($isReading): ?>
                             <button class="bd-btn bd-btn-primary" onclick="continueReading(<?php echo (int)$book['id']; ?>)">
                                 <i class='bx bx-book-reader'></i> Continue Reading
@@ -128,7 +135,7 @@ $userBorrow = $data['userBorrow'] ?? null;
                             <button class="bd-btn bd-btn-primary" onclick="continueReading(<?php echo (int)$book['id']; ?>)">
                                 <i class='bx bx-book-reader'></i> <?php echo $readLabel; ?>
                             </button>
-                        <?php else: ?>
+                        <?php elseif (!$isExclusiveRestricted): ?>
                             <button class="bd-btn bd-btn-primary" onclick="window.location.href='<?php echo $readLink; ?>'">
                                 <i class='bx bx-book-reader'></i> <?php echo $readLabel; ?>
                             </button>
@@ -157,7 +164,7 @@ $userBorrow = $data['userBorrow'] ?? null;
                                 <i class='bx bx-time'></i> Reserved
                             </button>
                             <?php endif; ?>
-                        <?php elseif (!$isBorrowed && ($book['status'] ?? 'available') !== 'archived'): ?>
+                        <?php elseif (!$isBorrowed && ($book['status'] ?? 'available') !== 'archived' && !$isExclusiveRestricted): ?>
                             <?php if (($book['available_copies'] ?? 0) > 0): ?>
                             <button class="bd-btn bd-btn-borrow" onclick="openBorrowModal(<?php echo (int)$book['id']; ?>)">
                                 <i class='bx bx-shopping-bag'></i> Borrow

@@ -19,10 +19,16 @@ class BookDetailController extends ClientController
         $userId = (int)($session['user_id'] ?? 0);
         $bookId = (int)($_GET['id'] ?? 0);
 
+        // Get user's credit score
+        $userStmt = $this->pdo->prepare("SELECT credit_score FROM users WHERE id = ?");
+        $userStmt->execute([$userId]);
+        $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+        $userCreditScore = (int)($userData['credit_score'] ?? 0);
+
         // Handle read_now / bookmark actions from book detail buttons
         $action = $_GET['action'] ?? '';
         if ($action === 'read_now' && $bookId > 0) {
-            $this->handleReadNow($userId, $bookId);
+            $this->handleReadNow($userId, $bookId, $userCreditScore);
             return ['redirect' => 'index.php?page=book_detail&id=' . $bookId];
         }
         if ($action === 'bookmark' && $bookId > 0) {
@@ -94,6 +100,7 @@ class BookDetailController extends ClientController
             'savedPage' => $savedPage,
             'savedChapterId' => $savedChapterId,
             'userBorrow' => $userBorrow,
+            'userCreditScore' => $userCreditScore,
         ];
     }
 
@@ -203,8 +210,16 @@ class BookDetailController extends ClientController
         return $row ? (int)$row['page_number'] : 1;
     }
 
-    public function handleReadNow(int $userId, int $bookId): array
+    public function handleReadNow(int $userId, int $bookId, int $userCreditScore = 0): array
     {
+        // Check if book is exclusive and user has insufficient credit score
+        $bookStmt = $this->pdo->prepare("SELECT is_exclusive FROM books WHERE id = ?");
+        $bookStmt->execute([$bookId]);
+        $bookData = $bookStmt->fetch(PDO::FETCH_ASSOC);
+        if ($bookData && !empty($bookData['is_exclusive']) && $userCreditScore <= 5) {
+            return ['status' => 'error', 'message' => 'Special books can only be accessed by exclusive users (Credit Score above 5).'];
+        }
+
         // Check if user already has a 'reading' record for this book
         $stmt = $this->pdo->prepare("
             SELECT id FROM borrows 
