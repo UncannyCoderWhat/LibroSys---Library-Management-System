@@ -38,8 +38,7 @@ if (strpos($page, 'admin_') === 0) {
         exit();
     }
     if ($adminPage === 'signup') {
-        $view = 'app/Views/admin/signup.php';
-        include $view;
+        header('Location: index.php?page=admin_login');
         exit();
     }
     if ($adminPage === 'authenticate') {
@@ -218,7 +217,7 @@ switch ($page) {
     case 'signup':
         $controller = new AuthController($pdo);
         $data = $controller->handleSignupRequest();
-        $view = 'app/Views/client/signup.php';
+        $view = 'app/Views/client/login.php';
         break;
 
     case 'logout':

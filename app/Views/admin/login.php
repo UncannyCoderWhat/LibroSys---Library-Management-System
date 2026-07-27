@@ -2,6 +2,16 @@
 if (!isset($base_url)) {
     $base_url = '';
 }
+
+$message = $message ?? '';
+$message_type = $message_type ?? '';
+
+if (empty($message) && isset($_SESSION['admin_auth_message'])) {
+    $message = $_SESSION['admin_auth_message'];
+    $message_type = $_SESSION['admin_auth_message_type'] ?? 'error';
+    unset($_SESSION['admin_auth_message']);
+    unset($_SESSION['admin_auth_message_type']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

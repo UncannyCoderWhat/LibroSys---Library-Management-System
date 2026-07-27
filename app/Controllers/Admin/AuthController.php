@@ -34,17 +34,16 @@ class AdminAuthController
             exit();
         }
 
-        echo "<script>
-                alert('Invalid Admin ID or Password. Please try again.');
-                window.location.href = 'index.php?page=admin_login';
-              </script>";
+        $_SESSION['admin_auth_message'] = 'Invalid Admin ID or Password. Please try again.';
+        $_SESSION['admin_auth_message_type'] = 'error';
+        header('Location: index.php?page=admin_login');
         exit();
     }
 
     public function handleSignup(array $post): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php?page=admin_signup');
+            header('Location: index.php?page=admin_login');
             exit();
         }
 
@@ -55,17 +54,15 @@ class AdminAuthController
         $result = $this->adminModel->registerAdmin($admin_id, $password, $confirm_password);
 
         if ($result['success']) {
-            echo "<script>
-                    alert('" . addslashes($result['message']) . "');
-                    window.location.href = 'index.php?page=admin_login';
-                  </script>";
+            $_SESSION['admin_auth_message'] = $result['message'];
+            $_SESSION['admin_auth_message_type'] = 'success';
+            header('Location: index.php?page=admin_login');
             exit();
         }
 
-        echo "<script>
-                alert('" . addslashes($result['message']) . "');
-                window.location.href = 'index.php?page=admin_signup';
-              </script>";
+        $_SESSION['admin_auth_message'] = $result['message'];
+        $_SESSION['admin_auth_message_type'] = 'error';
+        header('Location: index.php?page=admin_login');
         exit();
     }
 

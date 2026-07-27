@@ -13,7 +13,7 @@ class ClientModel
         $this->bookModel = new BookModel($pdo);
     }
 
-    public static function calculateFine(string $dueDate, ?string $endDate = null, string $status = 'borrowed'): float
+    public static function calculateFine(?string $dueDate, ?string $endDate = null, string $status = 'borrowed'): float
     {
         if ($status !== 'borrowed' || empty($dueDate)) {
             return 0.0;
@@ -526,6 +526,9 @@ class ClientModel
                 $updateUser = $this->pdo->prepare("UPDATE users SET credit_score = GREATEST(0, LEAST(10, credit_score + ?)) WHERE id = ?");
                 $updateUser->execute([$totalScoreChange, $userId]);
             }
+
+            unset($session['settings_message']);
+            unset($session['settings_message_type']);
 
             return ['status' => 'success', 'message' => 'Payment successful! All books have been returned and fines are cleared.'];
         }

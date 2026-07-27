@@ -148,7 +148,12 @@ class SettingsController extends ClientController
 
                 $unpaidFines = 0;
                 foreach ($fines as $f) {
-                    $amt = ClientModel::calculateFine($f['due_date'], null, $f['status'] ?? 'borrowed');
+                    $amt = 0;
+                    if (($f['status'] ?? '') === 'borrowed' && !empty($f['due_date'])) {
+                        $amt = ClientModel::calculateFine($f['due_date'], null, 'borrowed');
+                    } elseif (!empty($f['fine_amount'])) {
+                        $amt = (float)$f['fine_amount'];
+                    }
                     $unpaidFines += $amt;
                 }
 

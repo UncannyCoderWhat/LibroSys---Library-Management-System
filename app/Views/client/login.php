@@ -93,7 +93,7 @@ $message_type = $data['message_type'] ?? '';
                 <?php endif; ?>
 
                 <h2>User Login</h2>
-                <form action="" method="POST">
+                <form action="index.php?page=login" method="POST">
                     <div class="input-group">
                         <input type="text" id="user_id" name="user_id" placeholder=" " required>
                         <label for="user_id">User ID or Email</label>

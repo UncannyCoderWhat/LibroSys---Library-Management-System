@@ -6,9 +6,6 @@ class AuthController extends ClientController
 {
     public function handleLoginRequest(): array
     {
-        $message = '';
-        $message_type = '';
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $this->handleLogin($_POST['user_id'] ?? '', $_POST['user_password'] ?? '');
 
@@ -22,9 +19,16 @@ class AuthController extends ClientController
                 exit();
             }
 
-            $message = $result['message'] ?? 'Invalid ID/Email or Password.';
-            $message_type = 'error';
+            $_SESSION['auth_message'] = $result['message'] ?? 'Invalid ID/Email or Password.';
+            $_SESSION['auth_message_type'] = 'error';
+            header('Location: index.php?page=login');
+            exit();
         }
+
+        $message = $_SESSION['auth_message'] ?? '';
+        $message_type = $_SESSION['auth_message_type'] ?? '';
+        unset($_SESSION['auth_message']);
+        unset($_SESSION['auth_message_type']);
 
         return [
             'message' => $message,
@@ -34,9 +38,6 @@ class AuthController extends ClientController
 
     public function handleSignupRequest(): array
     {
-        $message = '';
-        $message_type = '';
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Support both first_name/last_name (new) and combined name (old) fields
             $firstName = $_POST['first_name'] ?? '';
@@ -73,9 +74,16 @@ class AuthController extends ClientController
                 }
             }
 
-            $message = $result['message'] ?? 'Unable to create account.';
-            $message_type = $result['success'] ? 'success' : 'error';
+            $_SESSION['auth_message'] = $result['message'] ?? 'Unable to create account.';
+            $_SESSION['auth_message_type'] = $result['success'] ? 'success' : 'error';
+            header('Location: index.php?page=login');
+            exit();
         }
+
+        $message = $_SESSION['auth_message'] ?? '';
+        $message_type = $_SESSION['auth_message_type'] ?? '';
+        unset($_SESSION['auth_message']);
+        unset($_SESSION['auth_message_type']);
 
         return [
             'message' => $message,
