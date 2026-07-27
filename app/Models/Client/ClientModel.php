@@ -184,7 +184,7 @@ class ClientModel
         ];
     }
 
-    public function handleSignup(string $name, string $email, string $password, string $confirmPassword): array
+    public function handleSignup(string $firstName, string $lastName, string $email, string $password, string $confirmPassword): array
     {
         if ($password !== $confirmPassword) {
             return ['success' => false, 'message' => 'Passwords do not match!'];
@@ -194,8 +194,16 @@ class ClientModel
             return ['success' => false, 'message' => 'Password must be at least 6 characters long!'];
         }
 
+        // Check if email already exists
+        $emailCheck = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+        $emailCheck->execute([$email]);
+        if ($emailCheck->fetchColumn() > 0) {
+            return ['success' => false, 'message' => 'This email is already registered. Please use a different email or login.'];
+        }
+
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $userId = 'USR-' . uniqid();
+        $fullName = trim($firstName . ' ' . $lastName);
 
         $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE user_id = ?");
         $checkStmt->execute([$userId]);
@@ -204,14 +212,20 @@ class ClientModel
             return ['success' => false, 'message' => 'Failed to generate a unique User ID. Please try again.'];
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO users (user_id, name, email, password, credit_score) VALUES (?, ?, ?, ?, 10)");
-        if ($stmt->execute([$userId, $name, $email, $hashedPassword])) {
-            return [
-                'success' => true,
-                'user_id' => $userId,
-                'insert_id' => (int)$this->pdo->lastInsertId(),
-                'name' => $name,
-            ];
+        try {
+            $stmt = $this->pdo->prepare("INSERT INTO users (user_id, name, first_name, last_name, email, password, credit_score) VALUES (?, ?, ?, ?, ?, ?, 10)");
+            if ($stmt->execute([$userId, $fullName, $firstName, $lastName, $email, $hashedPassword])) {
+                return [
+                    'success' => true,
+                    'user_id' => $userId,
+                    'insert_id' => (int)$this->pdo->lastInsertId(),
+                    'name' => $fullName,
+                ];
+            }
+        } catch (PDOException $e) {
+            // Log the error for debugging
+            error_log('Signup error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Unable to create the account. The email may already be registered. Please try a different email or contact support.'];
         }
 
         return ['success' => false, 'message' => 'Unable to create the account. Please try again.'];

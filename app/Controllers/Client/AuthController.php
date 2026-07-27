@@ -38,8 +38,20 @@ class AuthController extends ClientController
         $message_type = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Support both first_name/last_name (new) and combined name (old) fields
+            $firstName = $_POST['first_name'] ?? '';
+            $lastName  = $_POST['last_name'] ?? '';
+
+            // Fallback: if first_name is empty but 'name' is provided, try to split it
+            if (empty($firstName) && !empty($_POST['name'])) {
+                $nameParts = explode(' ', trim($_POST['name']), 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName  = $nameParts[1] ?? '';
+            }
+
             $result = $this->handleSignup(
-                $_POST['name'] ?? '',
+                $firstName,
+                $lastName,
                 $_POST['email'] ?? '',
                 $_POST['password'] ?? '',
                 $_POST['confirm_password'] ?? ''

@@ -1,0 +1,97 @@
+/* Read More Toggle Styles */
+.bd-description-section {
+    margin-bottom: 32px;
+}
+
+.bd-description {
+    position: relative;
+    background: var(--surface-color);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.bd-description:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.bd-description-text {
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    transition: max-height 0.3s ease;
+}
+
+.bd-description-text p {
+    margin: 0;
+}
+
+.bd-description-text.expanded {
+    max-height: none;
+    overflow: visible;
+}
+
+.bd-read-more-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--main-color);
+    border-radius: 6px;
+    color: var(--main-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInReadMore 0.4s ease forwards;
+}
+
+.bd-read-more-btn:hover {
+    background: var(--main-color);
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 210, 0, 0.2);
+}
+
+.bd-read-more-btn.expanding {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.bd-read-more-btn.expanded {
+    background: var(--main-color);
+    color: #000;
+    border-color: var(--main-color);
+    transform: translateY(0);
+}
+
+@keyframes fadeInReadMore {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bd-no-description {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 24px;
+    background: var(--surface-color-secondary);
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+}

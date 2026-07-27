@@ -59,3 +59,27 @@
 2. Click "Back to Details" button
 3. Re-open the book - should resume from page 5
 4. Repeat test with browser refresh, tab close, and library link click
+
+---
+
+# CURRENT TASK: Fix Client Signup with First Name & Last Name Not Storing to Database
+
+## Root Cause
+The signup form only had a single `name` field ("Full Name"), but the user wanted to sign up using separate first and last name fields. The backend also only read `$_POST['name']` and never wrote to the `first_name` / `last_name` columns.
+
+## Changes Made
+
+### File 1: `app/Views/client/signup.php`
+- Replaced the single "Full Name" input (`name="name"`) with two separate inputs:
+  - `<input name="first_name">` — "First Name"
+  - `<input name="last_name">` — "Last Name"
+
+### File 2: `app/Controllers/Client/AuthController.php`
+- Updated `handleSignupRequest()` to read `$_POST['first_name']` and `$_POST['last_name']` instead of `$_POST['name']`
+
+### File 3: `app/Models/Client/ClientModel.php`
+- Updated `handleSignup()` method signature to accept `$firstName` and `$lastName` parameters
+- Constructs `$fullName = trim($firstName . ' ' . $lastName)` for the `name` column
+- Updated the SQL `INSERT` to include `first_name` and `last_name` columns
+
+## Status: COMPLETED ✓

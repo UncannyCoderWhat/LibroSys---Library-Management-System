@@ -48,8 +48,13 @@ $message_type = $data['message_type'] ?? '';
             <h2>Create Account</h2>
             <form action="" method="POST">
                 <div class="input-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" placeholder="Enter your first name" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" placeholder="Enter your last name" required>
                 </div>
 
                 <div class="input-group">

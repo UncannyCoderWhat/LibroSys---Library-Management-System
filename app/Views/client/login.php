@@ -119,7 +119,7 @@ $message_type = $data['message_type'] ?? '';
                 <?php endif; ?>
 
                 <h2>Create Account</h2>
-                <form action="" method="POST">
+                <form action="index.php?page=signup" method="POST">
                     <!-- Side-by-side First & Last Name -->
                     <div class="input-row">
                         <div class="input-group">
