@@ -60,21 +60,7 @@ class ProfileController extends ClientController
         $outstandingFinesRecords = $this->model->getOutstandingFines((int)$db_id);
 
         foreach ($outstandingFinesRecords as $row) {
-            $fine = isset($row['fine_amount']) ? (float)$row['fine_amount'] : 0;
-
-            if (($row['status'] ?? null) === 'borrowed' && !empty($row['due_date'])) {
-                $now = time();
-                $dueDate = strtotime($row['due_date']);
-
-                if ($now > $dueDate) {
-                    $daysLate = (int)ceil(($now - $dueDate) / (60 * 60 * 24));
-                    if ($daysLate <= 3) $fine = $daysLate * 50;
-                    elseif ($daysLate <= 10) $fine = $daysLate * 100;
-                    else $fine = $daysLate * 150;
-                } else {
-                    $fine = 0;
-                }
-            }
+            $fine = ClientModel::calculateFine($row['due_date'], null, $row['status'] ?? 'borrowed');
 
             if ($fine > 0) {
                 $fineItems[] = [

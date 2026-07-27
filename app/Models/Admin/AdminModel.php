@@ -2,6 +2,7 @@
 // app/Models/Admin/AdminModel.php
 // Consolidated admin model — all business logic for admin operations
 require_once __DIR__ . '/BookModel.php';
+require_once __DIR__ . '/../Client/ClientModel.php';
 
 class AdminModel
 {
@@ -151,21 +152,13 @@ class AdminModel
 
             foreach ($results as &$row) {
                 $daysLate = 0;
-                $fine = (float)($row['fine_amount'] ?? 0);
+                $fine = ClientModel::calculateFine($row['due_date'], $row['return_date'] ?? null, $row['status'] ?? 'borrowed');
 
                 if (($row['status'] ?? null) !== 'reserved' && !empty($row['due_date'])) {
-                    $endDate = $row['return_date'] ? strtotime($row['return_date']) : time();
-                    $dueDate = strtotime($row['due_date']);
-
-                    if ($endDate > $dueDate) {
-                        $diff = $endDate - $dueDate;
-                        $daysLate = (int)ceil($diff / (60 * 60 * 24));
-
-                        if (($row['status'] ?? null) === 'borrowed') {
-                            if ($daysLate <= 3) $fine = $daysLate * 50;
-                            elseif ($daysLate <= 10) $fine = $daysLate * 100;
-                            else $fine = $daysLate * 150;
-                        }
+                    if ($fine > 0) {
+                        $endDate = $row['return_date'] ? strtotime($row['return_date']) : time();
+                        $dueDate = strtotime($row['due_date']);
+                        $daysLate = (int)ceil(($endDate - $dueDate) / (60 * 60 * 24));
                     }
                 }
 
@@ -228,24 +221,14 @@ class AdminModel
         try {
             $stmt = $this->pdo->prepare("
                 SELECT br.due_date, br.return_date, br.status, br.fine_amount
-                FROM borrows br WHERE br.user_id = ? AND br.is_fine_paid = FALSE
+                FROM borrows br WHERE br.user_id = ? AND (br.is_fine_paid = FALSE OR br.is_fine_paid IS NULL)
             ");
             $stmt->execute([$userId]);
             $userBorrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $totalFines = 0;
             foreach ($userBorrows as $borrow) {
-                $fine = (float)($borrow['fine_amount'] ?? 0);
-                if ($borrow['status'] === 'borrowed' && !empty($borrow['due_date'])) {
-                    $now = time();
-                    $dueDate = strtotime($borrow['due_date']);
-                    if ($now > $dueDate) {
-                        $daysLate = (int)ceil(($now - $dueDate) / (60 * 60 * 24));
-                        if ($daysLate <= 3) $fine = $daysLate * 50;
-                        elseif ($daysLate <= 10) $fine = $daysLate * 100;
-                        else $fine = $daysLate * 150;
-                    } else { $fine = 0; }
-                }
+                $fine = ClientModel::calculateFine($borrow['due_date'], $borrow['return_date'] ?? null, $borrow['status']);
                 $totalFines += $fine;
             }
             return $totalFines;
@@ -268,22 +251,9 @@ class AdminModel
             $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($records as &$row) {
-                $fine = (float)($row['fine_amount'] ?? 0);
-                $isOverdue = false;
-
-                if ($row['status'] === 'borrowed' && !empty($row['due_date'])) {
-                    $now = time();
-                    $dueDate = strtotime($row['due_date']);
-                    if ($now > $dueDate) {
-                        $isOverdue = true;
-                        $daysLate = (int)ceil(($now - $dueDate) / (60 * 60 * 24));
-                        if ($daysLate <= 3) $fine = $daysLate * 50;
-                        elseif ($daysLate <= 10) $fine = $daysLate * 100;
-                        else $fine = $daysLate * 150;
-                    }
-                }
+                $fine = ClientModel::calculateFine($row['due_date'], $row['return_date'] ?? null, $row['status']);
                 $row['calculated_fine'] = $fine;
-                $row['is_live_overdue'] = $isOverdue;
+                $row['is_live_overdue'] = $fine > 0 && $row['status'] === 'borrowed';
             }
 
             return $records;
@@ -412,25 +382,12 @@ class AdminModel
 
         foreach ($logs as &$log) {
             $daysLate = 0;
-            $fine = (float)($log['fine_amount'] ?? 0);
+            $fine = ClientModel::calculateFine($log['due_date'], $log['date_returned'] ?? null, $log['status']);
 
-            if (!empty($log['due_date'])) {
+            if ($fine > 0) {
                 $endDate = !empty($log['date_returned']) ? strtotime($log['date_returned']) : time();
                 $dueDate = strtotime($log['due_date']);
-
-                if ($endDate > $dueDate) {
-                    $daysLate = (int)ceil(($endDate - $dueDate) / 86400);
-
-                    if ($log['status'] === 'borrowed') {
-                        if ($daysLate <= 3) {
-                            $fine = $daysLate * 50;
-                        } elseif ($daysLate <= 10) {
-                            $fine = $daysLate * 100;
-                        } else {
-                            $fine = $daysLate * 150;
-                        }
-                    }
-                }
+                $daysLate = (int)ceil(($endDate - $dueDate) / 86400);
             }
 
             $log['type'] = $log['type'] ? 'Special' : 'Regular';

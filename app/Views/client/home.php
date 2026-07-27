@@ -655,9 +655,9 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <h4 class="ls-footer-col-title">Browse</h4>
                 <ul class="ls-footer-links">
                     <li><a href="index.php?page=library"><i class='bx bx-book'></i> Library</a></li>
-                    <li><a href="index.php?page=browse"><i class='bx bx-star'></i> New Arrivals</a></li>
-                    <li><a href="index.php?page=browse"><i class='bx bx-award'></i> Special</a></li>
-                    <li><a href="index.php?page=browse"><i class='bx bx-category'></i> Categories</a></li>
+                    <li><a href="index.php?page=home"><i class='bx bx-star'></i> New Arrivals</a></li>
+                    <li><a href="index.php?page=home"><i class='bx bx-award'></i> Special</a></li>
+                    <li><a href="index.php?page=home"><i class='bx bx-category'></i> Categories</a></li>
                 </ul>
             </div>
 
@@ -665,10 +665,12 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <div class="ls-footer-col">
                 <h4 class="ls-footer-col-title">Support</h4>
                 <ul class="ls-footer-links">
-                    <li><a href="#"><i class='bx bx-help-circle'></i> Help Center</a></li>
-                    <li><a href="#"><i class='bx bx-question-mark'></i> FAQ</a></li>
-                    <li><a href="#"><i class='bx bx-envelope'></i> Contact Us</a></li>
-                    <li><a href="#"><i class='bx bx-flag'></i> Report Issue</a></li>
+                    <li><a href="#" class="ls-footer-modal-trigger" data-modal="modal-help-center"><i class='bx bx-help-circle'></i> Help Center</a></li>
+                    <li><a href="#" class="ls-footer-modal-trigger" data-modal="modal-faq"><i class='bx bx-question-mark'></i> FAQ</a></li>
+                    <li><a href="#" class="ls-footer-modal-trigger" data-modal="modal-contact-us"><i class='bx bx-envelope'></i> Contact Us</a></li>
+                    <li><a href="#" class="ls-footer-modal-trigger" data-modal="modal-report-issue"><i class='bx bx-flag'></i> Report Issue</a></li>
+                    <li><a href="#" class="ls-footer-modal-trigger" data-modal="modal-community"><i class='bx bx-group'></i> Community</a></li>
+                    <li><a href="#" class="ls-footer-modal-trigger" data-modal="modal-accessibility"><i class='bx bx-universal-access'></i> Accessibility</a></li>
                 </ul>
             </div>
 
@@ -710,5 +712,62 @@ $book_type_groups = $data['book_type_groups'] ?? [];
     <script src="<?php echo $base_url; ?>/public/js/specialBookAnimation.js"></script>  
     <script src="<?php echo $base_url; ?>/public/js/viewAllModal.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/searchBarHome.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/footerModals.js"></script>
+
+    <div id="modal-help-center" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="ls-modal-close" onclick="document.getElementById('modal-help-center').style.display='none'; document.body.style.overflow='';">&times;</span>
+            <h2 style="margin-top: 0;">Help Center</h2>
+            <p>Welcome to the LibroSys Help Center. Here you can find guides, tutorials, and answers to common questions about borrowing, reserving, and managing your account.</p>
+            <p><strong>Getting Started:</strong> Browse our collection, borrow physical copies with delivery, or read digital books instantly. Use the search bar to find authors, titles, or genres.</p>
+            <p><strong>Need more help?</strong> Reach out through the Contact Us form or check our FAQ for quick answers.</p>
+        </div>
+    </div>
+
+    <div id="modal-faq" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="ls-modal-close" onclick="document.getElementById('modal-faq').style.display='none'; document.body.style.overflow='';">&times;</span>
+            <h2 style="margin-top: 0;">Frequently Asked Questions</h2>
+            <p><strong>How long can I borrow a book?</strong><br>Physical borrows are due in 7 days. You may extend once for an additional 7 days with a ₱50 fee.</p>
+            <p><strong>When are fines applied?</strong><br>Fines are calculated automatically upon return. Overdue rates are ₱50/day for the first 3 days, ₱100/day for days 4–10, and ₱150/day thereafter.</p>
+            <p><strong>Can I cancel a reservation?</strong><br>Yes. Go to your Profile page, find the reservation under My Reservations, and click the cancel button.</p>
+        </div>
+    </div>
+
+    <div id="modal-contact-us" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="ls-modal-close" onclick="document.getElementById('modal-contact-us').style.display='none'; document.body.style.overflow='';">&times;</span>
+            <h2 style="margin-top: 0;">Contact Us</h2>
+            <p>We are here to help. Reach out anytime and our team will get back to you within 1–2 business days.</p>
+            <p><strong>Email:</strong> support@librosys.example<br><strong>Phone:</strong> +1 (555) 123-4567<br><strong>Hours:</strong> Mon–Fri, 8:00 AM – 6:00 PM</p>
+        </div>
+    </div>
+
+    <div id="modal-report-issue" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="ls-modal-close" onclick="document.getElementById('modal-report-issue').style.display='none'; document.body.style.overflow='';">&times;</span>
+            <h2 style="margin-top: 0;">Report an Issue</h2>
+            <p>Found a bug, a broken link, or something that does not look right? Let us know so we can fix it quickly.</p>
+            <p><strong>Include:</strong> page name, what you were trying to do, and any error messages you saw.</p>
+        </div>
+    </div>
+
+    <div id="modal-community" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="ls-modal-close" onclick="document.getElementById('modal-community').style.display='none'; document.body.style.overflow='';">&times;</span>
+            <h2 style="margin-top: 0;">Community</h2>
+            <p>Join discussions, share reading recommendations, and connect with other readers in the LibroSys community.</p>
+            <p>Follow us on social media or visit our forums to stay up to date with events and book clubs.</p>
+        </div>
+    </div>
+
+    <div id="modal-accessibility" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="ls-modal-close" onclick="document.getElementById('modal-accessibility').style.display='none'; document.body.style.overflow='';">&times;</span>
+            <h2 style="margin-top: 0;">Accessibility</h2>
+            <p>LibroSys is committed to providing an accessible experience for all users. We continuously improve navigation, contrast, and keyboard support.</p>
+            <p>If you encounter any accessibility barriers, please report them through the Report Issue form.</p>
+        </div>
+    </div>
 </body>
 </html>

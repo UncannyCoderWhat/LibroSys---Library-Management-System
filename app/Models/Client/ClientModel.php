@@ -13,6 +13,26 @@ class ClientModel
         $this->bookModel = new BookModel($pdo);
     }
 
+    public static function calculateFine(string $dueDate, ?string $endDate = null, string $status = 'borrowed'): float
+    {
+        if ($status !== 'borrowed' || empty($dueDate)) {
+            return 0.0;
+        }
+
+        $endTimestamp = $endDate ? strtotime($endDate) : time();
+        $dueTimestamp = strtotime($dueDate);
+
+        if ($endTimestamp <= $dueTimestamp) {
+            return 0.0;
+        }
+
+        $daysLate = (int)ceil(($endTimestamp - $dueTimestamp) / (60 * 60 * 24));
+
+        if ($daysLate <= 3) return $daysLate * 50;
+        if ($daysLate <= 10) return $daysLate * 100;
+        return $daysLate * 150;
+    }
+
     public function getUserById(int $userId): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -103,7 +123,7 @@ class ClientModel
         $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
 
         $totalFines = 0;
-        $stmtFines = $this->pdo->prepare("SELECT fine_amount, due_date, status FROM borrows WHERE user_id = ? AND is_fine_paid = FALSE");
+        $stmtFines = $this->pdo->prepare("SELECT fine_amount, due_date, status FROM borrows WHERE user_id = ? AND (is_fine_paid = FALSE OR is_fine_paid IS NULL)");
         $stmtFines->execute([$userId]);
         $borrowsForFines = $stmtFines->fetchAll(PDO::FETCH_ASSOC);
 
@@ -478,15 +498,8 @@ class ClientModel
             $totalScoreChange = 0;
 
             foreach ($activeBorrows as $borrow) {
-                $isLate = strtotime($now) > strtotime($borrow['due_date']);
-                $fine = 0;
-                if ($isLate) {
-                    $diff = strtotime($now) - strtotime($borrow['due_date']);
-                    $daysLate = (int)ceil($diff / (60 * 60 * 24));
-                    if ($daysLate <= 3) $fine = $daysLate * 50;
-                    elseif ($daysLate <= 10) $fine = $daysLate * 100;
-                    else $fine = $daysLate * 150;
-                }
+                $fine = self::calculateFine($borrow['due_date'], null, $borrow['status']);
+                $isLate = $fine > 0;
 
                 $totalScoreChange += ($isLate ? -2 : 1);
 
@@ -573,20 +586,11 @@ class ClientModel
         }
 
         $now = date('Y-m-d H:i:s');
-        $dueDate = $borrow['due_date'];
-        $isLate = strtotime($now) > strtotime($dueDate);
-        $fine = 0;
+        $fine = self::calculateFine($borrow['due_date'], null, $borrow['status']);
+        $isLate = $fine > 0;
 
-        if ($isLate) {
-            $diff = strtotime($now) - strtotime($dueDate);
-            $daysLate = (int)ceil($diff / (60 * 60 * 24));
-            if ($daysLate <= 3) $fine = $daysLate * 50;
-            elseif ($daysLate <= 10) $fine = $daysLate * 100;
-            else $fine = $daysLate * 150;
-        }
-
-            $update = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE user_id = ? AND book_id = ? AND status = 'borrowed'");
-        $update->execute([$now, $fine, $userId, $borrow['book_id']]);
+        $update = $this->pdo->prepare("UPDATE borrows SET status = 'returned', return_date = ?, fine_amount = ?, is_fine_paid = FALSE WHERE id = ?");
+        $update->execute([$now, $fine, $borrow['id']]);
 
         $this->bookModel->syncBookAvailability($borrow['book_id']);
 
@@ -699,10 +703,10 @@ class ClientModel
     public function getOutstandingFines(int $userId): array
     {
         $stmt = $this->pdo->prepare("
-            SELECT br.id, b.title, br.due_date, br.status, br.fine_amount
+            SELECT br.id, COALESCE(b.title, 'Deleted Book') as title, br.due_date, br.status, br.fine_amount
             FROM borrows br
-            JOIN books b ON br.book_id = b.id
-            WHERE br.user_id = ? AND br.is_fine_paid = FALSE
+            LEFT JOIN books b ON br.book_id = b.id
+            WHERE br.user_id = ? AND (br.is_fine_paid = FALSE OR br.is_fine_paid IS NULL)
         ");
         $stmt->execute([$userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

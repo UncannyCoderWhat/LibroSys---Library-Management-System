@@ -142,27 +142,13 @@ class SettingsController extends ClientController
                 $checkBorrowStmt->execute([$db_id]);
                 $activeLoans = (int)$checkBorrowStmt->fetchColumn();
 
-                $checkFineStmt = $this->pdo->prepare("SELECT status, due_date, fine_amount FROM borrows WHERE user_id = ? AND is_fine_paid = FALSE");
+                $checkFineStmt = $this->pdo->prepare("SELECT status, due_date, fine_amount FROM borrows WHERE user_id = ? AND (is_fine_paid = FALSE OR is_fine_paid IS NULL)");
                 $checkFineStmt->execute([$db_id]);
                 $fines = $checkFineStmt->fetchAll();
 
                 $unpaidFines = 0;
                 foreach ($fines as $f) {
-                    $amt = $f['fine_amount'] ?? 0;
-
-                    if (($f['status'] ?? null) === 'borrowed' && !empty($f['due_date'])) {
-                        $now = time();
-                        $dueDate = strtotime($f['due_date']);
-                        if ($now > $dueDate) {
-                            $daysLate = (int)ceil(($now - $dueDate) / (60 * 60 * 24));
-                            if ($daysLate <= 3) $amt = $daysLate * 50;
-                            elseif ($daysLate <= 10) $amt = $daysLate * 100;
-                            else $amt = $daysLate * 150;
-                        } else {
-                            $amt = 0;
-                        }
-                    }
-
+                    $amt = ClientModel::calculateFine($f['due_date'], null, $f['status'] ?? 'borrowed');
                     $unpaidFines += $amt;
                 }
 
