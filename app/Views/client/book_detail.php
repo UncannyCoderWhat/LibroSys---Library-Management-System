@@ -35,25 +35,6 @@ $userBorrow = $data['userBorrow'] ?? null;
                 <div class="nav-links">
                     <a href="index.php?page=home"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=library"><i class='bx bx-book'></i>Library</a>
-                    <div class="dpContainer">
-                        <button class="dropdown"><i class='bx bx-down-arrow'></i>Browse</button>
-                        <div class="dpwrapper">
-                            <ul>
-                                <li><a href="#">History</a></li>
-                                <li><a href="#">Fiction</a></li>
-                                <li><a href="#">Drama</a></li>
-                                <li><a href="#">Fantasy</a></li>
-                                <li><a href="#">Horror</a></li>
-                                <li><a href="#">Thriller</a></li>
-                                <li><a href="#">Romance</a></li>
-                                <li><a href="#">Teen Fiction</a></li>
-                                <li><a href="#">Mystery</a></li>
-                                <li><a href="#">Adventure</a></li>
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Fanfiction</a></li>
-                            </ul>
-                        </div>
-                    </div>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
                     <div class="switch-container">
                         <span class="switch-label"></span>

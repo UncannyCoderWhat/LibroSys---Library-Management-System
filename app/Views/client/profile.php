@@ -50,26 +50,6 @@ $browse_error     = $data['browse_error'] ?? null;
                 <div class="nav-links">
                     <a href="index.php?page=home" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'home' ? 'active' : ''; ?>"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=library" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'library' ? 'active' : ''; ?>"><i class='bx bx-book'></i>Library</a>
-                    <div class="dpContainer">
-                        <script src="../../../public/js/dropdown.js"></script>
-                        <button class="dropdown"><i class='bx bx-down-arrow'></i>Browse</button>
-                        <div class="dpwrapper">
-                            <ul>
-                                <li><a href="index.php?page=browse&genre=history">History</a></li>
-                                <li><a href="index.php?page=browse&genre=fiction">Fiction</a></li>
-                                <li><a href="index.php?page=browse&genre=drama">Drama</a></li>
-                                <li><a href="index.php?page=browse&genre=fantasy">Fantasy</a></li>
-                                <li><a href="index.php?page=browse&genre=horror">Horror</a></li>
-                                <li><a href="index.php?page=browse&genre=thriller">Thriller</a></li>
-                                <li><a href="index.php?page=browse&genre=romance">Romance</a></li>
-                                <li><a href="index.php?page=browse&genre=teen-fiction">Teen Fiction</a></li>
-                                <li><a href="index.php?page=browse&genre=mystery">Mystery</a></li>
-                                <li><a href="index.php?page=browse&genre=adventure">Adventure</a></li>
-                                <li><a href="index.php?page=browse&genre=action">Action</a></li>
-                                <li><a href="index.php?page=browse&genre=fanfiction">Fanfiction</a></li>
-                            </ul>
-                        </div>
-                    </div>
                     <a href="index.php?page=profile" class="<?php echo isset($_GET['page']) && $_GET['page'] == 'profile' ? 'active' : ''; ?>"><i class='bx bx-user-circle'></i>Profile</a>
                     <div class="switch-container">
                         <span class="switch-label"></span>

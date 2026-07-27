@@ -34,33 +34,22 @@ $book_type_groups = $data['book_type_groups'] ?? [];
     <header>
         <div class="client-top-bar">
             <img src="<?php echo $base_url; ?>/images/librosys_client.png" onclick="window.scrollTo({top:0,behavior:'smooth'})" alt="LibroSys Logo" class="logo">
+            
+            <div class="search-container">
+                <form action="index.php" method="GET" class="search-form">
+                    <input type="hidden" name="page" value="library">
+                    <i class='bx bx-search search-icon'></i>
+                    <input type="text" name="search" placeholder="Search books, authors..." class="search-input">
+                </form>
+            </div>
+
             <nav class="navigation">
                 <div class="nav-links">
                     <a href="index.php?page=home" class="active"><i class='bx bx-home-alt'></i>Home</a>
                     <a href="index.php?page=library"><i class='bx bx-book'></i>Library</a>
-                    <div class="dpContainer">
-                        <button class="dropdown"><i class='bx bx-down-arrow'></i>Browse</button>
-                        <div class="dpwrapper">
-                            <ul>
-                                <li><a href="#" >History</a></li>
-                                <li><a href="#" >Fiction</a></li>
-                                <li><a href="#" >Drama</a></li>
-                                <li><a href="#" >Fantasy</a></li>
-                                <li><a href="#" >Horror</a></li>
-                                <li><a href="#" >Thriller</a></li>
-                                <li><a href="#" >Romance</a></li>
-                                <li><a href="#" >Teen Fiction</a></li>
-                                <li><a href="#" >Mystery</a></li>
-                                <li><a href="#" >Adventure</a></li>
-                                <li><a href="#" >Action</a></li>
-                                <li><a href="#" >Fanfiction</a></li>
-                            </ul>
-                        </div>
-                    </div>
                     <a href="index.php?page=profile"><i class='bx bx-user-circle'></i>Profile</a>
                     <div class="switch-container">
                         <span class="switch-label"></span>
-                    
                         <label class="main-toggle">
                             <input type="checkbox" id="theme-toggle" class="main-checkbox">
                             <div class="main-track"></div>
@@ -92,11 +81,8 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                     <h1 class="ls-hero-title">Discover Your Next Chapter</h1>
                     <p class="ls-hero-subtitle">Your all-in-one digital library for browsing books</p>
                     <div class="ls-hero-actions">
-                        <button class="ls-btn ls-btn-primary" onclick="window.location.href='index.php?page=home'">
-                            <i class='bx bx-book-open'></i> Start Browsing
-                        </button>
-                        <button class="ls-btn ls-btn-secondary" onclick="document.querySelector('.ls-shelf-section').scrollIntoView({behavior:'smooth'})">
-                            <i class='bx bx-collection'></i> Explore Collection
+                        <button class="ls-btn ls-btn-primary" onclick="document.querySelector('.ls-stats-strip').scrollIntoView({behavior:'smooth'})">
+                            <i class='bx bx-book-open'></i> Explore Collection
                         </button>
                     </div>
                 </div>
@@ -723,5 +709,6 @@ $book_type_groups = $data['book_type_groups'] ?? [];
     <script src="<?php echo $base_url; ?>/public/js/horizontalScroll.js"></script>  
     <script src="<?php echo $base_url; ?>/public/js/specialBookAnimation.js"></script>  
     <script src="<?php echo $base_url; ?>/public/js/viewAllModal.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/searchBarHome.js"></script>
 </body>
 </html>
