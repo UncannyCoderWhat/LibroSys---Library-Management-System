@@ -80,7 +80,7 @@ $userBorrow = $data['userBorrow'] ?? null;
         <!-- Book Detail Hero (Wattpad Inspired) -->
         <div class="bd-hero">
             <div class="bd-hero-bg">
-                <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="" class="bd-hero-bg-img" loading="lazy">
+                <!-- <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="" class="bd-hero-bg-img" loading="lazy"> -->
                 <div class="bd-hero-bg-overlay"></div>
             </div>
 
@@ -408,6 +408,7 @@ $userBorrow = $data['userBorrow'] ?? null;
 
     <script src="<?php echo $base_url; ?>/public/js/clientBG.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/bookLightBox.js"></script>
+    <script src="<?php echo $base_url; ?>/public/js/insideSpecialBookAnimation.js"></script>
     <script>
     function openBorrowModal(bookId) {
         document.getElementById('borrowBookId').value = bookId;

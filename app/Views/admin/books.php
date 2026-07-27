@@ -78,7 +78,7 @@ if (!isset($base_url)) {
             </div>
         </div></td></tr><?php endforeach;endif;?>
         </tbody></table></div>
-        <div class="pagination-controls" id="paginationControls"><button id="prevPage" onclick="changePage(-1)" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button><span class="page-info" id="pageInfo">Page 1 of 1</span><button id="nextPage" onclick="changePage(1)" disabled>Next <i class="fa-solid fa-chevron-right"></i></button><span style="margin-left:15px;font-size:13px"><label>Show:</label><select id="perPageSelect" onchange="resetPagination()" style="padding:4px 8px;border:1px solid #ddd;border-radius:4px"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></span></div>
+        <div class="pagination-controls" id="paginationControls"><button id="prevPage" onclick="changePage(-1)" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button><span class="page-info" id="pageInfo">Page 1 of 1</span><button id="nextPage" onclick="changePage(1)" disabled>Next <i class="fa-solid fa-chevron-right"></i></button><span style="margin-left:15px;font-size:13px"><label>Show: </label><select id="perPageSelect" onchange="resetPagination()" style="padding:4px 8px;border:1px solid #ddd;border-radius:4px"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select></span></div>
         </section>
 
         <!-- Management Tabs: Categories, Authors, Publishers -->

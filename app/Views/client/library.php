@@ -129,7 +129,7 @@ if ($debug_mode):
                             <span>Continue Reading</span>
                         </div>
                         <?php if (!empty($book['is_exclusive'])): ?>
-                        <span class="ls-exclusive-badge">Exclusive</span>
+                        <span class="ls-exclusive-badge">Special</span>
                         <?php endif; ?>
                     </div>
                     <div class="lib-book-info">
@@ -173,7 +173,7 @@ if ($debug_mode):
                             <span>Read Now</span>
                         </div>
                         <?php if (!empty($book['is_exclusive'])): ?>
-                        <span class="ls-exclusive-badge">Exclusive</span>
+                        <span class="ls-exclusive-badge">Special</span>
                         <?php endif; ?>
                     </div>
                     <div class="lib-book-info">
@@ -219,7 +219,7 @@ if ($debug_mode):
                             <span>View Details</span>
                         </div>
                         <?php if (!empty($book['is_exclusive'])): ?>
-                        <span class="ls-exclusive-badge">Exclusive</span>
+                        <span class="ls-exclusive-badge">Special</span>
                         <?php endif; ?>
                         <?php if ($isOverdue): ?>
                         <span class="lib-overdue-badge">Overdue</span>
@@ -316,7 +316,7 @@ if ($debug_mode):
                 <ul class="ls-footer-links">
                     <li><a href="index.php?page=library">Library</a></li>
                     <li><a href="index.php?page=browse">New Arrivals</a></li>
-                    <li><a href="index.php?page=browse">Exclusive</a></li>
+                    <li><a href="index.php?page=browse">Special</a></li>
                     <li><a href="index.php?page=browse">Categories</a></li>
                 </ul>
             </div>
@@ -331,7 +331,7 @@ if ($debug_mode):
             </div>
             <div class="ls-footer-col ls-footer-newsletter">
                 <h4 class="ls-footer-col-title">Stay Connected</h4>
-                <p class="ls-footer-newsletter-desc">Get the latest updates on new arrivals and exclusive content.</p>
+                <p class="ls-footer-newsletter-desc">Get the latest updates on new arrivals and special content.</p>
                 <div class="ls-footer-newsletter-form">
                     <input type="email" placeholder="Enter your email" class="ls-footer-newsletter-input">
                     <button class="ls-footer-newsletter-btn"><i class='bx bx-send'></i></button>
