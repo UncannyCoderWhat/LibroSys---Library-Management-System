@@ -109,7 +109,7 @@ $browse_error     = $data['browse_error'] ?? null;
             <?php endif; ?>
 
             <?php foreach ($notifications as $notif): ?>
-                <div class="notification-banner" id="notif-<?php echo (int)($notif['id'] ?? 0); ?>" style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #ffc107; display: flex; justify-content: space-between; align-items: center;">
+                <div class="notification-banner" id="notif-<?php echo (int)($notif['id'] ?? 0); ?>" style="background: #3d3d3ac6; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #ffc107; display: flex; justify-content: space-between; align-items: center;">
                     <span><i class='bx bxs-bell-ring'></i> <?php echo htmlspecialchars($notif['message'] ?? ''); ?></span>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <small style="color: #666;"><?php echo !empty($notif['created_at']) ? date("M d", strtotime($notif['created_at'])) : ''; ?></small>
