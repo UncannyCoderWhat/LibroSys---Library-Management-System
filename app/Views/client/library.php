@@ -144,7 +144,7 @@ if ($debug_mode):
                 <i class='bx bx-book-reader'></i>
                 <h3>No books in your reading list</h3>
                 <p>Start reading by clicking "Read Now" on any book.</p>
-                <a href="index.php?page=browse" class="lib-empty-btn">Browse Books</a>
+                <a href="index.php?page=home" class="lib-empty-btn">Browse Books</a>
             </div>
             <?php endif; ?>
         </div>
@@ -188,7 +188,7 @@ if ($debug_mode):
                 <i class='bx bx-bookmark'></i>
                 <h3>No bookmarks yet</h3>
                 <p>Bookmark books you want to read later.</p>
-                <a href="index.php?page=browse" class="lib-empty-btn">Browse Books</a>
+                <a href="index.php?page=home" class="lib-empty-btn">Browse Books</a>
             </div>
             <?php endif; ?>
         </div>
@@ -242,7 +242,7 @@ if ($debug_mode):
                 <i class='bx bx-book-alt'></i>
                 <h3>No borrowed books</h3>
                 <p>Borrow books to read them offline.</p>
-                <a href="index.php?page=browse" class="lib-empty-btn">Browse Books</a>
+                <a href="index.php?page=home" class="lib-empty-btn">Browse Books</a>
             </div>
             <?php endif; ?>
         </div>
@@ -275,7 +275,7 @@ if ($debug_mode):
                 <i class='bx bx-time'></i>
                 <h3>No reading history</h3>
                 <p>Your borrowing history will appear here.</p>
-                <a href="index.php?page=browse" class="lib-empty-btn">Browse Books</a>
+                <a href="index.php?page=home" class="lib-empty-btn">Browse Books</a>
             </div>
             <?php endif; ?>
         </div>
@@ -304,9 +304,9 @@ if ($debug_mode):
                 <h4 class="ls-footer-col-title">Browse</h4>
                 <ul class="ls-footer-links">
                     <li><a href="index.php?page=library">Library</a></li>
-                    <li><a href="index.php?page=browse">New Arrivals</a></li>
-                    <li><a href="index.php?page=browse">Special</a></li>
-                    <li><a href="index.php?page=browse">Categories</a></li>
+                    <li><a href="index.php?page=home">New Arrivals</a></li>
+                    <li><a href="index.php?page=home">Special</a></li>
+                    <li><a href="index.php?page=#">Categories</a></li>
                 </ul>
             </div>
             <div class="ls-footer-col">
