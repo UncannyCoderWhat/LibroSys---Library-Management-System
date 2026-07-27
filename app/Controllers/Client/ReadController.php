@@ -27,9 +27,27 @@ class ReadController extends ClientController
             return ['redirect' => 'index.php?page=library'];
         }
 
-$book = $this->getBook($bookId);
+        $book = $this->getBook($bookId);
         if (!$book) {
             return ['redirect' => 'index.php?page=library'];
+        }
+
+        // Check for outstanding fines
+        $fineStmt = $this->pdo->prepare("
+            SELECT br.due_date, br.status 
+            FROM borrows br 
+            WHERE br.user_id = ? AND (br.is_fine_paid = FALSE OR br.is_fine_paid IS NULL)
+        ");
+        $fineStmt->execute([$userId]);
+        $outstanding = $fineStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalFines = 0;
+        foreach ($outstanding as $row) {
+            $totalFines += self::calculateFine($row['due_date'], null, $row['status'] ?? 'borrowed');
+        }
+
+        if ($totalFines > 0) {
+            return ['redirect' => 'index.php?page=profile'];
         }
 
         // Check if exclusive book and user has insufficient credit score

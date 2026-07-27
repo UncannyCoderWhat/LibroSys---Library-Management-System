@@ -304,6 +304,23 @@ class ClientModel
         }
 
         if ($action === 'borrow') {
+            $fineCheck = $this->pdo->prepare("
+                SELECT br.due_date, br.status 
+                FROM borrows br 
+                WHERE br.user_id = ? AND (br.is_fine_paid = FALSE OR br.is_fine_paid IS NULL)
+            ");
+            $fineCheck->execute([$userId]);
+            $outstanding = $fineCheck->fetchAll(PDO::FETCH_ASSOC);
+
+            $totalFines = 0;
+            foreach ($outstanding as $row) {
+                $totalFines += self::calculateFine($row['due_date'], null, $row['status'] ?? 'borrowed');
+            }
+
+            if ($totalFines > 0) {
+                return ['status' => 'error', 'message' => 'You have outstanding fines of ₱' . number_format($totalFines, 2) . '. Please settle your dues before borrowing books.'];
+            }
+
             // Check for existing active records including bookmarked
             $userStmt = $this->pdo->prepare("SELECT id, status FROM borrows WHERE book_id = ? AND user_id = ? AND status IN ('reading', 'borrowed', 'bookmarked') LIMIT 1");
             $userStmt->execute([$bookId, $userId]);

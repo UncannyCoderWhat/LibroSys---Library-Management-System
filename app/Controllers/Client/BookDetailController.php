@@ -212,6 +212,23 @@ class BookDetailController extends ClientController
 
     public function handleReadNow(int $userId, int $bookId, int $userCreditScore = 0): array
     {
+        $fineStmt = $this->pdo->prepare("
+            SELECT br.due_date, br.status 
+            FROM borrows br 
+            WHERE br.user_id = ? AND (br.is_fine_paid = FALSE OR br.is_fine_paid IS NULL)
+        ");
+        $fineStmt->execute([$userId]);
+        $outstanding = $fineStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalFines = 0;
+        foreach ($outstanding as $row) {
+            $totalFines += self::calculateFine($row['due_date'], null, $row['status'] ?? 'borrowed');
+        }
+
+        if ($totalFines > 0) {
+            return ['status' => 'error', 'message' => 'You have outstanding fines of ₱' . number_format($totalFines, 2) . '. Please settle your dues before reading.'];
+        }
+
         // Check if book is exclusive and user has insufficient credit score
         $bookStmt = $this->pdo->prepare("SELECT is_exclusive FROM books WHERE id = ?");
         $bookStmt->execute([$bookId]);
