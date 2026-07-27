@@ -3,7 +3,7 @@ const imageModal = document.getElementById('imageModal');
 const imgFull = document.getElementById('imgFull');
 const closeBtn = document.querySelector('.lightbox-close');
 
-let scene, camera, renderer, bookMesh;
+let scene, camera, renderer, bookMesh, animationFrameId;
 let isDragging = false;
 let previousMousePosition = { x: 0, y: 0 };
 
@@ -14,11 +14,9 @@ function createPagesTexture(isVerticalLines) {
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
 
-    // Soft gray base paper color
     ctx.fillStyle = '#d8dcdb';
     ctx.fillRect(0, 0, 512, 512);
 
-    // Render individual page lines in a darker gray
     ctx.fillStyle = '#9da3a1';
     if (isVerticalLines) {
         for (let x = 0; x < 512; x += 3) {
@@ -30,7 +28,6 @@ function createPagesTexture(isVerticalLines) {
         }
     }
 
-    // Edge shadow/aging gradient for depth
     const grad = ctx.createLinearGradient(0, 0, 512, 512);
     grad.addColorStop(0, 'rgba(0,0,0,0.15)');
     grad.addColorStop(0.15, 'rgba(0,0,0,0)');
@@ -40,6 +37,29 @@ function createPagesTexture(isVerticalLines) {
     ctx.fillRect(0, 0, 512, 512);
 
     return new THREE.CanvasTexture(canvas);
+}
+
+function handleResize() {
+    if (renderer && camera && imgFull) {
+        camera.aspect = imgFull.clientWidth / imgFull.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(imgFull.clientWidth, imgFull.clientHeight);
+    }
+}
+
+function handleMouseMove(e) {
+    if (!isDragging || !bookMesh) return;
+    const deltaX = e.clientX - previousMousePosition.x;
+    const deltaY = e.clientY - previousMousePosition.y;
+
+    bookMesh.rotation.y += deltaX * 0.01;
+    bookMesh.rotation.x += deltaY * 0.01;
+
+    previousMousePosition = { x: e.clientX, y: e.clientY };
+}
+
+function handleMouseUp() {
+    isDragging = false;
 }
 
 function init3D() {
@@ -63,42 +83,22 @@ function init3D() {
 
     const domEl = renderer.domElement;
 
-    // Drag to rotate
     domEl.addEventListener('mousedown', (e) => {
         isDragging = true;
         previousMousePosition = { x: e.clientX, y: e.clientY };
     });
 
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging || !bookMesh) return;
-        const deltaX = e.clientX - previousMousePosition.x;
-        const deltaY = e.clientY - previousMousePosition.y;
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('resize', handleResize);
 
-        bookMesh.rotation.y += deltaX * 0.01;
-        bookMesh.rotation.x += deltaY * 0.01;
-
-        previousMousePosition = { x: e.clientX, y: e.clientY };
-    });
-
-    window.addEventListener('mouseup', () => { isDragging = false; });
-
-    // Scroll wheel to zoom
     domEl.addEventListener('wheel', (e) => {
         e.preventDefault();
         camera.position.z = Math.min(Math.max(3, camera.position.z + e.deltaY * 0.005), 15);
     }, { passive: false });
 
-    // Window resize handler
-    window.addEventListener('resize', () => {
-        if (renderer && camera && imgFull) {
-            camera.aspect = imgFull.clientWidth / imgFull.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(imgFull.clientWidth, imgFull.clientHeight);
-        }
-    });
-
     function animate() {
-        requestAnimationFrame(animate);
+        animationFrameId = requestAnimationFrame(animate);
         renderer.render(scene, camera);
     }
     animate();
@@ -107,21 +107,20 @@ function init3D() {
 function createBook(textures) {
     if (bookMesh) scene.remove(bookMesh);
 
-    // Dimensions: [Cover Width, Height, Spine Thickness]
     const geometry = new THREE.BoxGeometry(2.8, 4, 0.5);
     const textureLoader = new THREE.TextureLoader();
 
     const rightPageMaterial = new THREE.MeshStandardMaterial({ map: createPagesTexture(false), roughness: 0.9 });
     const topBottomPageMaterial = new THREE.MeshStandardMaterial({ map: createPagesTexture(true), roughness: 0.9 });
-    const fallbackMaterial = new THREE.MeshStandardMaterial({ color: 0x222222 });
+    const fallbackMaterial = new THREE.MeshStandardMaterial({ color: 0x1f1f1f, roughness: 0.7 });
 
     const materials = [
-        rightPageMaterial, // Right (+X) -> Pages
-        textures.spine ? new THREE.MeshStandardMaterial({ map: textureLoader.load(textures.spine) }) : fallbackMaterial, // Left (-X) -> Spine
-        topBottomPageMaterial, // Top (+Y) -> Pages
-        topBottomPageMaterial, // Bottom (-Y) -> Pages
-        textures.front ? new THREE.MeshStandardMaterial({ map: textureLoader.load(textures.front) }) : fallbackMaterial, // Front (+Z) -> Cover
-        textures.back ? new THREE.MeshStandardMaterial({ map: textureLoader.load(textures.back) }) : fallbackMaterial // Back (-Z) -> Cover
+        rightPageMaterial, 
+        textures.spine ? new THREE.MeshStandardMaterial({ map: textureLoader.load(textures.spine) }) : fallbackMaterial,
+        topBottomPageMaterial,
+        topBottomPageMaterial,
+        textures.front ? new THREE.MeshStandardMaterial({ map: textureLoader.load(textures.front) }) : fallbackMaterial,
+        textures.back ? new THREE.MeshStandardMaterial({ map: textureLoader.load(textures.back) }) : fallbackMaterial
     ];
 
     bookMesh = new THREE.Mesh(geometry, materials);
@@ -130,7 +129,28 @@ function createBook(textures) {
     scene.add(bookMesh);
 }
 
+function destroy3D() {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', handleMouseUp);
+    window.removeEventListener('resize', handleResize);
+
+    if (renderer) {
+        renderer.dispose();
+        renderer = null;
+    }
+    if (imgFull) {
+        imgFull.innerHTML = '';
+    }
+    bookMesh = null;
+    scene = null;
+    camera = null;
+}
+
 async function loadAndDisplayBook(src) {
+    destroy3D(); // Clean up existing state before opening again
     imageModal.style.display = 'flex';
     init3D();
 
@@ -141,38 +161,44 @@ async function loadAndDisplayBook(src) {
         filename = src.split('?')[0];
         try {
             const response = await fetch(src);
-            blob = await response.blob();
+            if (response.ok) {
+                blob = await response.blob();
+            }
         } catch (err) {
-            console.error('Failed to load file from URL:', err);
-            return;
+            console.warn('Could not fetch file directly, falling back to URL string:', err);
         }
     } else if (src instanceof File || src instanceof Blob) {
         blob = src;
         filename = src.name || '';
     }
 
-    if (filename.toLowerCase().endsWith('.zip')) {
-        const zip = await JSZip.loadAsync(blob);
-        const textures = {};
+    if (filename.toLowerCase().endsWith('.zip') && blob) {
+        try {
+            const zip = await JSZip.loadAsync(blob);
+            const textures = {};
 
-        for (const name of Object.keys(zip.files)) {
-            const lower = name.toLowerCase();
-            if (lower.includes('front')) {
-                const fileBlob = await zip.files[name].async('blob');
-                textures.front = URL.createObjectURL(fileBlob);
-            } else if (lower.includes('back')) {
-                const fileBlob = await zip.files[name].async('blob');
-                textures.back = URL.createObjectURL(fileBlob);
-            } else if (lower.includes('spine')) {
-                const fileBlob = await zip.files[name].async('blob');
-                textures.spine = URL.createObjectURL(fileBlob);
+            for (const name of Object.keys(zip.files)) {
+                const lower = name.toLowerCase();
+                if (lower.includes('front')) {
+                    const fileBlob = await zip.files[name].async('blob');
+                    textures.front = URL.createObjectURL(fileBlob);
+                } else if (lower.includes('back')) {
+                    const fileBlob = await zip.files[name].async('blob');
+                    textures.back = URL.createObjectURL(fileBlob);
+                } else if (lower.includes('spine')) {
+                    const fileBlob = await zip.files[name].async('blob');
+                    textures.spine = URL.createObjectURL(fileBlob);
+                }
             }
+            createBook(textures);
+            return;
+        } catch (err) {
+            console.error('ZIP extraction failed, falling back to image cover:', err);
         }
-        createBook(textures);
-    } else {
-        const imageUrl = URL.createObjectURL(blob);
-        createBook({ front: imageUrl });
     }
+
+    const imageUrl = blob ? URL.createObjectURL(blob) : (typeof src === 'string' ? src : '');
+    createBook({ front: imageUrl });
 }
 
 if (bookCover && imageModal && imgFull) {
@@ -185,5 +211,6 @@ if (bookCover && imageModal && imgFull) {
 if (closeBtn) {
     closeBtn.addEventListener('click', () => {
         imageModal.style.display = 'none';
+        destroy3D();
     });
 }

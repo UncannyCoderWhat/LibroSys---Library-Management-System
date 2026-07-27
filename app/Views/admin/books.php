@@ -131,7 +131,7 @@ if (!isset($base_url)) {
     <div><label>Change Cover</label><input type="file" name="cover_image" accept="image/*"></div>
     <!-- <div><label>Upload Full Cover</label><input type="file" name="full_cover_image" accept="image/*"></div> -->
     <div>
-        <label for="bookCoverInput">Upload Book Cover (ZIP or Image):</label>
+        <label for="bookCoverInput">Upload Book Cover (ZIP File):</label>
         <input type="file" name="full_cover_image" accept=".zip, image/*">
     </div>
     <div class="full-width"><label><input type="checkbox" name="is_exclusive" id="edit_is_exclusive" value="1"> Special Perk</label></div>
