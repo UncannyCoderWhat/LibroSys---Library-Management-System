@@ -219,15 +219,36 @@ $userBorrow = $data['userBorrow'] ?? null;
         <div class="bd-content">
             <div class="bd-content-grid">
                 <!-- Left Column: Description -->
-                <div class="bd-description-section">
+<div class="bd-description-section">
                     <h2 class="bd-section-title">About this Book</h2>
-                    <div class="bd-description">
+                    <div class="bd-description" id="bookDescription">
                         <?php if (!empty($book['description'])): ?>
-                            <p><?php echo nl2br(htmlspecialchars($book['description'])); ?></p>
+                            <?php 
+                                $fullDesc = nl2br(htmlspecialchars($book['description']));
+                                $charLimit = 250;
+                                $isLong = strlen(strip_tags($fullDesc)) > $charLimit;
+                            ?>
+                            <span class="bd-desc-short" id="descShort">
+                                <?php if ($isLong): ?>
+                                    <?php echo nl2br(htmlspecialchars(substr($book['description'], 0, $charLimit))); ?>...
+                                <?php else: ?>
+                                    <?php echo $fullDesc; ?>
+                                <?php endif; ?>
+                            </span>
+                            <?php if ($isLong): ?>
+                                <span class="bd-desc-full" id="descFull" style="display: none;">
+                                    <?php echo $fullDesc; ?>
+                                </span>
+                            <?php endif; ?>
                         <?php else: ?>
                             <p class="bd-no-description">No description available for this book yet.</p>
                         <?php endif; ?>
                     </div>
+                    <?php if (!empty($book['description']) && $isLong): ?>
+                    <button class="bd-read-more-btn" id="readMoreBtn" onclick="toggleReadMore()">
+                        Read More <i class='bx bx-chevron-down'></i>
+                    </button>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Right Column: Book Details -->
@@ -574,6 +595,24 @@ $userBorrow = $data['userBorrow'] ?? null;
             }
         })
         .catch(err => alert('An error occurred. Please check your connection.'));
+    }
+
+    function toggleReadMore() {
+        const shortDesc = document.getElementById('descShort');
+        const fullDesc = document.getElementById('descFull');
+        const btn = document.getElementById('readMoreBtn');
+        
+        if (shortDesc && fullDesc) {
+            if (shortDesc.style.display === 'none') {
+                shortDesc.style.display = 'inline';
+                fullDesc.style.display = 'none';
+                btn.innerHTML = 'Read More <i class=\'bx bx-chevron-down\'></i>';
+            } else {
+                shortDesc.style.display = 'none';
+                fullDesc.style.display = 'inline';
+                btn.innerHTML = 'Read Less <i class=\'bx bx-chevron-up\'></i>';
+            }
+        }
     }
     </script>
 </body>
