@@ -1190,36 +1190,43 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
 
             updatePage();
 
-            let saveTimeout = null;
             function saveProgress(pageNum) {
-                try {
-                    localStorage.setItem('reading_progress_' + bookId, pageNum);
-                } catch (e) {}
+    try {
+        localStorage.setItem('reading_progress_' + bookId, pageNum);
+        console.log('Saved progress in localStorage:', 'reading_progress_' + bookId, pageNum);
+    } catch (e) {
+        console.error('Failed to save progress in localStorage:', e);
+    }
 
-                if (saveTimeout) clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(function() {
-                    fetch('index.php?page=ajax&action=save_reading_progress', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: 'book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum)
-                    }).catch(function(err) {
-                        console.error('Failed to save reading progress:', err);
-                    });
-                }, 800);
+    try {
+        const params = new URLSearchParams();
+        params.append('book_id', bookId);
+        params.append('page_number', pageNum);
+        fetch('index.php?page=ajax&action=save_reading_progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+            keepalive: true
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
             }
-
-            // Save progress immediately when leaving the page
+            console.log('Saved progress on server:', 'book_id:', bookId, 'page_number:', pageNum);
+        }).catch(err => {
+            console.error('Failed to save progress on server:', err);
+        });
+    } catch (e) {
+        console.error('Failed to save progress on server:', e);
+    }
+}
+            // Save progress when leaving the page
             window.addEventListener('beforeunload', function() {
-                if (saveTimeout) {
-                    clearTimeout(saveTimeout);
-                    saveTimeout = null;
-                }
                 try {
                     const pageNum = parseInt(localStorage.getItem('reading_progress_' + bookId)) || startPage;
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('POST', 'index.php?page=ajax&action=save_reading_progress', false);
-                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                    xhr.send('book_id=' + encodeURIComponent(bookId) + '&page_number=' + encodeURIComponent(pageNum));
+                    const params = new URLSearchParams();
+                    params.append('book_id', bookId);
+                    params.append('page_number', pageNum);
+                    navigator.sendBeacon('index.php?page=ajax&action=save_reading_progress', params);
                 } catch (e) {}
             });
         }

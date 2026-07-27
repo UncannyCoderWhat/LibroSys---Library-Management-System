@@ -195,7 +195,8 @@ class BookDetailController extends ClientController
     {
         $stmt = $this->pdo->prepare("
             SELECT page_number FROM reading_progress 
-            WHERE user_id = ? AND book_id = ? AND chapter_id IS NULL
+            WHERE user_id = ? AND book_id = ? AND (chapter_id IS NULL OR chapter_id = 0)
+            ORDER BY updated_at DESC LIMIT 1
         ");
         $stmt->execute([$userId, $bookId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

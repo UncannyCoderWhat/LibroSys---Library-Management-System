@@ -160,6 +160,11 @@ class AjaxController extends ClientController
             exit();
         }
 
+        // Fallback for raw POST body payloads on unload
+        if (empty($post)) {
+            parse_str(file_get_contents('php://input'), $post);
+        }
+
         $userId = (int)$session['user_id'];
         $bookId = isset($post['book_id']) ? (int)$post['book_id'] : 0;
         $pageNumber = isset($post['page_number']) ? (int)$post['page_number'] : 1;
@@ -171,26 +176,24 @@ class AjaxController extends ClientController
         }
 
         try {
-            if ($chapterId > 0) {
-                // Delete previous progress for this chapter first, then insert fresh
-                $stmt = $this->pdo->prepare("DELETE FROM reading_progress WHERE user_id = ? AND book_id = ? AND chapter_id = ?");
-                $stmt->execute([$userId, $bookId, $chapterId]);
-                $stmt = $this->pdo->prepare("INSERT INTO reading_progress (user_id, book_id, chapter_id, page_number, updated_at) VALUES (?, ?, ?, ?, NOW())");
-                $stmt->execute([$userId, $bookId, $chapterId, $pageNumber]);
-            } else {
-                // Delete previous progress for this book (no chapter), then insert fresh
-                $stmt = $this->pdo->prepare("DELETE FROM reading_progress WHERE user_id = ? AND book_id = ? AND chapter_id IS NULL");
-                $stmt->execute([$userId, $bookId]);
-                $stmt = $this->pdo->prepare("INSERT INTO reading_progress (user_id, book_id, page_number, updated_at) VALUES (?, ?, ?, NOW())");
-                $stmt->execute([$userId, $bookId, $pageNumber]);
-            }
+            $chapterKey = $chapterId > 0 ? $chapterId : 0;
+
+            // CRITICAL FIX: Delete ALL old progress records for this user/book combination
+            // Old code only deleted WHERE chapter_id = chapterKey, but previous saves
+            // may have stored chapter_id = NULL (in older versions), causing duplicate rows
+            // that would confuse the progress retrieval query.
+            $stmt = $this->pdo->prepare("DELETE FROM reading_progress WHERE user_id = ? AND book_id = ?");
+            $stmt->execute([$userId, $bookId]);
+
+            $stmt = $this->pdo->prepare("INSERT INTO reading_progress (user_id, book_id, chapter_id, page_number, updated_at) VALUES (?, ?, ?, ?, NOW())");
+            $stmt->execute([$userId, $bookId, $chapterKey, $pageNumber]);
+
             echo json_encode(['status' => 'success']);
         } catch (PDOException $e) {
             echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
         }
         exit();
     }
-
     public function handleGetReadingProgress(array &$session, array $post): void
     {
         $authResult = $this->requireAuthentication($session);
@@ -208,7 +211,7 @@ class AjaxController extends ClientController
         }
 
         try {
-            $stmt = $this->pdo->prepare("SELECT page_number FROM reading_progress WHERE user_id = ? AND book_id = ? AND chapter_id IS NULL");
+            $stmt = $this->pdo->prepare("SELECT page_number FROM reading_progress WHERE user_id = ? AND book_id = ? AND (chapter_id IS NULL OR chapter_id = 0) ORDER BY updated_at DESC LIMIT 1");
             $stmt->execute([$userId, $bookId]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $pageNumber = $row ? (int)$row['page_number'] : 1;
