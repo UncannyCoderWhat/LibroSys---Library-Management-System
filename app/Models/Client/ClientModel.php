@@ -265,7 +265,7 @@ class ClientModel
             }
 
             if (!empty($book['is_exclusive']) && (int)($user['credit_score'] ?? 0) <= 5) {
-                return ['status' => 'error', 'message' => 'Exclusive books require a Credit Score higher than 5.'];
+                return ['status' => 'error', 'message' => 'Special books require a Credit Score higher than 5.'];
             }
         }
 

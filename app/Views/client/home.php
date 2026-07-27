@@ -143,13 +143,17 @@ $book_type_groups = $data['book_type_groups'] ?? [];
         <section class="special-shelf-section">
             <div class="special-section-header">
                 <h2 class="special-section-title"><i class='bx bx-trophy'></i> Special</h2>
-                <a href="index.php?page=browse" class="special-view-all">View All <i class='bx bx-chevron-right'></i></a>
+                <!-- View All button opens the modal -->
+                <a href="javascript:void(0)" class="special-view-all" onclick="openViewAllModal()">View All <i class='bx bx-chevron-right'></i></a>
             </div>
             <div class="special-horizontal-scroll">
                 <button class="special-scroll-arrow special-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                 <div class="special-scroll-track">
                     <?php foreach ($exclusive_books as $book): ?>
-                    <div class="special-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                    <!-- Card clicks navigate directly to book_detail page -->
+                    <div class="special-book-card" 
+                        onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)($book['id'] ?? 0); ?>'" 
+                        data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                         <div class="special-book-cover-wrap">
                             <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="special-book-cover" loading="lazy">
                             <div class="special-book-overlay">
@@ -173,6 +177,31 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <button class="special-scroll-arrow special-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
             </div>
         </section>
+
+        <!-- View All Modal displaying all books in a grid -->
+        <div id="viewAllModal" class="book-modal">
+            <div class="book-modal-content view-all-modal-content">
+                <div class="view-all-header">
+                    <h3>Special Collection</h3>
+                    <span class="book-modal-close" onclick="closeViewAllModal()">&times;</span>
+                </div>
+                <div class="view-all-grid">
+                    <?php foreach ($exclusive_books as $book): ?>
+                    <div class="special-book-card" 
+                        onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)($book['id'] ?? 0); ?>'">
+                        <div class="special-book-cover-wrap">
+                            <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="special-book-cover" loading="lazy">
+                            <span class="ls-exclusive-badge">Special</span>
+                        </div>
+                        <div class="special-book-info">
+                            <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                            <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
 
         <!-- New Releases Row -->
@@ -180,27 +209,31 @@ $book_type_groups = $data['book_type_groups'] ?? [];
         <section class="ls-shelf-section">
             <div class="ls-section-header">
                 <h2 class="ls-section-title"><i class='bx bx-star'></i> New Arrivals</h2>
-                <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
+                <!-- Connected View All to open the New Arrivals modal -->
+                <a href="javascript:void(0)" class="ls-view-all" onclick="openNewArrivalsModal()">View All <i class='bx bx-chevron-right'></i></a>
             </div>
             <div class="ls-horizontal-scroll">
                 <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                 <div class="ls-scroll-track">
                     <?php foreach ($new_releases as $book): ?>
-                    <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                    <!-- Card clicks navigate directly to book_detail page -->
+                    <div class="ls-book-card" 
+                        onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" 
+                        data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                         <div class="ls-book-cover-wrap">
                             <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                             <div class="ls-book-overlay">
                                 <i class='bx bx-plus-circle'></i>
                             </div>
-                             <?php if (!empty($book['is_exclusive'])): ?>
-                             <span class="ls-exclusive-badge">Special</span>
-                             <?php endif; ?>
-                             <?php if ($book['is_borrowed'] ?? false): ?>
-                             <span class="ls-borrowed-badge">Borrowed</span>
-                             <?php endif; ?>
-                             <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
-                             <span class="ls-unavailable-badge">Not Available</span>
-                             <?php endif; ?>
+                            <?php if (!empty($book['is_exclusive'])): ?>
+                            <span class="ls-exclusive-badge">Special</span>
+                            <?php endif; ?>
+                            <?php if ($book['is_borrowed'] ?? false): ?>
+                            <span class="ls-borrowed-badge">Borrowed</span>
+                            <?php endif; ?>
+                            <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                            <span class="ls-unavailable-badge">Not Available</span>
+                            <?php endif; ?>
                         </div>
                         <div class="ls-book-info">
                             <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
@@ -212,18 +245,55 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <button class="ls-scroll-arrow ls-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
             </div>
         </section>
+
+        <!-- View All New Arrivals Modal -->
+        <div id="newArrivalsModal" class="book-modal">
+            <div class="book-modal-content view-all-modal-content">
+                <div class="view-all-header">
+                    <h3>New Arrivals</h3>
+                    <span class="book-modal-close" onclick="closeNewArrivalsModal()">&times;</span>
+                </div>
+                <div class="view-all-grid">
+                    <?php foreach ($new_releases as $book): ?>
+                    <div class="ls-book-card" 
+                        onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'">
+                        <div class="ls-book-cover-wrap">
+                            <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
+                            <?php if (!empty($book['is_exclusive'])): ?>
+                            <span class="ls-exclusive-badge">Special</span>
+                            <?php endif; ?>
+                            <?php if ($book['is_borrowed'] ?? false): ?>
+                            <span class="ls-borrowed-badge">Borrowed</span>
+                            <?php endif; ?>
+                            <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                            <span class="ls-unavailable-badge">Not Available</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="ls-book-info">
+                            <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                            <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
 
         <!-- Regular Books Grid -->
         <section class="ls-shelf-section">
             <div class="ls-section-header">
                 <h2 class="ls-section-title"><i class='bx bx-library'></i> Library Collection</h2>
-                <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
+                <!-- Connected View All to open the Library Collection modal -->
+                <a href="javascript:void(0)" class="ls-view-all" onclick="openLibraryModal()">View All <i class='bx bx-chevron-right'></i></a>
             </div>
             <?php if (!empty($regular_books)): ?>
             <div class="ls-grid-4">
                 <?php foreach (array_slice($regular_books, 0, 8) as $book): ?>
-                <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                <!-- Card clicks navigate directly to book_detail page -->
+                <div class="ls-book-card" 
+                    onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" 
+                    data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                     <div class="ls-book-cover-wrap">
                         <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                         <div class="ls-book-overlay">
@@ -252,18 +322,58 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <?php endif; ?>
         </section>
 
+        <!-- View All Library Collection Modal (placed outside section for clean layout overlay) -->
+        <?php if (!empty($regular_books)): ?>
+        <div id="libraryModal" class="book-modal">
+            <div class="book-modal-content view-all-modal-content">
+                <div class="view-all-header">
+                    <h3>Library Collection</h3>
+                    <span class="book-modal-close" onclick="closeLibraryModal()">&times;</span>
+                </div>
+                <div class="view-all-grid">
+                    <?php foreach ($regular_books as $book): ?>
+                    <div class="ls-book-card" 
+                        onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'">
+                        <div class="ls-book-cover-wrap">
+                            <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
+                            <div class="ls-book-overlay">
+                                <i class='bx bx-plus-circle'></i>
+                            </div>
+                            <?php if ($book['is_borrowed'] ?? false): ?>
+                            <span class="ls-borrowed-badge">Borrowed</span>
+                            <?php endif; ?>
+                            <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                            <span class="ls-unavailable-badge">Not Available</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="ls-book-info">
+                            <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                            <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                            <span class="ls-genre-tag"><?php echo htmlspecialchars($book['genre'] ?? ''); ?></span>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- All Available Books Horizontal Scroll -->
         <?php if (!empty($available_books)): ?>
         <section class="ls-shelf-section">
             <div class="ls-section-header">
                 <h2 class="ls-section-title"><i class='bx bx-check-circle'></i> Available Now</h2>
-                <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
+                <!-- Connected View All to open the Available Books modal -->
+                <a href="javascript:void(0)" class="ls-view-all" onclick="openAvailableModal()">View All <i class='bx bx-chevron-right'></i></a>
             </div>
             <div class="ls-horizontal-scroll">
                 <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
                 <div class="ls-scroll-track">
                     <?php foreach ($available_books as $book): ?>
-                    <div class="ls-book-card" onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
+                    <!-- Card clicks navigate directly to book_detail page -->
+                    <div class="ls-book-card" 
+                        onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'" 
+                        data-title="<?php echo strtolower(htmlspecialchars($book['title'] ?? '')); ?>">
                         <div class="ls-book-cover-wrap">
                             <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
                             <div class="ls-book-overlay">
@@ -283,6 +393,33 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                 <button class="ls-scroll-arrow ls-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
             </div>
         </section>
+
+        <!-- View All Available Now Modal -->
+        <div id="availableModal" class="book-modal">
+            <div class="book-modal-content view-all-modal-content">
+                <div class="view-all-header">
+                    <h3>Available Now</h3>
+                    <span class="book-modal-close" onclick="closeAvailableModal()">&times;</span>
+                </div>
+                <div class="view-all-grid">
+                    <?php foreach ($available_books as $book): ?>
+                    <div class="ls-book-card" 
+                        onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'">
+                        <div class="ls-book-cover-wrap">
+                            <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
+                            <?php if (!empty($book['is_exclusive'])): ?>
+                            <span class="ls-exclusive-badge">Special</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="ls-book-info">
+                            <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                            <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
 
         <!-- Genre-Based Sections -->
@@ -308,13 +445,15 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             ?>
             <?php foreach ($genre_groups as $genreName => $genreBooks): ?>
                 <?php if (count($genreBooks) > 0): ?>
+                <?php $genreSlug = preg_replace('/[^a-zA-Z0-9_-]/', '_', $genreName); ?>
                 <section class="ls-shelf-section">
                     <div class="ls-section-header">
                         <h2 class="ls-section-title">
                             <i class="<?php echo $genreIcons[$genreName] ?? 'bx bxs-category'; ?>"></i>
                             <?php echo htmlspecialchars($genreName); ?>
                         </h2>
-                        <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
+                        <!-- Open specific genre modal -->
+                        <a href="javascript:void(0)" class="ls-view-all" onclick="openGenreModal('<?php echo htmlspecialchars($genreSlug, ENT_QUOTES); ?>')">View All <i class='bx bx-chevron-right'></i></a>
                     </div>
                     <div class="ls-horizontal-scroll">
                         <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
@@ -346,6 +485,39 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                         <button class="ls-scroll-arrow ls-scroll-right" onclick="scrollShelf(this, 300)"><i class='bx bx-chevron-right'></i></button>
                     </div>
                 </section>
+
+                <!-- View All Genre Modal -->
+                <div id="genreModal_<?php echo $genreSlug; ?>" class="book-modal genre-modal-instance">
+                    <div class="book-modal-content view-all-modal-content">
+                        <div class="view-all-header">
+                            <h3><?php echo htmlspecialchars($genreName); ?></h3>
+                            <span class="book-modal-close" onclick="closeGenreModal('<?php echo htmlspecialchars($genreSlug, ENT_QUOTES); ?>')">&times;</span>
+                        </div>
+                        <div class="view-all-grid">
+                            <?php foreach ($genreBooks as $book): ?>
+                            <div class="ls-book-card" 
+                                onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'">
+                                <div class="ls-book-cover-wrap">
+                                    <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
+                                    <?php if (!empty($book['is_exclusive'])): ?>
+                                    <span class="ls-exclusive-badge">Special</span>
+                                    <?php endif; ?>
+                                    <?php if ($book['is_borrowed'] ?? false): ?>
+                                    <span class="ls-borrowed-badge">Borrowed</span>
+                                    <?php endif; ?>
+                                    <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                                    <span class="ls-unavailable-badge">Not Available</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="ls-book-info">
+                                    <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                                    <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
                 <?php endif; ?>
             <?php endforeach; ?>
         <?php endif; ?>
@@ -380,6 +552,7 @@ $book_type_groups = $data['book_type_groups'] ?? [];
             <?php foreach ($book_type_groups as $typeName => $typeBooks): ?>
                 <?php if (count($typeBooks) > 0): 
                     $typeKey = preg_replace('/[^a-zA-Z0-9-]/', '-', strtolower($typeName));
+                    $typeSlug = preg_replace('/[^a-zA-Z0-9_-]/', '_', $typeName);
                     $bgImage = $typeBackgrounds[$typeName] ?? '';
                     $bgStyle = !empty($bgImage) ? ' style="background-image: url(' . htmlspecialchars($base_url . '/' . $bgImage) . ');"' : '';
                 ?>
@@ -393,7 +566,8 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                                 <i class="<?php echo $typeIcons[$typeName] ?? 'bx bxs-category'; ?>"></i>
                                 <?php echo htmlspecialchars($typeName); ?>
                             </h2>
-                            <a href="index.php?page=browse" class="ls-view-all">View All <i class='bx bx-chevron-right'></i></a>
+                            <!-- Connected View All to open type-specific modal -->
+                            <a href="javascript:void(0)" class="ls-view-all" onclick="openTypeModal('<?php echo htmlspecialchars($typeSlug, ENT_QUOTES); ?>')">View All <i class='bx bx-chevron-right'></i></a>
                         </div>
                         <div class="ls-horizontal-scroll">
                             <button class="ls-scroll-arrow ls-scroll-left" onclick="scrollShelf(this, -300)"><i class='bx bx-chevron-left'></i></button>
@@ -426,6 +600,39 @@ $book_type_groups = $data['book_type_groups'] ?? [];
                         </div>
                     </div>
                 </section>
+
+                <!-- View All Book Type Modal -->
+                <div id="typeModal_<?php echo $typeSlug; ?>" class="book-modal type-modal-instance">
+                    <div class="book-modal-content view-all-modal-content">
+                        <div class="view-all-header">
+                            <h3><?php echo htmlspecialchars($typeName); ?></h3>
+                            <span class="book-modal-close" onclick="closeTypeModal('<?php echo htmlspecialchars($typeSlug, ENT_QUOTES); ?>')">&times;</span>
+                        </div>
+                        <div class="view-all-grid">
+                            <?php foreach ($typeBooks as $book): ?>
+                            <div class="ls-book-card" 
+                                onclick="window.location.href='index.php?page=book_detail&id=<?php echo (int)$book['id']; ?>'">
+                                <div class="ls-book-cover-wrap">
+                                    <img src="<?php echo htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png'); ?>" alt="Cover" class="ls-book-cover" loading="lazy">
+                                    <?php if (!empty($book['is_exclusive'])): ?>
+                                    <span class="ls-exclusive-badge">Special</span>
+                                    <?php endif; ?>
+                                    <?php if ($book['is_borrowed'] ?? false): ?>
+                                    <span class="ls-borrowed-badge">Borrowed</span>
+                                    <?php endif; ?>
+                                    <?php if (($book['status'] ?? 'available') === 'unavailable'): ?>
+                                    <span class="ls-unavailable-badge">Not Available</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="ls-book-info">
+                                    <h4><?php echo htmlspecialchars($book['title'] ?? ''); ?></h4>
+                                    <p><?php echo htmlspecialchars($book['author_name'] ?: ($book['author'] ?? '')); ?></p>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
                 <?php endif; ?>
             <?php endforeach; ?>
         <?php endif; ?>
@@ -515,5 +722,6 @@ $book_type_groups = $data['book_type_groups'] ?? [];
     <script src="<?php echo $base_url; ?>/public/js/specialHorizontalScroll.js"></script>
     <script src="<?php echo $base_url; ?>/public/js/horizontalScroll.js"></script>  
     <script src="<?php echo $base_url; ?>/public/js/specialBookAnimation.js"></script>  
+    <script src="<?php echo $base_url; ?>/public/js/viewAllModal.js"></script>
 </body>
 </html>
