@@ -139,7 +139,7 @@ $userBorrow = $data['userBorrow'] ?? null;
                             </button>
                             <?php if ($canExtend): ?>
                             <button class="bd-btn bd-btn-extend" onclick="extendLoan(<?php echo (int)$book['id']; ?>)">
-                                <i class='bx bx-time'></i> Extend Loan
+                                <i class='bx bx-time'></i> Extend Due Date
                             </button>
                             <?php else: ?>
                             <button class="bd-btn bd-btn-extend" disabled>

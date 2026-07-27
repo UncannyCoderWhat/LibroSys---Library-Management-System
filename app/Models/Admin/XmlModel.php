@@ -45,6 +45,8 @@ class XmlModel
             $node->appendChild($dom->createElement("is_exclusive", htmlspecialchars($book['is_exclusive'] ?? '0')));
             $node->appendChild($dom->createElement("status", htmlspecialchars($book['status'] ?? 'available')));
             $node->appendChild($dom->createElement("cover_path", htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png')));
+            $node->appendChild($dom->createElement("full_cover_path", htmlspecialchars($book['full_cover_path'] ?? '')));
+            $node->appendChild($dom->createElement("book_type", htmlspecialchars($book['book_type'] ?? '')));
             $node->appendChild($dom->createElement("category_id", htmlspecialchars($book['category_id'] ?? '')));
             $node->appendChild($dom->createElement("author_id", htmlspecialchars($book['author_id'] ?? '')));
             $node->appendChild($dom->createElement("publisher_id", htmlspecialchars($book['publisher_id'] ?? '')));
@@ -84,6 +86,8 @@ class XmlModel
             $is_exclusive = $book->getElementsByTagName("is_exclusive")->item(0) ? (int)$book->getElementsByTagName("is_exclusive")->item(0)->nodeValue : 0;
             $status = $book->getElementsByTagName("status")->item(0) ? $book->getElementsByTagName("status")->item(0)->nodeValue : 'available';
             $cover_path = $book->getElementsByTagName("cover_path")->item(0) ? $book->getElementsByTagName("cover_path")->item(0)->nodeValue : 'images/book-icon.png';
+            $full_cover_path = $book->getElementsByTagName("full_cover_path")->item(0) ? $book->getElementsByTagName("full_cover_path")->item(0)->nodeValue : null;
+            $book_type = $book->getElementsByTagName("book_type")->item(0) ? $book->getElementsByTagName("book_type")->item(0)->nodeValue : '';
             $category_id = $book->getElementsByTagName("category_id")->item(0) ? (int)$book->getElementsByTagName("category_id")->item(0)->nodeValue : null;
             $author_id = $book->getElementsByTagName("author_id")->item(0) ? (int)$book->getElementsByTagName("author_id")->item(0)->nodeValue : null;
             $publisher_id = $book->getElementsByTagName("publisher_id")->item(0) ? (int)$book->getElementsByTagName("publisher_id")->item(0)->nodeValue : null;
@@ -94,14 +98,14 @@ class XmlModel
             if ($check->fetchColumn() == 0) {
                 $stmt = $this->pdo->prepare("
                     INSERT INTO books 
-                        (title, author, isbn, genre, publisher, publication_year, language, 
-                         shelf_location, copies, description, is_exclusive, status, cover_path,
+                        (title, author, isbn, genre, book_type, publisher, publication_year, language, 
+                         shelf_location, copies, description, is_exclusive, status, cover_path, full_cover_path,
                          category_id, author_id, publisher_id)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->execute([
-                    $title, $author, $isbn, $genre, $publisher, $publication_year, $language,
-                    $shelf_location, $copies, $description, $is_exclusive, $status, $cover_path,
+                    $title, $author, $isbn, $genre, $book_type, $publisher, $publication_year, $language,
+                    $shelf_location, $copies, $description, $is_exclusive, $status, $cover_path, $full_cover_path,
                     $category_id, $author_id, $publisher_id
                 ]);
 
@@ -141,6 +145,8 @@ class XmlModel
 
             $userNode->appendChild($dom->createElement("user_id", $user['user_id']));
             $userNode->appendChild($dom->createElement("name", htmlspecialchars($user['name'])));
+            $userNode->appendChild($dom->createElement("first_name", htmlspecialchars($user['first_name'] ?? '')));
+            $userNode->appendChild($dom->createElement("last_name", htmlspecialchars($user['last_name'] ?? '')));
             $userNode->appendChild($dom->createElement("email", htmlspecialchars($user['email'])));
             $userNode->appendChild($dom->createElement("password", $user['password']));
             $userNode->appendChild($dom->createElement("credit_score", $user['credit_score']));
@@ -187,17 +193,24 @@ class XmlModel
         foreach ($users as $user) {
             $user_id = $user->getElementsByTagName("user_id")->item(0)->nodeValue;
             $name = $user->getElementsByTagName("name")->item(0)->nodeValue;
+            $first_name = $user->getElementsByTagName("first_name")->item(0) ? $user->getElementsByTagName("first_name")->item(0)->nodeValue : '';
+            $last_name = $user->getElementsByTagName("last_name")->item(0) ? $user->getElementsByTagName("last_name")->item(0)->nodeValue : '';
             $email = $user->getElementsByTagName("email")->item(0)->nodeValue;
             $password = $user->getElementsByTagName("password")->item(0)->nodeValue;
             $credit_score = $user->getElementsByTagName("credit_score")->item(0)->nodeValue;
+
+            // Auto-build name from first + last if name is empty but first/last exist
+            if (empty($name) && !empty($first_name)) {
+                $name = trim($first_name . ' ' . $last_name);
+            }
 
             $check = $this->pdo->prepare("SELECT id FROM users WHERE user_id = ? OR email = ?");
             $check->execute([$user_id, $email]);
             $existingUser = $check->fetch();
 
             if (!$existingUser) {
-                $stmt = $this->pdo->prepare("INSERT INTO users (user_id, name, email, password, credit_score) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$user_id, $name, $email, $password, $credit_score]);
+                $stmt = $this->pdo->prepare("INSERT INTO users (user_id, name, first_name, last_name, email, password, credit_score) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$user_id, $name, $first_name, $last_name, $email, $password, $credit_score]);
                 $newDbId = $this->pdo->lastInsertId();
                 $successCount++;
 
@@ -257,6 +270,8 @@ class XmlModel
             $bNode->appendChild($dom->createElement("is_exclusive", htmlspecialchars($book['is_exclusive'] ?? '0')));
             $bNode->appendChild($dom->createElement("status", htmlspecialchars($book['status'] ?? 'available')));
             $bNode->appendChild($dom->createElement("cover_path", htmlspecialchars($book['cover_path'] ?? 'images/book-icon.png')));
+            $bNode->appendChild($dom->createElement("full_cover_path", htmlspecialchars($book['full_cover_path'] ?? '')));
+            $bNode->appendChild($dom->createElement("book_type", htmlspecialchars($book['book_type'] ?? '')));
             $bNode->appendChild($dom->createElement("category_id", htmlspecialchars($book['category_id'] ?? '')));
             $bNode->appendChild($dom->createElement("author_id", htmlspecialchars($book['author_id'] ?? '')));
             $bNode->appendChild($dom->createElement("publisher_id", htmlspecialchars($book['publisher_id'] ?? '')));
@@ -274,6 +289,8 @@ class XmlModel
             $nameNode->appendChild($dom->createTextNode($user['name']));
             $uNode->appendChild($nameNode);
 
+            $uNode->appendChild($dom->createElement("first_name", htmlspecialchars($user['first_name'] ?? '')));
+            $uNode->appendChild($dom->createElement("last_name", htmlspecialchars($user['last_name'] ?? '')));
             $uNode->appendChild($dom->createElement("email", htmlspecialchars($user['email'])));
             $uNode->appendChild($dom->createElement("credit_score", $user['credit_score']));
 
