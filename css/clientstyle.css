@@ -4754,31 +4754,36 @@ html[data-theme="light"] .ls-section-title-forLight {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-.special-book-info {
-    padding: 10px 2px 5px 2px; /* Slight alignment */
+/* Light mode styles for View All modals */
+html[data-theme="light"] .book-modal-content {
+    background-color: #ffffff;
+    color: #333333;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.special-book-info h4 {
-    margin: 0 0 4px;
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--ls-text-primary);
-    
-    /* Clamp title to max 2 lines */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+html[data-theme="light"] .view-all-header {
+    border-bottom-color: #e5e5e5;
 }
 
-.special-book-info p {
-    margin: 0;
-    font-size: 13px;
-    color: var(--ls-text-secondary);
-    
-    /* Clamp author to 1 line */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+html[data-theme="light"] .view-all-header h3 {
+    color: #fffafa;
+}
+
+html[data-theme="light"] .book-modal-close {
+    color: #787676;
+}
+
+html[data-theme="light"] .book-modal-close:hover {
+    color: #ffffff;
+}
+
+/* Light mode overrides inside the modal grid cards */
+html[data-theme="light"] .view-all-grid .ls-book-info h4,
+html[data-theme="light"] .view-all-grid .special-book-info h4 {
+    color: #1a1a1a;
+}
+
+html[data-theme="light"] .view-all-grid .ls-book-info p,
+html[data-theme="light"] .view-all-grid .special-book-info p {
+    color: #c69f9f;
 }
