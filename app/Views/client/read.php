@@ -590,16 +590,16 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
 
     .flipbook {
         width: 100%;
-        max-width: 1000px; /* Reduced from 1200px to tighten the space beside the book */
-        height: 75vh;
-        margin: auto; /* CRITICAL: This allows you to scroll to the top/left when zoomed from the center */
+        max-width: 1400px; /* Increased to accommodate higher resolution internal canvases */
+        height: 85vh; /* More vertical space for the larger canvas */
+        margin: auto;
         background: #2a2a2a;
         border: 2px solid var(--main-color);
         border-radius: 8px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         position: relative;
         transition: transform 0.25s ease;
-        transform-origin: center center; /* Forces the zoom to happen from the exact middle */
+        transform-origin: center center;
     }
 
     .flipbook-page {
@@ -608,9 +608,11 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
         display: flex;
         justify-content: center;
         align-items: center;
-        background: #ffffff; /* Changed to white to blend better with PDF margins */
-        box-sizing: border-box; 
-        overflow: hidden; /* CRITICAL: This hides the margins that we push out of bounds */
+        background: #ffffff;
+        box-sizing: border-box;
+        overflow: hidden;
+        /* Add internal padding to create margins around the page content */
+        padding: 20px;
     }
 
     .flipbook-page img, 
@@ -618,13 +620,11 @@ $hasPdf = !empty($ebook) && !empty($ebook['file_path']);
         width: 100%;
         height: 100%;
         
-        /* 1. Protects the edges from being chopped off completely */
-        object-fit: contain; 
+        object-fit: contain;
         
-        /* 2. Lowered the zoom slightly so it crops margins without eating the text */
-        transform: scale(1); 
+        /* Scale down slightly to create visual breathing room and prevent text clipping at edges */
+        transform: scale(0.95);
         
-        /* 3. Ensures the zoom happens evenly from the center of the page */
         transform-origin: center center;
         
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

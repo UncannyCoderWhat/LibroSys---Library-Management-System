@@ -49,16 +49,18 @@ function initFlipbookReader(pdfUrl, startPage, bookIdParam) {
 
     try {
         pageFlip = new St.PageFlip(container, {
-            width: 450,
-            height: 650,
+            width: 900,
+            height: 1300,
             size: 'stretch',
-            minWidth: 300,
-            maxWidth: 600,
-            minHeight: 400,
-            maxHeight: 900,
+            minWidth: 600,
+            maxWidth: 1200,
+            minHeight: 800,
+            maxHeight: 1800,
             showCover: true,
             flippingTime: 800,
             usePortrait: false,
+            startPage: 0,
+            useCanvas: false,
             maxShadowOpacity: 0.5,
             mobileScrollSupport: true,
             drawShadow: true,
@@ -166,9 +168,11 @@ async function renderAllPages() {
     for (var pageNum = 1; pageNum <= totalPdfPages; pageNum++) {
         try {
             var page = await pdfDoc.getPage(pageNum);
-            // Higher scale = higher resolution images = sharper display
-            // scale 3.0 gives ~3x the pixel density of scale 1.5
-            var viewport = page.getViewport({ scale: 3.0 });
+            // Scale 2.0 matches the 2x flipbook canvas size (900x1300 vs 450x650)
+            // This prevents any size mismatch downscaling by St.PageFlip
+            // Using JPEG at 1.0 (100% quality) - zero compression loss but smaller
+            // data URLs than PNG, avoiding browser/resource bottlenecks
+            var viewport = page.getViewport({ scale: 2.0 });
 
             var canvas = document.createElement('canvas');
             var ctx = canvas.getContext('2d');
@@ -176,8 +180,8 @@ async function renderAllPages() {
             canvas.height = viewport.height;
 
             await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-            // Higher JPEG quality preserves more detail
-            var imgData = canvas.toDataURL('image/jpeg', 0.95);
+            // JPEG 1.0 = lossless quality, much smaller files than PNG
+            var imgData = canvas.toDataURL('image/jpeg', 1.0);
             imageUrls.push(imgData);
             
             // Free up memory
